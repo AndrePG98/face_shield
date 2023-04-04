@@ -1,3 +1,3 @@
 # face_shield
 
-A new Flutter project.
+A simple face authentication mobile app using Firebase ML kit and Flutter
