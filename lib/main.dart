@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 
-void main() {
-  runApp(const MainApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  _cameras = await availableCameras();
+  runApp(const CameraApp());
 }
 
 class MainApp extends StatelessWidget {
@@ -12,9 +16,65 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Text('Hello World!'),
+          child: Text('Coco'),
         ),
       ),
+    );
+  }
+}
+
+
+late List<CameraDescription> _cameras;
+
+
+/// CameraApp is the Main Application.
+class CameraApp extends StatefulWidget {
+  /// Default Constructor
+  const CameraApp({Key? key}) : super(key: key);
+
+  @override
+  State<CameraApp> createState() => _CameraAppState();
+}
+
+class _CameraAppState extends State<CameraApp> {
+  late CameraController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = CameraController(_cameras[1], ResolutionPreset.max);
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    }).catchError((Object e) {
+      if (e is CameraException) {
+        switch (e.code) {
+          case 'CameraAccessDenied':
+          // Handle access errors here.
+            break;
+          default:
+          // Handle other errors here.
+            break;
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!controller.value.isInitialized) {
+      return Container();
+    }
+    return MaterialApp(
+      home: CameraPreview(controller),
     );
   }
 }
