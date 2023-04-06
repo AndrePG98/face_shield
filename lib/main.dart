@@ -1,11 +1,10 @@
+import 'package:face_shield/components/pages/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'components/pages/home.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  _cameras = await availableCameras();
-  runApp(const CameraApp());
+main() async {
+  runApp(const MainApp());
 }
 
 class MainApp extends StatelessWidget {
@@ -13,68 +12,15 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Coco'),
-        ),
-      ),
-    );
-  }
-}
-
-
-late List<CameraDescription> _cameras;
-
-
-/// CameraApp is the Main Application.
-class CameraApp extends StatefulWidget {
-  /// Default Constructor
-  const CameraApp({Key? key}) : super(key: key);
-
-  @override
-  State<CameraApp> createState() => _CameraAppState();
-}
-
-class _CameraAppState extends State<CameraApp> {
-  late CameraController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = CameraController(_cameras[1], ResolutionPreset.max);
-    controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    }).catchError((Object e) {
-      if (e is CameraException) {
-        switch (e.code) {
-          case 'CameraAccessDenied':
-          // Handle access errors here.
-            break;
-          default:
-          // Handle other errors here.
-            break;
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!controller.value.isInitialized) {
-      return Container();
-    }
     return MaterialApp(
-      home: CameraPreview(controller),
+      title: 'Face Shield',
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.blue
+      ),
+      home: const HomePage(),
+      routes: <String, WidgetBuilder> {
+        '/signin' : (BuildContext context) => const SignIn(),
+      },
     );
   }
 }
