@@ -5,10 +5,12 @@ class Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(
-      Icons.lock,
-      color: Colors.white,
-      size: 100,
+    return const Image(
+      image: ResizeImage(
+        AssetImage('assets/Logo.png'),
+        width: 150,
+        height: 150
+      )
     );
   }
 }

@@ -15,7 +15,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'Face Shield',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.blue
+        scaffoldBackgroundColor: Colors.lightBlue[800]
       ),
       home: const HomePage(),
       routes: <String, WidgetBuilder> {

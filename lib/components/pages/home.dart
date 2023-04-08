@@ -1,7 +1,7 @@
 import 'package:face_shield/components/pages/signin.dart';
 import 'package:flutter/material.dart';
-import '../homepageBtn.dart';
-import '../logo.dart';
+import '../buttons/homepageBtn.dart';
+import '../icons/logo.dart';
 
 class HomePage extends StatelessWidget{
   const HomePage({super.key});
@@ -11,20 +11,26 @@ class HomePage extends StatelessWidget{
     return Scaffold(
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Logo(),
-            const SizedBox(height: 40),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                HomePageBtn(
-                    text: 'Sign in',
-                    onPress: () => {
-                      Navigator.pushNamed(context, '/signin')
-                    }
-                ),
-              ],
+            const Expanded(
+              flex: 3,
+              child: Logo(),
+            ),
+            Expanded(
+              flex: 2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  HomePageBtn(
+                      text: 'Sign in',
+                      onPress: () => {
+                        Navigator.popAndPushNamed(context, '/signin')
+                      }
+                  )
+                ],
+              ),
             )
           ],
         ),
