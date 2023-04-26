@@ -16,26 +16,24 @@ class FaceProcessor{
   Future<bool> checkLeftEye(String pic) async {
     InputImage img = InputImage.fromFilePath(pic);
     List<Face> faces= await detector.processImage(img);
-    double? prob = faces[0].rightEyeOpenProbability; // picture taken is flipped so we check the other eye
-    print(prob);
-    if (prob! >= 0.9){return false;}
-    return true; //we are checking if the eye is closed
+    //print(faces[0].rightEyeOpenProbability);
+    return faces[0].rightEyeOpenProbability! >= 0.9;
+    // picture taken is mirrored so we check the other eye
+    // we are checking if the eye is closed
   }
   Future<bool> checkRightEye(String pic) async {
     InputImage img = InputImage.fromFilePath(pic);
     List<Face> faces= await detector.processImage(img);
-    double? prob = faces[0].leftEyeOpenProbability;  // picture taken is flipped so we check the other eye
-    print(prob);
-    if (prob! >= 0.9){return false;}
-    return true; //we are checking if the eye is closed
+    //print(faces[0].leftEyeOpenProbability);
+    return faces[0].leftEyeOpenProbability! >= 0.9;
+    // picture taken is mirrored so we check the other eye
+    // we are checking if the eye is closed
   }
   Future<bool> checkSmiling(String pic) async {
     InputImage img = InputImage.fromFilePath(pic);
     List<Face> faces= await detector.processImage(img);
-    double? prob = faces[0].smilingProbability;
-    print(prob);
-    if (prob! >= 0.9){return true;}
-    return false;
+    //print(faces[0].smilingProbability!);
+    return faces[0].smilingProbability! >= 0.9;
   }
   Future<Face> getFirstFaceFromImage(String pic) async{
     InputImage img = InputImage.fromFilePath(pic);
