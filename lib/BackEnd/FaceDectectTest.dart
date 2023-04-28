@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp>{
           children: [
             Positioned(
               left: 30,
-              bottom: 600,
+              bottom: 400,
               child: FloatingActionButton( // left pic
                 onPressed: (){
                   try{
@@ -102,7 +102,7 @@ class _MyAppState extends State<MyApp>{
               ),
             ),
             Positioned( // compare button
-              bottom: 500,
+              bottom: 700,
               left: 30,
               child: FloatingActionButton(
                 onPressed: () {faceProcessor.compareFaces();},
@@ -116,7 +116,7 @@ class _MyAppState extends State<MyApp>{
               ),
             ),
             Positioned( // compare button
-              bottom: 400,
+              bottom: 515,
               left: 30,
               child: FloatingActionButton(
                 onPressed: () async {bool result = await faceProcessor.checkLeftEye(pic1path!); print(result);},
@@ -130,9 +130,23 @@ class _MyAppState extends State<MyApp>{
               ),
             ),
             Positioned( // compare button
-              bottom: 500,
+              bottom: 610,
+              left: 30,
+              child: FloatingActionButton(
+                onPressed: () async {bool result = await faceProcessor.checkSmilingAndLeftEye(pic1path!); print(result);},
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.query_stats,
+                  size: 40,
+                ),
+              ),
+            ),
+            Positioned( // compare button
+              bottom: 700,
               right: 30,
-              child: FloatingActionButton(  /*faceProcessor.compareFaces()*/
+              child: FloatingActionButton(
                 onPressed: () async {bool result = await faceProcessor.checkSmiling(pic1path!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -144,7 +158,21 @@ class _MyAppState extends State<MyApp>{
               ),
             ),
             Positioned( // compare button
-              bottom: 400,
+              bottom: 610,
+              right: 30,
+              child: FloatingActionButton(
+                onPressed: () async {bool result = await faceProcessor.checkSmilingAndRightEye(pic1path!); print(result);},
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.track_changes_outlined,
+                  size: 40,
+                ),
+              ),
+            ),
+            Positioned( // compare button
+              bottom: 515,
               right: 30,
               child: FloatingActionButton(  /*faceProcessor.compareFaces()*/
                 onPressed: () async {bool result = await faceProcessor.checkRightEye(pic1path!); print(result);},
@@ -158,7 +186,7 @@ class _MyAppState extends State<MyApp>{
               ),
             ),
             Positioned( // right pic
-              bottom: 600,
+              bottom: 400,
               right: 30,
               child: FloatingActionButton(
                 onPressed: (){
