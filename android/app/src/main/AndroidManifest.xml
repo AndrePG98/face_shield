@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.face_shield">
    <application
-        android:label="Face Shield"
+        android:label="face_shield"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
