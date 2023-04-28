@@ -1,7 +1,12 @@
-import 'package:face_shield/components/pages/signin.dart';
+import 'package:face_shield/routes/forgotPassword.dart';
+import 'package:face_shield/routes/home.dart';
+import 'package:face_shield/routes/login.dart';
+import 'package:face_shield/routes/signup/email.dart';
+import 'package:face_shield/routes/signup/password.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'components/pages/home.dart';
+import 'package:flutter/services.dart';
 
 main() async {
   runApp(const MainApp());
@@ -14,12 +19,16 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Face Shield',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.lightBlue[800]
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
       home: const HomePage(),
       routes: <String, WidgetBuilder> {
-        '/signin' : (BuildContext context) => const SignIn(),
+        '/login' : (BuildContext context) => const LogIn(),
+        '/email' : (BuildContext context) => const Email(),
+        '/username' : (BuildContext context) => const Username(),
+        '/recovery' : (BuildContext context) => const Recovery()
       },
     );
   }
