@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "682289345707",
+    "project_id": "laboratorio-de-projeto-4e26d",
+    "storage_bucket": "laboratorio-de-projeto-4e26d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682289345707:android:95098136503559de8773ee",
+        "android_client_info": {
+          "package_name": "com.example.face_shield"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "682289345707-ulud1eoev56qci00kp38dictjbof2sg2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQhHkNtCq80bGdVu-zC2MELn9LHNvYnKY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "682289345707-ulud1eoev56qci00kp38dictjbof2sg2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "682289345707-688d59qtrljojc7bkpo12pc2ii74ielp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.faceShield"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
