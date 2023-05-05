@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../components/defaultButton.dart';
+import '../components/popupBtn.dart';
 import '../components/logo.dart';
 
 class HomePage extends StatelessWidget{
@@ -30,7 +31,9 @@ class HomePage extends StatelessWidget{
                   DefaultButton(
                       text: "Sign up",
                       onPress: () => {Navigator.pushNamed(context, '/email')}
-                  )
+                  ),
+                  const SizedBox(height: 20,),
+                  const PopupButton()
                 ],
               ),
             )
