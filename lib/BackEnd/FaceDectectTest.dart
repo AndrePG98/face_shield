@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:image/src/image.dart' as IMG;
 import 'FaceProcessor.dart';
+import 'package:image/image.dart' as img;
 
 
 
@@ -20,10 +19,12 @@ class _MyAppState extends State<MyApp>{
 
   List<CameraDescription>? cameras; //list out the camera available
   CameraController? controller; //controller for camera
-  Image? pic1;
+  Image? pic1; //for displaying
   Image? pic2;
-  String? pic1path;
+  String? pic1path; //for processing
   String? pic2path;
+  img.Image? image1;
+  img.Image? image2;
   FaceProcessor faceProcessor = FaceProcessor();
 
   @override
@@ -80,10 +81,10 @@ class _MyAppState extends State<MyApp>{
         floatingActionButton: Stack(
           fit: StackFit.expand,
           children: [
-            Positioned(
+            Positioned(// left pic
               left: 30,
-              bottom: 400,
-              child: FloatingActionButton( // left pic
+              bottom: 20,
+              child: FloatingActionButton(
                 onPressed: (){
                   try{
                     takePic(true);
@@ -105,7 +106,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 700,
               left: 30,
               child: FloatingActionButton(
-                onPressed: () {faceProcessor.compareFaces();},
+                onPressed: () async {bool result = await _compareFaces(image1!,image2!);print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -115,8 +116,8 @@ class _MyAppState extends State<MyApp>{
                 ),
               ),
             ),
-            Positioned( // compare button
-              bottom: 515,
+            Positioned( // left eye button
+              bottom: 560,
               left: 30,
               child: FloatingActionButton(
                 onPressed: () async {bool result = await faceProcessor.checkLeftEye(pic1path!); print(result);},
@@ -124,13 +125,41 @@ class _MyAppState extends State<MyApp>{
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
-                  Icons.arrow_circle_left,
+                  Icons.panorama_fish_eye,
                   size: 40,
                 ),
               ),
             ),
-            Positioned( // compare button
-              bottom: 610,
+            Positioned( // left look button
+              bottom: 490,
+              left: 30,
+              child: FloatingActionButton(
+                onPressed: () async {bool result = await faceProcessor.checkLookLeft(pic1path!); print(result);},
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.arrow_left,
+                  size: 40,
+                ),
+              ),
+            ),
+            Positioned( // up look button
+              bottom: 420,
+              left: 30,
+              child: FloatingActionButton(
+                onPressed: () async {bool result = await faceProcessor.checkLookUp(pic1path!); print(result);},
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.arrow_upward,
+                  size: 40,
+                ),
+              ),
+            ),
+            Positioned( // checkSmilingAndLeftEye button
+              bottom: 630,
               left: 30,
               child: FloatingActionButton(
                 onPressed: () async {bool result = await faceProcessor.checkSmilingAndLeftEye(pic1path!); print(result);},
@@ -143,7 +172,7 @@ class _MyAppState extends State<MyApp>{
                 ),
               ),
             ),
-            Positioned( // compare button
+            Positioned( //checkSmiling button
               bottom: 700,
               right: 30,
               child: FloatingActionButton(
@@ -157,8 +186,8 @@ class _MyAppState extends State<MyApp>{
                 ),
               ),
             ),
-            Positioned( // compare button
-              bottom: 610,
+            Positioned( // checkSmilingAndRightEye
+              bottom: 630,
               right: 30,
               child: FloatingActionButton(
                 onPressed: () async {bool result = await faceProcessor.checkSmilingAndRightEye(pic1path!); print(result);},
@@ -171,8 +200,8 @@ class _MyAppState extends State<MyApp>{
                 ),
               ),
             ),
-            Positioned( // compare button
-              bottom: 515,
+            Positioned( // right eye button
+              bottom: 560,
               right: 30,
               child: FloatingActionButton(  /*faceProcessor.compareFaces()*/
                 onPressed: () async {bool result = await faceProcessor.checkRightEye(pic1path!); print(result);},
@@ -180,13 +209,41 @@ class _MyAppState extends State<MyApp>{
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
-                  Icons.arrow_circle_right,
+                  Icons.panorama_fish_eye,
+                  size: 40,
+                ),
+              ),
+            ),
+            Positioned( // look right button
+              bottom: 490,
+              right: 30,
+              child: FloatingActionButton(  /*faceProcessor.compareFaces()*/
+                onPressed: () async {bool result = await faceProcessor.checkLookRight(pic1path!); print(result);},
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.arrow_right,
+                  size: 40,
+                ),
+              ),
+            ),
+            Positioned( // look down button
+              bottom: 420,
+              right: 30,
+              child: FloatingActionButton(  /*faceProcessor.compareFaces()*/
+                onPressed: () async {bool result = await faceProcessor.checkLookDown(pic1path!); print(result);},
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.arrow_downward,
                   size: 40,
                 ),
               ),
             ),
             Positioned( // right pic
-              bottom: 400,
+              bottom: 20,
               right: 30,
               child: FloatingActionButton(
                 onPressed: (){
@@ -216,15 +273,17 @@ class _MyAppState extends State<MyApp>{
   void takePic(bool bool) async{
     if(controller != null){
       if(controller!.value.isInitialized){
-        var image = await controller!.takePicture();
+        XFile image = await controller!.takePicture();
           if(bool){
             pic1path = image.path;
             pic1 = Image.file(File(image.path));
+            image1 = await faceProcessor.xFileToImage(image);
             setState(() {});
             return;
           }
           pic2path = image.path;
           pic2 = Image.file(File(image.path));
+          image2 = await faceProcessor.xFileToImage(image);
           setState(() {});
           return;
       }
@@ -246,6 +305,12 @@ class _MyAppState extends State<MyApp>{
       print("NO any camera found");
     }
   }
-
+  Future<bool> _compareFaces(img.Image image1,img.Image image2) async{
+    List _temp1 = await faceProcessor.imageToFaceData(image1,
+        await faceProcessor.getFirstFaceFromImage(pic1path!), pic1path!);
+    List _temp2 = await faceProcessor.imageToFaceData(image2,
+        await faceProcessor.getFirstFaceFromImage(pic2path!), pic2path!);
+    return faceProcessor.compareFaces(_temp1, _temp2);
+  }
 }
 
