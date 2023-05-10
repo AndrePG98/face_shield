@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'FaceProcessor.dart';
-import 'package:image/image.dart' as img;
 
 
 
@@ -21,10 +20,8 @@ class _MyAppState extends State<MyApp>{
   CameraController? controller; //controller for camera
   Image? pic1; //for displaying
   Image? pic2;
-  String? pic1path; //for processing
-  String? pic2path;
-  img.Image? image1;
-  img.Image? image2;
+  XFile? file1;//for processing everything with faceProcessor
+  XFile? file2;
   FaceProcessor faceProcessor = FaceProcessor();
 
   @override
@@ -106,7 +103,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 700,
               left: 30,
               child: FloatingActionButton(
-                onPressed: () async {bool result = await _compareFaces(image1!,image2!);print(result);},
+                onPressed: () async {bool result = await faceProcessor.compareFaces(file1!,file2!);print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -120,7 +117,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 560,
               left: 30,
               child: FloatingActionButton(
-                onPressed: () async {bool result = await faceProcessor.checkLeftEye(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkLeftEye(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -134,7 +131,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 490,
               left: 30,
               child: FloatingActionButton(
-                onPressed: () async {bool result = await faceProcessor.checkLookLeft(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkLookLeft(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -148,7 +145,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 420,
               left: 30,
               child: FloatingActionButton(
-                onPressed: () async {bool result = await faceProcessor.checkLookUp(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkLookUp(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -162,7 +159,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 630,
               left: 30,
               child: FloatingActionButton(
-                onPressed: () async {bool result = await faceProcessor.checkSmilingAndLeftEye(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkSmilingAndLeftEye(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -176,7 +173,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 700,
               right: 30,
               child: FloatingActionButton(
-                onPressed: () async {bool result = await faceProcessor.checkSmiling(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkSmiling(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -190,7 +187,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 630,
               right: 30,
               child: FloatingActionButton(
-                onPressed: () async {bool result = await faceProcessor.checkSmilingAndRightEye(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkSmilingAndRightEye(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -204,7 +201,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 560,
               right: 30,
               child: FloatingActionButton(  /*faceProcessor.compareFaces()*/
-                onPressed: () async {bool result = await faceProcessor.checkRightEye(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkRightEye(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -218,7 +215,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 490,
               right: 30,
               child: FloatingActionButton(  /*faceProcessor.compareFaces()*/
-                onPressed: () async {bool result = await faceProcessor.checkLookRight(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkLookRight(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -232,7 +229,7 @@ class _MyAppState extends State<MyApp>{
               bottom: 420,
               right: 30,
               child: FloatingActionButton(  /*faceProcessor.compareFaces()*/
-                onPressed: () async {bool result = await faceProcessor.checkLookDown(pic1path!); print(result);},
+                onPressed: () async {bool result = await faceProcessor.checkLookDown(file1!); print(result);},
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -275,15 +272,15 @@ class _MyAppState extends State<MyApp>{
       if(controller!.value.isInitialized){
         XFile image = await controller!.takePicture();
           if(bool){
-            pic1path = image.path;
+            file1 = image;
             pic1 = Image.file(File(image.path));
-            image1 = await faceProcessor.xFileToImage(image);
+            //image1 = await faceProcessor.xFileToImage(image);
             setState(() {});
             return;
           }
-          pic2path = image.path;
+          file2 = image;
           pic2 = Image.file(File(image.path));
-          image2 = await faceProcessor.xFileToImage(image);
+          //image2 = await faceProcessor.xFileToImage(image);
           setState(() {});
           return;
       }
@@ -304,13 +301,6 @@ class _MyAppState extends State<MyApp>{
     }else{
       print("NO any camera found");
     }
-  }
-  Future<bool> _compareFaces(img.Image image1,img.Image image2) async{
-    List _temp1 = await faceProcessor.imageToFaceData(image1,
-        await faceProcessor.getFirstFaceFromImage(pic1path!), pic1path!);
-    List _temp2 = await faceProcessor.imageToFaceData(image2,
-        await faceProcessor.getFirstFaceFromImage(pic2path!), pic2path!);
-    return faceProcessor.compareFaces(_temp1, _temp2);
   }
 }
 

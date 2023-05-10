@@ -5,107 +5,97 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 import 'dart:math';
-import 'package:flutter/material.dart';
 
 class FaceProcessor{
-  double threshold = 0.6; // threshold for face recognition (euclidean distance)
-  FaceDetector detector = FaceDetector(options: FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate,
-      enableClassification: true,enableTracking: true, enableContours: true));
+  final double _threshold = 0.6; // threshold for face recognition (euclidean distance)
+  final double _angleThreshold = 27.0;
+  final double _eyesAndSmileThreshold = 0.9;
+  late FaceDetector _detector;
   Delegate? _delegate;
   InterpreterOptions? _options;
   Interpreter? _interpreter;
 
-  FaceProcessor();
+  FaceProcessor(){
+    _initiateInterpreter();
+    _detector = FaceDetector(options: FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate,
+    enableClassification: true,enableTracking: true, enableContours: true));
+  }
 
 
-  Future<Face> fromImgToFace(String pic) async{
-    InputImage img = InputImage.fromFilePath(pic);
-    List<Face> faces= await detector.processImage(img);
+  Future<Face> _fromImgToFace(XFile pic) async{
+    InputImage img = InputImage.fromFilePath(pic.path);
+    List<Face> faces= await _detector.processImage(img);
     return faces[0];
   }
-  Future<bool> checkLeftEye(String pic) async {
-    Face _face = await fromImgToFace(pic);
+  Future<bool> checkLeftEye(XFile pic) async {
+    Face face = await _fromImgToFace(pic);
     //print(_face.rightEyeOpenProbability);
-    return !(_face.rightEyeOpenProbability! >= 0.9);
+    return !(face.rightEyeOpenProbability! >= _eyesAndSmileThreshold);
     // picture taken is mirrored so we check the other eye
     // we are checking if the eye is closed
   }
-  Future<bool> checkRightEye(String pic) async {
-    Face _face = await fromImgToFace(pic);
+  Future<bool> checkRightEye(XFile pic) async {
+    Face face = await _fromImgToFace(pic);
     //print(_face.leftEyeOpenProbability);
-    return !(_face.leftEyeOpenProbability! >= 0.9);
+    return !(face.leftEyeOpenProbability! >= _eyesAndSmileThreshold);
     // picture taken is mirrored so we check the other eye
     // we are checking if the eye is closed
   }
-  Future<bool> checkSmiling(String pic) async {
-    Face _face = await fromImgToFace(pic);
+  Future<bool> checkSmiling(XFile pic) async {
+    Face face = await _fromImgToFace(pic);
     //print(_faces.smilingProbability!);
-    return _face.smilingProbability! >= 0.9;
+    return face.smilingProbability! >= _eyesAndSmileThreshold;
   }
-  Future<bool> checkSmilingAndLeftEye(String pic) async {
+  Future<bool> checkSmilingAndLeftEye(XFile pic) async {
     return await checkSmiling(pic) && await checkLeftEye(pic);
   }
-  Future<bool> checkSmilingAndRightEye(String pic) async {
+  Future<bool> checkSmilingAndRightEye(XFile pic) async {
     return await checkSmiling(pic) && await checkRightEye(pic);
   }
   //Checking for head rotation (up/down/left/right)
-  Future<bool> checkLookLeft(String pic) async {
-    Face _face = await fromImgToFace(pic);
-    return _face.headEulerAngleY! >= 30.0;
+  Future<bool> checkLookLeft(XFile pic) async {
+    Face face = await _fromImgToFace(pic);
+    return face.headEulerAngleY! >= _angleThreshold;
 }
-  Future<bool> checkLookRight(String pic) async {
-    Face _face = await fromImgToFace(pic);
-    return _face.headEulerAngleY! <= -30.0;
+  Future<bool> checkLookRight(XFile pic) async {
+    Face face = await _fromImgToFace(pic);
+    return face.headEulerAngleY! <= -_angleThreshold;
   }
-  Future<bool> checkLookUp(String pic) async {
-    Face _face = await fromImgToFace(pic);
-    return _face.headEulerAngleX! >= 30.0;
+  Future<bool> checkLookUp(XFile pic) async {
+    Face face = await _fromImgToFace(pic);
+    return face.headEulerAngleX! >= _angleThreshold;
   }
-  Future<bool> checkLookDown(String pic) async {
-    Face _face = await fromImgToFace(pic);
-    print(_face.headEulerAngleX);
-    return _face.headEulerAngleX! <= -20.0;
+  Future<bool> checkLookDown(XFile pic) async {
+    Face face = await _fromImgToFace(pic);
+    return face.headEulerAngleX! <= -_angleThreshold;
   }
-  Future<Face> getFirstFaceFromImage(String pic) async{
-    InputImage img = InputImage.fromFilePath(pic);
-    List<Face> faceList= await detector.processImage(img);
+  Future<Face> _getFirstFaceFromImage(XFile pic) async{
+    InputImage img = InputImage.fromFilePath(pic.path);
+    List<Face> faceList= await _detector.processImage(img);
     return faceList[0];
   }
-  Future<img.Image> _cropFaceFromImage(img.Image image,String path) async{
-    Face _face = await getFirstFaceFromImage(path);
-    double x = _face.boundingBox.left - 10.0;
-    double y = _face.boundingBox.top - 10.0;
-    double w = _face.boundingBox.width + 10.0;
-    double h = _face.boundingBox.height + 10.0;
-    return img.copyCrop(image, x.round(), y.round(), w.round(), h.round());
+  Future<img.Image> _cropFaceFromImage(XFile file) async{
+    Face face = await _getFirstFaceFromImage(file);
+    img.Image? image = await _xFileToImage(file!);
+    double x = face.boundingBox.left - 10.0;
+    double y = face.boundingBox.top - 10.0;
+    double w = face.boundingBox.width + 10.0;
+    double h = face.boundingBox.height + 10.0;
+    return img.copyCrop(image!, x.round(), y.round(), w.round(), h.round());
   }
-  Future<List> imageToFaceData(img.Image pic, Face face,String path) async{
-    img.Image temp = await _cropFaceFromImage(pic, path);
-    pic = img.copyResizeCropSquare(temp, 112);
+  Future<List<double>> _imageToFaceData(XFile file) async{
+    img.Image temp = await _cropFaceFromImage(file);
+    img.Image pic = img.copyResizeCropSquare(temp, 112);
     List imageAsList = _imageToByteListFloat32(pic);
-    if (_interpreter == null){
-      _delegate = GpuDelegateV2(
-        options: GpuDelegateOptionsV2(
-          isPrecisionLossAllowed: false,
-          inferencePreference: TfLiteGpuInferenceUsage.fastSingleAnswer,
-          inferencePriority1: TfLiteGpuInferencePriority.minLatency,
-          inferencePriority2: TfLiteGpuInferencePriority.auto,
-          inferencePriority3: TfLiteGpuInferencePriority.auto,
-        ),
-      );
-      _options?.addDelegate(_delegate!);
-      _interpreter = await Interpreter.fromAsset('mobilefacenet.tflite',
-          options: _options);
-    }
-    if (face == null) throw Exception('Face is null');
+    if (_getFirstFaceFromImage(file) == null) throw Exception('NO FACE DETECTED IN PICTURE');
     imageAsList = imageAsList.reshape([1, 112, 112, 3]);
     List output = List.generate(1, (index) => List.filled(192, 0));
 
     _interpreter?.run(imageAsList, output);
     output = output.reshape([192]);
 
-    imageAsList = List.from(output);
-    return imageAsList;
+    List<double> finalList = List<double>.from(List.from(output));
+    return finalList;
   }
   List _imageToByteListFloat32(img.Image image) { //turn image in usable data to pass to
     var convertedBytes = Float32List(1 * 112 * 112 * 3); // tensorflow interpreter
@@ -123,20 +113,41 @@ class FaceProcessor{
     return convertedBytes.buffer.asFloat32List();
   }
   double _euclideanDistance(List? face1, List? face2) {
-    if (face1 == null || face2 == null) throw Exception("Null argument");
     double sum = 0.0;
-    for (int i = 0; i < face1.length; i++) {
-      sum += pow((face1[i] - face2[i]), 2);
+    for (int i = 0; i < face1!.length; i++) {
+      sum += pow((face1[i] - face2![i]), 2);
     }
     return sqrt(sum);
   }
-  bool compareFaces(List face1,List face2){
-    return _euclideanDistance(face1, face2) <= threshold;
+  Future<bool> compareFaces(XFile input1,XFile input2) async{
+    List<dynamic> face1 = await _imageToFaceData(input1);
+    List<dynamic> face2 = await _imageToFaceData(input1);
+    print(face1);
+    print(face1.length);
+    print(face1.runtimeType);
+    return _euclideanDistance(face1, face2) <= _threshold;
   }
-  Future<img.Image?> xFileToImage(XFile pic) async{
+  Future<img.Image?> _xFileToImage(XFile pic) async{
     final path = pic.path;
     final bytes = await File(path).readAsBytes();
     final img.Image? image = img.decodeImage(bytes);
     return image;
+  }
+  void _initiateInterpreter() async{
+    _delegate = GpuDelegateV2(
+      options: GpuDelegateOptionsV2(
+        isPrecisionLossAllowed: false,
+        inferencePreference: TfLiteGpuInferenceUsage.fastSingleAnswer,
+        inferencePriority1: TfLiteGpuInferencePriority.minLatency,
+        inferencePriority2: TfLiteGpuInferencePriority.auto,
+        inferencePriority3: TfLiteGpuInferencePriority.auto,
+      ),
+    );
+    _options?.addDelegate(_delegate!);
+    _interpreter = await Interpreter.fromAsset('mobilefacenet.tflite',
+        options: _options);
+  }
+  void insertUserInDataBase(String username,String password,List<double> faceData){
+    // DBhelper.insertUser(username,password,faceData);
   }
 }
