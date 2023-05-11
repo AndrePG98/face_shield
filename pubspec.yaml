@@ -10,16 +10,28 @@ dependencies:
   camera: ^0.10.3+2
   flutter:
     sdk: flutter
+  google_fonts: ^2.1.0
+  shared_preferences: ^2.1.0
+  font_awesome_flutter: ^10.4.0
   google_mlkit_face_detection: 0.5.0
-  image: ^3.0.2
+  image: ^4.0.17
   tflite_flutter: ^0.9.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  flutter_launcher_icons: "^0.13.0"
 
 flutter:
   uses-material-design: true
   assets:
+    - assets/images/
     - assets/mobilefacenet.tflite
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "./assets/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
