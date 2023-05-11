@@ -18,9 +18,11 @@ main() async {
 
 class MainApp extends StatelessWidget {
 
-  final FaceProcessor faceProcessor = FaceProcessor();
   final CameraProcessor cameraProcessor = CameraProcessor();
-  MainApp({super.key});
+  late FaceProcessor faceProcessor;
+  MainApp({super.key}){
+    faceProcessor = FaceProcessor(cameraProcessor);
+  }
 
   @override
   Widget build(BuildContext context) {
