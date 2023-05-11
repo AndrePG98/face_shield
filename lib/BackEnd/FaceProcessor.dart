@@ -76,16 +76,16 @@ class FaceProcessor{
   }
   Future<img.Image> _cropFaceFromImage(XFile file) async{
     Face face = await _getFirstFaceFromImage(file);
-    img.Image? image = await _xFileToImage(file!);
+    img.Image? image = await _xFileToImage(file);
     double x = face.boundingBox.left - 10.0;
     double y = face.boundingBox.top - 10.0;
     double w = face.boundingBox.width + 10.0;
     double h = face.boundingBox.height + 10.0;
-    return img.copyCrop(image!, x.round(), y.round(), w.round(), h.round());
+    return img.copyCrop(image!, x: x.round(), y: y.round(), width: w.round(), height: h.round());
   }
   Future<List<double>> _imageToFaceData(XFile file) async{
     img.Image temp = await _cropFaceFromImage(file);
-    img.Image pic = img.copyResizeCropSquare(temp, 112);
+    img.Image pic = img.copyResizeCropSquare(temp, size: 112);
     List imageAsList = _imageToByteListFloat32(pic);
     if (_getFirstFaceFromImage(file) == null) throw Exception('NO FACE DETECTED IN PICTURE');
     imageAsList = imageAsList.reshape([1, 112, 112, 3]);
@@ -105,9 +105,9 @@ class FaceProcessor{
     for (var i = 0; i < 112; i++) {
       for (var j = 0; j < 112; j++) {
         var pixel = image.getPixel(j, i);
-        buffer[pixelIndex++] = (img.getRed(pixel) - 128) / 128;
-        buffer[pixelIndex++] = (img.getGreen(pixel) - 128) / 128;
-        buffer[pixelIndex++] = (img.getBlue(pixel) - 128) / 128;
+        buffer[pixelIndex++] = (pixel.r - 128) / 128;
+        buffer[pixelIndex++] = (pixel.g - 128) / 128;
+        buffer[pixelIndex++] = (pixel.b - 128) / 128;
       }
     }
     return convertedBytes.buffer.asFloat32List();
