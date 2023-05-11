@@ -11,11 +11,15 @@ class CameraProcessor{
   InputImageRotation? _cameraRotation;
   InputImageRotation? get cameraRotation => _cameraRotation;
 
+  String? _imagePath;
+  String? get imagePath => _imagePath;
+
   Future<void> initialize() async{
     if(_controller != null) return;
     CameraDescription cameraDescription = await _getCameraDescription();
     await _setupCameraController(description: cameraDescription);
     _cameraRotation = rotationIntToImageRotation(cameraDescription.sensorOrientation);
+    _controller?.setFlashMode(FlashMode.off);
   }
 
   Future<CameraDescription> _getCameraDescription() async {
@@ -39,6 +43,7 @@ class CameraProcessor{
     assert(_controller != null, 'Camera controller not initialized');
     await _controller?.stopImageStream();
     XFile? file = await _controller?.takePicture();
+    _imagePath = file?.path;
     return file;
   }
 

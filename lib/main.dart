@@ -22,6 +22,11 @@ class MainApp extends StatelessWidget {
   late FaceProcessor faceProcessor;
   MainApp({super.key}){
     faceProcessor = FaceProcessor(cameraProcessor);
+    _initProcessor();
+  }
+
+  _initProcessor () async {
+    await cameraProcessor.initialize();
   }
 
   @override
