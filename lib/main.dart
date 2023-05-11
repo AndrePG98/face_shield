@@ -1,3 +1,5 @@
+import 'package:face_shield/models/FaceProcessor.dart';
+import 'package:face_shield/routes/camera.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
@@ -8,12 +10,17 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 
+import 'models/CameraProcessor.dart';
+
 main() async {
-  runApp(const MainApp());
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+
+  final FaceProcessor faceProcessor = FaceProcessor();
+  final CameraProcessor cameraProcessor = CameraProcessor();
+  MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +35,8 @@ class MainApp extends StatelessWidget {
         '/login' : (BuildContext context) => const LogIn(),
         '/email' : (BuildContext context) => const Email(),
         '/username' : (BuildContext context) => const Username(),
-        '/recovery' : (BuildContext context) => const Recovery()
+        '/recovery' : (BuildContext context) => const Recovery(),
+        '/camera' : (BuildContext context) => CameraPage(faceProcessor: faceProcessor, cameraProcessor: cameraProcessor)
       },
     );
   }

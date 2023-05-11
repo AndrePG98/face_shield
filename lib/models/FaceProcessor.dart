@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:camera/camera.dart';
+import 'package:face_shield/models/CameraProcessor.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
@@ -19,6 +22,53 @@ class FaceProcessor{
     _initiateInterpreter();
     _detector = FaceDetector(options: FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate,
     enableClassification: true,enableTracking: true, enableContours: true));
+  }
+
+  Future<List<dynamic>> convertCameraImageToInputList(CameraImage cameraImage, CameraProcessor cameraProcessor) async {
+    img.Image? returnImage;
+    InputImage inputImage = InputImage.fromBytes(
+      bytes: _concatenatePlanes(cameraImage.planes),
+      inputImageData: InputImageData(
+        size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
+        imageRotation: cameraProcessor.cameraRotation ?? InputImageRotation.rotation0deg,
+        inputImageFormat: InputImageFormatValue.fromRawValue(cameraImage.format.raw) ??  InputImageFormat.yuv_420_888,
+        planeData: cameraImage.planes.map(
+              (Plane plane) {
+            return InputImagePlaneMetadata(
+              bytesPerRow: plane.bytesPerRow,
+              height: plane.height,
+              width: plane.width,
+            );
+          },
+        ).toList(),
+      ),
+    );
+
+    final bytes = inputImage.bytes;
+    if(bytes != null) {
+      if(Platform.isAndroid){
+        returnImage = img.decodeImage(bytes)!;
+      } else if (Platform.isIOS){
+        final rgbaBytes = Uint8List(cameraImage.width * cameraImage.height * 4);
+        for (var i=0 , j=0; i < bytes.length; i+= 4 , j+= 3) {
+          rgbaBytes[j] = bytes[i + 2];
+          rgbaBytes[j + 1] = bytes[i + 1];
+          rgbaBytes[j + 2] = bytes[i];
+          rgbaBytes[j + 3] = 255;
+        }
+        returnImage = img.decodeImage(rgbaBytes);
+      }
+    }
+
+    return [inputImage, returnImage];
+  }
+
+  Uint8List _concatenatePlanes(List<Plane> planes) {
+    final WriteBuffer allBytes = WriteBuffer();
+    for (final Plane plane in planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
+    return allBytes.done().buffer.asUint8List();
   }
 
 
@@ -74,6 +124,11 @@ class FaceProcessor{
     List<Face> faceList= await _detector.processImage(img);
     return faceList[0];
   }
+  Future<bool>  isFaceDetected(XFile pic) async{
+    InputImage img = InputImage.fromFilePath(pic.path);
+    List<Face> faceList= await _detector.processImage(img);
+    return faceList.isEmpty;
+  }
   Future<img.Image> _cropFaceFromImage(XFile file) async{
     Face face = await _getFirstFaceFromImage(file);
     img.Image? image = await _xFileToImage(file);
@@ -122,9 +177,6 @@ class FaceProcessor{
   Future<bool> compareFaces(XFile input1,XFile input2) async{
     List<dynamic> face1 = await _imageToFaceData(input1);
     List<dynamic> face2 = await _imageToFaceData(input1);
-    print(face1);
-    print(face1.length);
-    print(face1.runtimeType);
     return _euclideanDistance(face1, face2) <= _threshold;
   }
   Future<img.Image?> _xFileToImage(XFile pic) async{
