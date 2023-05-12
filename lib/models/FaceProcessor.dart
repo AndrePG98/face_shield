@@ -177,7 +177,7 @@ class FaceProcessor{
     final bytes = inputImage.bytes;
     if(bytes != null) {
       if(Platform.isAndroid){
-        returnImage = img.decodeImage(bytes)!;
+        returnImage = img.decodeImage(bytes);
       } else if (Platform.isIOS){
         final rgbaBytes = Uint8List(cameraImage.width * cameraImage.height * 4);
         for (var i=0 , j=0; i < bytes.length; i+= 4 , j+= 3) {

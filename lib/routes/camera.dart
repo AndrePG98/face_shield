@@ -1,18 +1,25 @@
 import 'dart:io';
-
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:face_shield/models/CameraProcessor.dart';
 import 'package:face_shield/models/FaceProcessor.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:image/image.dart' as img;
 import 'dart:math';
 
 import '../components/facePainter.dart';
 
 class CameraPage extends StatefulWidget {
-  final FaceProcessor faceProcessor;
-  final CameraProcessor cameraProcessor;
-  const CameraPage({Key? key, required this.faceProcessor, required this.cameraProcessor}) : super(key: key);
+
+  late final FaceProcessor faceProcessor;
+  late final CameraProcessor cameraProcessor;
+
+  CameraPage({Key? key}) : super(key: key){
+    cameraProcessor = CameraProcessor();
+    faceProcessor = FaceProcessor(cameraProcessor);
+  }
 
   @override
   State<StatefulWidget> createState() {
@@ -21,90 +28,61 @@ class CameraPage extends StatefulWidget {
 }
 
 class CameraPageState extends State<CameraPage> {
-  Size? imageSize;
+
+  bool isControllerInitialized = false;
+  bool faceDetected = false;
   Face? detectedFace;
-  String? faceFilePath;
-  bool isInitializing = true;
-  bool isDetecting = false;
+  img.Image? faceImage;
 
   @override
   void initState(){
-    super.initState();
     _start();
-
+    super.initState();
   }
 
-  void _start() async {
+  void _start()  async {
     await widget.cameraProcessor.initialize();
     setState(() {
-      isInitializing = false;
+      isControllerInitialized = widget.cameraProcessor.isInitialized;
     });
-    imageSize = widget.cameraProcessor.getImageSize();
-
-    widget.cameraProcessor.controller?.startImageStream((image) async {
-      if (widget.cameraProcessor.controller != null) {
-        if(isDetecting) return;
-        isDetecting = true;
-        Face face =  await widget.faceProcessor.getFirstFaceFromImage(image);
-        await widget.cameraProcessor.controller?.stopImageStream();
-        XFile? file = await widget.cameraProcessor.takePicture();
-        setState(() {
-          detectedFace = face;
-          faceFilePath = file?.path;
-        });
+    await widget.cameraProcessor.controller.startImageStream((image) async {
+      try {
+        if(await widget.faceProcessor.isFaceDetected(image)){
+          faceDetected = true;
+          Face face = await widget.faceProcessor.getFirstFaceFromImage(image);
+          img.Image croppedImage = await widget.faceProcessor.cropFaceFromImage(image);
+          setState(() {
+            detectedFace = face;
+            faceImage = croppedImage;
+          });
+        }
+      } catch (e){
+        throw Exception('Error in detecting faces');
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    const double mirror = pi;
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    late Widget body;
-    if (isInitializing) {
-      body = const Center( child: CircularProgressIndicator());
-    }
-    if (!isInitializing && detectedFace != null){
-      body = AlertDialog(
-        backgroundColor: Colors.transparent,
-        contentPadding: EdgeInsets.zero,
-        content: Container(
-          decoration: const BoxDecoration(color: Colors.transparent),
-          padding: const EdgeInsets.all(16),
-          child: Text("$isInitializing ${detectedFace==null}")
-        ),
-      );
-    } else {
-      body = Transform.scale(
-        scale: 1.0,
-        child: AspectRatio(
-          aspectRatio: MediaQuery.of(context).size.aspectRatio,
-          child: OverflowBox(
-            alignment: Alignment.center,
-            child: FittedBox(
-              fit: BoxFit.fitHeight,
-              child: SizedBox(
-                width: width,
-                height: width * widget.cameraProcessor.controller!.value.aspectRatio,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: <Widget>[
-                    CameraPreview(widget.cameraProcessor.controller!),
-                    CustomPaint(
-                      painter: FacePainter(face: detectedFace, imageSize: imageSize!),
-                    ),
-                    Text("$isInitializing ${detectedFace==null}")
-                  ],
-                ),
-              ),
-            ),
+    Widget body;
+    if(faceDetected){
+        final bytes = Uint8List.fromList(img.encodePng(faceImage!));
+        body = Image.memory(bytes, width: 200, height: 200);
+      } else {
+        body = const Text('No face');
+      }
+    return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              isControllerInitialized ? CameraPreview(widget.cameraProcessor.controller) : const CircularProgressIndicator(),
+              body
+            ],
           ),
-        ),
-      );
-    }
-    return Scaffold(body: body);
+        )
+    );
   }
-
 }
 

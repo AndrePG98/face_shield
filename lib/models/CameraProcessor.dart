@@ -5,8 +5,8 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 
 class CameraProcessor{
-  CameraController? _controller;
-  CameraController? get controller => _controller;
+  late CameraController _controller;
+  CameraController get controller => _controller;
 
   InputImageRotation? _cameraRotation;
   InputImageRotation? get cameraRotation => _cameraRotation;
@@ -14,12 +14,14 @@ class CameraProcessor{
   String? _imagePath;
   String? get imagePath => _imagePath;
 
-  Future<void> initialize() async{
-    if(_controller != null) return;
+  bool isInitialized = false;
+
+  Future<void> initialize() async {
     CameraDescription cameraDescription = await _getCameraDescription();
     await _setupCameraController(description: cameraDescription);
     _cameraRotation = rotationIntToImageRotation(cameraDescription.sensorOrientation);
-    _controller?.setFlashMode(FlashMode.off);
+    _controller.setFlashMode(FlashMode.off);
+    isInitialized = true;
   }
 
   Future<CameraDescription> _getCameraDescription() async {
@@ -36,24 +38,24 @@ class CameraProcessor{
       ResolutionPreset.high,
       enableAudio: false,
     );
-    await _controller?.initialize();
+    await _controller.initialize();
   }
 
   Future<XFile?> takePicture() async {
-    assert(_controller != null, 'Camera controller not initialized');
-    await _controller?.stopImageStream();
-    XFile? file = await _controller?.takePicture();
-    _imagePath = file?.path;
+    await _controller.stopImageStream();
+    XFile? file = await _controller.takePicture();
+    _imagePath = file.path;
     return file;
   }
 
   Size getImageSize() {
-    assert(_controller != null, 'Camera controller not initialized');
     assert(
-    _controller!.value.previewSize != null, 'Preview size is null');
+    _controller.value.previewSize != null,
+    'Preview size is null',
+    );
     return Size(
-      _controller!.value.previewSize!.height,
-      _controller!.value.previewSize!.width,
+      _controller.value.previewSize!.height,
+      _controller.value.previewSize!.width,
     );
   }
 
@@ -71,7 +73,7 @@ class CameraProcessor{
   }
 
   dispose() async {
-    await _controller?.dispose();
-    _controller = null;
+    await _controller.dispose();
+    isInitialized = false;
   }
 }

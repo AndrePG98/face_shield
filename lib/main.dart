@@ -18,15 +18,12 @@ main() async {
 
 class MainApp extends StatelessWidget {
 
-  final CameraProcessor cameraProcessor = CameraProcessor();
-  late FaceProcessor faceProcessor;
   MainApp({super.key}){
-    faceProcessor = FaceProcessor(cameraProcessor);
     _initProcessor();
   }
 
   _initProcessor () async {
-    await cameraProcessor.initialize();
+
   }
 
   @override
@@ -43,7 +40,7 @@ class MainApp extends StatelessWidget {
         '/email' : (BuildContext context) => const Email(),
         '/username' : (BuildContext context) => const Username(),
         '/recovery' : (BuildContext context) => const Recovery(),
-        '/camera' : (BuildContext context) => CameraPage(faceProcessor: faceProcessor, cameraProcessor: cameraProcessor)
+        '/camera' : (BuildContext context) => CameraPage()
       },
     );
   }
