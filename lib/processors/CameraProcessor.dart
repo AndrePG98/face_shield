@@ -20,7 +20,7 @@ class CameraProcessor{
     CameraDescription cameraDescription = await _getCameraDescription();
     await _setupCameraController(description: cameraDescription);
     _cameraRotation = rotationIntToImageRotation(cameraDescription.sensorOrientation);
-    _controller.setFlashMode(FlashMode.off);
+    _controller.setFlashMode(FlashMode.auto);
     isInitialized = true;
   }
 

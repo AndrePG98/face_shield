@@ -2,11 +2,12 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
-import 'package:face_shield/models/CameraProcessor.dart';
-import 'package:face_shield/models/FaceProcessor.dart';
+import 'package:face_shield/processors/CameraProcessor.dart';
+import 'package:face_shield/processors/FaceProcessor.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math';
 
 import '../components/facePainter.dart';
@@ -18,7 +19,7 @@ class CameraPage extends StatefulWidget {
 
   CameraPage({Key? key}) : super(key: key){
     cameraProcessor = CameraProcessor();
-    faceProcessor = FaceProcessor(cameraProcessor);
+    faceProcessor = FaceProcessor();
   }
 
   @override
@@ -30,6 +31,7 @@ class CameraPage extends StatefulWidget {
 class CameraPageState extends State<CameraPage> {
 
   bool isControllerInitialized = false;
+  bool isDetecting = false;
   bool faceDetected = false;
   Face? detectedFace;
   img.Image? faceImage;
@@ -44,18 +46,32 @@ class CameraPageState extends State<CameraPage> {
     await widget.cameraProcessor.initialize();
     setState(() {
       isControllerInitialized = widget.cameraProcessor.isInitialized;
+      widget.faceProcessor.cameraRotation = widget.cameraProcessor.cameraRotation;
     });
     await widget.cameraProcessor.controller.startImageStream((image) async {
+      if(isDetecting) return;
+      isDetecting = true;
       try {
-        if(await widget.faceProcessor.isFaceDetected(image)){
-          faceDetected = true;
-          Face face = await widget.faceProcessor.getFirstFaceFromImage(image);
-          img.Image croppedImage = await widget.faceProcessor.cropFaceFromImage(image);
+        List<Face> faces = await widget.faceProcessor.detect(image);
+        if(faces.isNotEmpty){
           setState(() {
-            detectedFace = face;
-            faceImage = croppedImage;
+            faceDetected = true;
+            detectedFace = faces[0];
           });
         }
+        //if(await widget.faceProcessor.isFaceDetected(image)){
+          //Face face = await widget.faceProcessor.getFirstFaceFromImage(image);
+          //print("Detected face : $face");
+         // img.Image croppedImage = await widget.faceProcessor.cropFaceFromImage(image);
+          //bool test = await widget.faceProcessor.checkLeftEye(image);
+          //setState(() {
+            //faceDetected = true;
+            //proofOfLifeTest = test;
+            //detectedFace = face;
+            //faceImage = croppedImage;
+          //});
+        //}
+        isDetecting = false;
       } catch (e){
         throw Exception('Error in detecting faces');
       }
@@ -65,22 +81,40 @@ class CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     Widget body;
-    if(faceDetected){
-        final bytes = Uint8List.fromList(img.encodePng(faceImage!));
-        body = Image.memory(bytes, width: 200, height: 200);
-      } else {
-        body = const Text('No face');
-      }
+    if(isControllerInitialized){
+      body = Stack(
+        fit: StackFit.expand,
+        children: [
+          CameraPreview(widget.cameraProcessor.controller),
+          CustomPaint(
+            painter: FacePainter(
+                face: detectedFace,
+                imageSize: widget.cameraProcessor.getImageSize()
+            ),
+          )
+        ],
+      );
+    } else {
+      body = const CircularProgressIndicator();
+    }
     return Scaffold(
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              isControllerInitialized ? CameraPreview(widget.cameraProcessor.controller) : const CircularProgressIndicator(),
-              body
+              body,
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      widget.cameraProcessor.dispose();
+                    },
+                    icon: const FaIcon(FontAwesomeIcons.faceAngry, size: 50,)
+                ),
+              )
             ],
-          ),
+          )
         )
     );
   }

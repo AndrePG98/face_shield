@@ -1,16 +1,11 @@
-import 'package:face_shield/models/FaceProcessor.dart';
 import 'package:face_shield/routes/camera.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
 import 'package:face_shield/routes/signup/email.dart';
 import 'package:face_shield/routes/signup/password.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:flutter/services.dart';
 
-import 'models/CameraProcessor.dart';
 
 main() async {
   runApp(MainApp());

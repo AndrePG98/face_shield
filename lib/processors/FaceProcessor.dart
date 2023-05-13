@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:camera/camera.dart';
-import 'package:face_shield/models/CameraProcessor.dart';
+import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -17,11 +17,10 @@ class FaceProcessor{
   Delegate? _delegate;
   InterpreterOptions? _options;
   Interpreter? _interpreter;
-  late CameraProcessor _cameraProcessor;
+  late InputImageRotation? cameraRotation;
   late CameraImage _tempImage; //later bull
 
-  FaceProcessor(cameraProcessor){
-    _cameraProcessor = cameraProcessor;
+  FaceProcessor(){
     _initiateInterpreter();
     _detector = FaceDetector(options: FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate,
     enableClassification: true,enableTracking: true, enableContours: true));
@@ -32,6 +31,12 @@ class FaceProcessor{
     List<Face> faces= await _detector.processImage(inputImage);
     return faces[0];
   }
+
+  Future<List<Face>> detect(CameraImage cameraImage) async {
+    List<dynamic> inputs = await convertCameraImageToInputList(cameraImage);
+    return await _detector.processImage(inputs[0]);
+  }
+
   Future<bool> checkLeftEye(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
     //print(_face.rightEyeOpenProbability);
@@ -160,7 +165,7 @@ class FaceProcessor{
       bytes: _concatenatePlanes(cameraImage.planes),
       inputImageData: InputImageData(
         size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
-        imageRotation: _cameraProcessor.cameraRotation ?? InputImageRotation.rotation0deg,
+        imageRotation: cameraRotation ?? InputImageRotation.rotation0deg,
         inputImageFormat: InputImageFormatValue.fromRawValue(cameraImage.format.raw) ??  InputImageFormat.yuv_420_888,
         planeData: cameraImage.planes.map(
               (Plane plane) {
