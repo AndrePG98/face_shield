@@ -36,14 +36,13 @@ class CameraPageState extends State<CameraPage> {
   bool faceDetected = false;
   bool isAuthenticating = false;
   Face? detectedFace;
-  img.Image? faceImage;
+  CameraImage? faceImage;
 
   @override
   void initState(){
     _start();
     super.initState();
   }
-
 
   void _start()  async {
     await widget.cameraProcessor.initialize();
@@ -61,8 +60,10 @@ class CameraPageState extends State<CameraPage> {
             detectedFace = faces[0];
             if((detectedFace!.headEulerAngleY! < 5 && detectedFace!.headEulerAngleY! > -5) && (detectedFace!.headEulerAngleX! < 5 && detectedFace!.headEulerAngleX! > -5)){
               faceDetected = true;
+              faceImage = image;
               isAuthenticating = true;
               isControllerInitialized = false;
+              widget.cameraProcessor.controller.stopImageStream();
             }
           });
         }
@@ -97,7 +98,13 @@ class CameraPageState extends State<CameraPage> {
         ],
       );
     } else {
-      body = const CircularProgressIndicator();
+      if(faceDetected){
+        widget.cameraProcessor.dispose();
+        Future.delayed(const Duration(milliseconds: 50), () => Navigator.popAndPushNamed(context, '/'));
+        body = const Center();
+      } else {
+        body = const CircularProgressIndicator();
+      }
     }
     return Scaffold(
         body: Center(

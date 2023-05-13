@@ -35,7 +35,7 @@ class MainApp extends StatelessWidget {
         '/email' : (BuildContext context) => const Email(),
         '/username' : (BuildContext context) => const Username(),
         '/recovery' : (BuildContext context) => const Recovery(),
-        '/camera' : (BuildContext context) => CameraPage()
+        '/camera' : (BuildContext context) => CameraPage(),
       },
     );
   }
