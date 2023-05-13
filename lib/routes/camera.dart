@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -33,6 +34,7 @@ class CameraPageState extends State<CameraPage> {
   bool isControllerInitialized = false;
   bool isDetecting = false;
   bool faceDetected = false;
+  bool isAuthenticating = false;
   Face? detectedFace;
   img.Image? faceImage;
 
@@ -42,6 +44,7 @@ class CameraPageState extends State<CameraPage> {
     super.initState();
   }
 
+
   void _start()  async {
     await widget.cameraProcessor.initialize();
     setState(() {
@@ -49,34 +52,29 @@ class CameraPageState extends State<CameraPage> {
       widget.faceProcessor.cameraRotation = widget.cameraProcessor.cameraRotation;
     });
     await widget.cameraProcessor.controller.startImageStream((image) async {
-      if(isDetecting) return;
+      if(isDetecting ) return;
       isDetecting = true;
       try {
         List<Face> faces = await widget.faceProcessor.detect(image);
         if(faces.isNotEmpty){
           setState(() {
-            faceDetected = true;
             detectedFace = faces[0];
+            if((detectedFace!.headEulerAngleY! < 5 && detectedFace!.headEulerAngleY! > -5) && (detectedFace!.headEulerAngleX! < 5 && detectedFace!.headEulerAngleX! > -5)){
+              faceDetected = true;
+              isAuthenticating = true;
+              isControllerInitialized = false;
+            }
           });
         }
-        //if(await widget.faceProcessor.isFaceDetected(image)){
-          //Face face = await widget.faceProcessor.getFirstFaceFromImage(image);
-          //print("Detected face : $face");
-         // img.Image croppedImage = await widget.faceProcessor.cropFaceFromImage(image);
-          //bool test = await widget.faceProcessor.checkLeftEye(image);
-          //setState(() {
-            //faceDetected = true;
-            //proofOfLifeTest = test;
-            //detectedFace = face;
-            //faceImage = croppedImage;
-          //});
-        //}
-        isDetecting = false;
+        setState(() {
+          isDetecting = false;
+        });
       } catch (e){
         throw Exception('Error in detecting faces');
       }
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +89,10 @@ class CameraPageState extends State<CameraPage> {
                 face: detectedFace,
                 imageSize: widget.cameraProcessor.getImageSize()
             ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Text("$isAuthenticating", style: const TextStyle(fontSize: 15)),
           )
         ],
       );
@@ -102,17 +104,7 @@ class CameraPageState extends State<CameraPage> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              body,
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      widget.cameraProcessor.dispose();
-                    },
-                    icon: const FaIcon(FontAwesomeIcons.faceAngry, size: 50,)
-                ),
-              )
+              body
             ],
           )
         )

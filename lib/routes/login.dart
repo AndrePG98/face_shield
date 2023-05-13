@@ -25,20 +25,9 @@ class LogIn extends StatelessWidget{
                       children: [
                         SignInField(hintText: 'Username'),
                         const SizedBox(height: 25),
-                        SignInField(hintText: 'Password')
                       ],
                     ),
                     const SizedBox(height: 25),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        TextButton(
-                          onPressed: () { Navigator.pushNamed(context, '/recovery'); },
-                          child: const Text('Forgot password?')
-                        )
-                      ],
-                    )
                   ],
                 )
               ),
