@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../components/defaultButton.dart';
 import '../../components/logo.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:face_shield/components/signinField.dart';
+import 'package:face_shield/components/customTextField.dart';
 
 
 class Email extends StatelessWidget{
@@ -21,9 +21,9 @@ class Email extends StatelessWidget{
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      SignInField(hintText: 'Email'),
+                      CustomTextField(hintText: 'Email'),
                       const SizedBox(height: 50),
-                      SignInField(hintText: 'Username')
+                      CustomTextField(hintText: 'Username')
                     ],
                   )
               ),

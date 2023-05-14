@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class SignInField extends StatelessWidget {
+class CustomTextField extends StatelessWidget {
   final String hintText;
   late final InputDecoration inputDecoration;
-
-  SignInField({super.key, required this.hintText}) {
+final bool isPassword;
+  CustomTextField({super.key, required this.hintText, this.isPassword=false}) {
     inputDecoration = InputDecoration(
         hintText: hintText,
         border: const UnderlineInputBorder()
@@ -16,6 +16,7 @@ class SignInField extends StatelessWidget {
     return TextField(
       style: const TextStyle(fontSize: 25),
       decoration: inputDecoration,
+      obscureText: isPassword,
     );
   }
 

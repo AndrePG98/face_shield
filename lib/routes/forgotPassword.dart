@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:face_shield/components/signinField.dart';
+import 'package:face_shield/components/customTextField.dart';
 import '../components/defaultButton.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -23,7 +23,7 @@ class Recovery extends StatelessWidget{
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SignInField(hintText: 'Email'),
+                        CustomTextField(hintText: 'Email'),
                         const SizedBox(height: 35),
                         DefaultButton(
                           text: 'Continue',

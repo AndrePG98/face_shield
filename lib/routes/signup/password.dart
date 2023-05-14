@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../components/defaultButton.dart';
 import '../../components/logo.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:face_shield/components/signinField.dart';
+import 'package:face_shield/components/customTextField.dart';
 
 class Username extends StatelessWidget{
   const Username({super.key});
@@ -20,9 +20,9 @@ class Username extends StatelessWidget{
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      SignInField(hintText: 'Password'),
+                      CustomTextField(hintText: 'Password', isPassword: true,),
                       const SizedBox(height: 50),
-                      SignInField(hintText: 'Repeat password'),
+                      CustomTextField(hintText: 'Repeat password', isPassword: true,),
                     ],
                   )
               ),

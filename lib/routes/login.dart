@@ -1,6 +1,6 @@
 import 'package:face_shield/components/defaultButton.dart';
 import 'package:flutter/material.dart';
-import 'package:face_shield/components/signinField.dart';
+import 'package:face_shield/components/customTextField.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LogIn extends StatelessWidget{
@@ -23,8 +23,9 @@ class LogIn extends StatelessWidget{
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SignInField(hintText: 'Username'),
+                        CustomTextField(hintText: 'Username'),
                         const SizedBox(height: 25),
+                        CustomTextField(hintText: 'Password', isPassword: true,),
                       ],
                     ),
                     const SizedBox(height: 25),
