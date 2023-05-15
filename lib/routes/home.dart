@@ -27,13 +27,12 @@ class HomePage extends StatelessWidget{
                       text: 'Log in',
                       onPress: () => {Navigator.pushNamed(context, '/login')}
                   ),
-                  const SizedBox(height: 20,),
+                  const SizedBox(height: 30,),
                   DefaultButton(
                       text: "Sign up",
                       onPress: () => {Navigator.pushNamed(context, '/email')}
                   ),
-                  const SizedBox(height: 20,),
-                  const PopupButton()
+                  const SizedBox(height: 20,)
                 ],
               ),
             )

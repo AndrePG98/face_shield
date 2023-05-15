@@ -20,9 +20,9 @@ class Username extends StatelessWidget{
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      SignInField(hintText: 'Password'),
+                      SignInField(hintText: 'Password', controller: TextEditingController()),
                       const SizedBox(height: 50),
-                      SignInField(hintText: 'Repeat password'),
+                      SignInField(hintText: 'Repeat password', controller:  TextEditingController()),
                     ],
                   )
               ),

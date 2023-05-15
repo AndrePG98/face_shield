@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 
-class SignInField extends StatelessWidget {
+class SignInField extends StatefulWidget {
   final String hintText;
-  late final InputDecoration inputDecoration;
+  final TextEditingController controller;
 
-  SignInField({super.key, required this.hintText}) {
-    inputDecoration = InputDecoration(
-        hintText: hintText,
-        border: const UnderlineInputBorder()
-    );
-  }
+  const SignInField({super.key, required this.hintText, required this.controller});
 
   @override
-  Widget build(BuildContext context ) {
-    return TextField(
-      style: const TextStyle(fontSize: 25),
-      decoration: inputDecoration,
-    );
+  SignInFieldState createState() => SignInFieldState();
+}
+
+class SignInFieldState extends State<SignInField> {
+
+  @override
+  void initState() {
+    super.initState();
   }
 
 
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: widget.controller,
+      decoration: InputDecoration(
+        hintText: widget.hintText,
+        border: const OutlineInputBorder(),
+      ),
+    );
+  }
 }

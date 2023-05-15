@@ -21,9 +21,9 @@ class Email extends StatelessWidget{
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      SignInField(hintText: 'Email'),
+                      SignInField(hintText: 'Email', controller: TextEditingController()),
                       const SizedBox(height: 50),
-                      SignInField(hintText: 'Username')
+                      SignInField(hintText: 'Username', controller: TextEditingController())
                     ],
                   )
               ),

@@ -31,7 +31,7 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       home: const HomePage(),
       routes: <String, WidgetBuilder> {
-        '/login' : (BuildContext context) => const LogIn(),
+        '/login' : (BuildContext context) => LogIn(),
         '/email' : (BuildContext context) => const Email(),
         '/username' : (BuildContext context) => const Username(),
         '/recovery' : (BuildContext context) => const Recovery(),

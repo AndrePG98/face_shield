@@ -23,7 +23,7 @@ class Recovery extends StatelessWidget{
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SignInField(hintText: 'Email'),
+                        SignInField(hintText: 'Email', controller: TextEditingController()),
                         const SizedBox(height: 35),
                         DefaultButton(
                           text: 'Continue',
