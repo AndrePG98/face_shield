@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "66109263809",
+    "project_id": "laboratorio-de-projeto-f4be7",
+    "storage_bucket": "laboratorio-de-projeto-f4be7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66109263809:android:a3e9fa933a8caf5257a940",
+        "android_client_info": {
+          "package_name": "com.example.face_shield"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "66109263809-8ai79kmklaes4nf44ic51p9rtuhog8nb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJ4FRXJEaBJBbtGP2iY8_rhYYOs2uzAyc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "66109263809-8ai79kmklaes4nf44ic51p9rtuhog8nb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
