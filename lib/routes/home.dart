@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget{
                   const SizedBox(height: 20,),
                   DefaultButton(
                       text: "Sign up",
-                      onPress: () => {Navigator.pushNamed(context, '/email')}
+                      onPress: () => {Navigator.pushNamed(context, '/signup')}
                   ),
                   const SizedBox(height: 20,),
                   const PopupButton()

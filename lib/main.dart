@@ -13,10 +13,10 @@ import 'firebase_options.dart';
 
 
 main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MainApp());
 }
@@ -40,7 +40,7 @@ class MainApp extends StatelessWidget {
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.system,
       //home: const HomePage(),
-      home: const SignUpPage(),
+      home: const HomePage(),
       routes: <String, WidgetBuilder> {
         '/login' : (BuildContext context) => const LogIn(),
         '/email' : (BuildContext context) => const Email(),
