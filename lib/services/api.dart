@@ -36,7 +36,20 @@ Future<void> logIn(String email, String password) async {
       print("Utilizador logado ${userCredential.user!.uid} ");
     }
 
+
   } catch (e) {
     print('Erro ao autenticar utilizador: $e');
   }
 }
+
+Future<void> editEmail(String email) async {
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      print(user);
+      await user?.updateEmail(email);
+      print("Email atualizado com sucesso ${user.email} ");
+    } else {
+      print("Falha ao atualizar email!");
+    }
+  }

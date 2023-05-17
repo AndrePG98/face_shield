@@ -5,24 +5,43 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../services/api.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+class EmailEditorPage extends StatefulWidget {
+  const EmailEditorPage({Key? key}) : super(key: key);
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<EmailEditorPage> createState() => _EmailEditorPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _EmailEditorPageState extends State<EmailEditorPage>{
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+
+  void _updateEmail() async {
+    try{
+      User? user = _auth.currentUser;
+      if(user != null){
+        await user.updateEmail(_emailController.text);
+        print("Email atualizado com sucesso ${user.email}");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Email atualizado")));
+  }
+
+  }
+  catch(e){
+      print("Erro ao atualizar email! $e");
+  }
+  }
+
+
+
+
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Sign Up"),
+          title: Text("Edit email"),
         ),
         body: Padding(
             padding: EdgeInsets.all(16),
@@ -32,20 +51,18 @@ class _SignUpPageState extends State<SignUpPage> {
                   controller: _emailController,
                   decoration: InputDecoration(labelText: "Email"),
                 ),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: "Password"),
-                ),
                 SizedBox(
                   height: 16,
                 ),
                 ElevatedButton(
                     onPressed: () {
-                      signUp(_emailController.text, _passwordController.text);
+                    //editEmail(_emailController.text);
+                      _updateEmail();
+                      Navigator.pushNamed(context, '/login');
                     },
-                    child: Text("Create Account"))
+                    child: Text("Edit Email"))
               ],
             )));
   }
 }
+

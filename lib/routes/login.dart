@@ -55,6 +55,7 @@ class _LogInState extends State<LogIn> {
                               onPressed: () {
                                 logIn(_emailController.text,
                                     _passwordController.text);
+                                Navigator.pushNamed(context, '/editemail');
                               },
                               child: Text("Login"))
                         ],
