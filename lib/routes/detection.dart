@@ -1,5 +1,6 @@
 import 'package:face_shield/components/cameraWidget.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/material.dart';
 
 class DetectionWidget extends StatefulWidget{
   const DetectionWidget({super.key});
@@ -12,11 +13,17 @@ class DetectionWidget extends StatefulWidget{
 }
 
 class DetectionState extends State<DetectionWidget>{
+
+  CameraWidget cameraWidget = CameraWidget();
+
   @override
   Widget build(BuildContext context) {
     String username = ModalRoute.of(context)!.settings.arguments as String;
-    return CameraWidget();
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        cameraWidget,
+      ],
+    );
   }
-
-
 }

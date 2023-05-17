@@ -19,6 +19,8 @@ class CameraWidget extends StatefulWidget {
 
   late final FaceProcessor faceProcessor;
   late final CameraProcessor cameraProcessor;
+  Map<String, bool> promptsMap = {'promptingSmile' : false, 'promptingLookLeft' : false, 'promptingLookRight' : false};
+  bool viable = false;
 
   CameraWidget({Key? key}) : super(key: key){
     cameraProcessor = CameraProcessor();
@@ -34,70 +36,110 @@ class CameraWidget extends StatefulWidget {
 class CameraWidgetState extends State<CameraWidget> {
 
   bool isDetecting = false;
+  bool isInitialized = false;
   bool isPainterVisible = false;
   Face? detectedFace;
   CameraImage? faceImage;
 
   @override
-  void initState(){
-    super.initState();
-    _start();
+  void dispose(){
+    widget.cameraProcessor.dispose();
+    super.dispose();
   }
 
-  Future<List<Face>> getFaces(CameraImage image) async {
-    return await widget.faceProcessor.detect(image);
+  @override
+  void initState(){
+    _start();
+    super.initState();
+  }
+
+  void _start()  async {
+    if(mounted){
+      await widget.cameraProcessor.initialize();
+      setState(() {
+        isInitialized = widget.cameraProcessor.isInitialized;
+        widget.faceProcessor.cameraRotation = widget.cameraProcessor.cameraRotation;
+      });
+      detect();
+    }
   }
 
   void detect() async {
     await widget.cameraProcessor.controller.startImageStream((image) async {
       if(isDetecting) return;
       isDetecting = true;
-      try {
-        List<Face> faces = await getFaces(image);
-        if(faces.isNotEmpty){
+      List<Face> faces = await getFaces(image);
+      if(faces.isNotEmpty){
+        detectedFace = faces[0];
+        faceImage = image;
+        if(mounted){
           setState(()  {
             isPainterVisible = true;
-            detectedFace = faces[0];
-            faceImage = image;
-            //if((detectedFace!.headEulerAngleY! < 2 && detectedFace!.headEulerAngleY! > -2) && (detectedFace!.headEulerAngleX! < 2 && detectedFace!.headEulerAngleX! > -2)){
+            if((detectedFace!.headEulerAngleY! < 20 && detectedFace!.headEulerAngleY! > -20) && (detectedFace!.headEulerAngleX! < 20 && detectedFace!.headEulerAngleX! > -20)){
+              widget.viable = true;
               //isControllerInitialized = false;
               //widget.cameraProcessor.controller.stopImageStream();
-            //}
-          });
-        } else {
-          setState(() {
-            isPainterVisible = false;
-            detectedFace = null;
+            } else {
+              widget.viable = false;
+            }
           });
         }
-        isDetecting = false;
-      } catch (e){
-        throw Exception('Error in detecting faces');
+      } else {
+        if(mounted){
+          setState(() {
+            isPainterVisible = false;
+            widget.viable = false;
+          });
+        }
       }
+      isDetecting = false;
+      detectedFace = null;
+      faceImage = null;
+      faces = [];
     });
   }
 
-
-  void _start()  async {
-    await widget.cameraProcessor.initialize();
-    setState(() {
-      widget.faceProcessor.cameraRotation = widget.cameraProcessor.cameraRotation;
-    });
-    detect();
+  Future<List<Face>> getFaces(CameraImage image) async {
+    return await widget.faceProcessor.detect(image);
   }
 
 
   @override
   Widget build(BuildContext context) {
-    Visibility painter = Visibility(
-        visible: isPainterVisible,
-        child: CustomPaint(
-            painter: FacePainter(
-                face: detectedFace,
-                imageSize: widget.cameraProcessor.getImageSize()
-            )
-        )
-    );
+    Widget body;
+    Visibility painter;
+    if(isInitialized){
+      painter = Visibility(
+          visible: isPainterVisible,
+          child: CustomPaint(
+              painter: FacePainter(
+                  face: detectedFace,
+                  imageSize: widget.cameraProcessor.getImageSize()
+              )
+          )
+      );
+      body = Stack(
+        fit: StackFit.expand,
+        children: [
+          CameraPreview(widget.cameraProcessor.controller),
+          //painter,
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: FloatingActionButton(
+                  backgroundColor: widget.viable ? Colors.green : Colors.red,
+                  foregroundColor: Colors.white,
+                  child: widget.viable ? const FaIcon(FontAwesomeIcons.check) : const FaIcon(FontAwesomeIcons.xmark),
+                  onPressed: (){},
+                )
+            ),
+          )
+        ],
+      );
+    } else {
+      body = const Center(child: CircularProgressIndicator());
+    }
       //if(proofOfLifeResult){
         //widget.cameraProcessor.dispose();
         //Future.delayed(const Duration(milliseconds: 50), () => Navigator.popAndPushNamed(context, '/'));
@@ -106,13 +148,7 @@ class CameraWidgetState extends State<CameraWidget> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Stack(
-            fit: StackFit.expand,
-            children: [
-              CameraPreview(widget.cameraProcessor.controller),
-              painter
-            ]
-        )
+        Stack(fit: StackFit.expand, children: [body])
       ]
     );
   }

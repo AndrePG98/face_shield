@@ -160,7 +160,7 @@ class FaceProcessor{
   }
 
   Future<List<dynamic>> convertCameraImageToInputList(CameraImage cameraImage) async {
-    img.Image? returnImage;
+    img.Image? returnImage = null;
     InputImage inputImage = InputImage.fromBytes(
       bytes: _concatenatePlanes(cameraImage.planes),
       inputImageData: InputImageData(
@@ -178,14 +178,13 @@ class FaceProcessor{
         ).toList(),
       ),
     );
-
     final bytes = inputImage.bytes;
-    if(bytes != null) {
+    if(bytes != null || inputImage.bytes!.length <= 1843200) {
       if(Platform.isAndroid){
-        returnImage = img.decodeImage(bytes);
+        returnImage = img.decodeTga(bytes!);
       } else if (Platform.isIOS){
         final rgbaBytes = Uint8List(cameraImage.width * cameraImage.height * 4);
-        for (var i=0 , j=0; i < bytes.length; i+= 4 , j+= 3) {
+        for (var i=0 , j=0; i < bytes!.length; i+= 4 , j+= 3) {
           rgbaBytes[j] = bytes[i + 2];
           rgbaBytes[j + 1] = bytes[i + 1];
           rgbaBytes[j + 2] = bytes[i];

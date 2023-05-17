@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:face_shield/components/defaultButton.dart';
 import 'package:flutter/material.dart';
 import 'package:face_shield/components/signinField.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LogIn extends StatefulWidget{
 
