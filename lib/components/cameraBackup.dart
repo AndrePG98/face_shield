@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
-import 'package:face_shield/components/AlertQueue.dart';
+import 'package:face_shield/components/alertQueue.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
 import 'package:flutter/material.dart';
@@ -12,26 +12,25 @@ import 'package:image/image.dart' as img;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math';
 
-import '../components/facePainter.dart';
+import 'facePainter.dart';
 
-class CameraPage extends StatefulWidget {
+class CameraBackup extends StatefulWidget {
 
   late final FaceProcessor faceProcessor;
   late final CameraProcessor cameraProcessor;
 
-  CameraPage({Key? key}) : super(key: key){
+  CameraBackup({Key? key}) : super(key: key){
     cameraProcessor = CameraProcessor();
     faceProcessor = FaceProcessor();
   }
 
   @override
   State<StatefulWidget> createState() {
-    return CameraPageState();
+    return CameraBackupState();
   }
 }
 
-class CameraPageState extends State<CameraPage> {
-
+class CameraBackupState extends State<CameraBackup> {
 
   bool isPromptingUser = false;
   bool proofOfLifeResult = false;
