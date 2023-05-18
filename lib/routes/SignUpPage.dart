@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../services/api.dart';
 
@@ -13,10 +11,9 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +37,17 @@ class _SignUpPageState extends State<SignUpPage> {
                 SizedBox(
                   height: 16,
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      signUp(_emailController.text, _passwordController.text);
-                    },
-                    child: Text("Create Account"))
+                _loading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: () {
+                          signUp(_emailController.text,
+                                  _passwordController.text);
+                              setState(() {
+                                _loading=true;
+                              });
+                        },
+                        child: Text("Create Account"))
               ],
             )));
   }

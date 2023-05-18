@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -9,13 +11,17 @@ Future<void> signUp(String email, String password) async {
       email: email,
       password: password,
     );
+    Random random = new Random();
+    double randomNumber = random.nextDouble();
+    List<double> faceDataList = [randomNumber];
     final User? user = userCredential.user;
+
 
     if (user != null) {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .set({'email': user.email});
+          .set({'email': user.email,'faceData': faceDataList});
       print("Utilizador criado ${userCredential.user!.uid} ");
     }
     else{

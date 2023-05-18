@@ -1,3 +1,4 @@
+import 'package:face_shield/routes/CreateUsersPage.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/camera.dart';
 import 'package:face_shield/routes/emailEditorPage.dart';
@@ -49,7 +50,8 @@ class MainApp extends StatelessWidget {
         '/recovery' : (BuildContext context) => const Recovery(),
         '/camera' : (BuildContext context) => CameraPage(),
         '/signup' : (BuildContext context) => SignUpPage(),
-        '/editemail': (BuildContext context) => EmailEditorPage()
+        '/editemail': (BuildContext context) => EmailEditorPage(),
+        '/createusers': (BuildContext context) => const CreateUsersPage()
       },
     );
   }
