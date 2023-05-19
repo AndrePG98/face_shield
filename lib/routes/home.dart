@@ -34,8 +34,8 @@ class HomePage extends StatelessWidget{
                   ),
                   const SizedBox(height: 20,),
                   DefaultButton(
-                      text: "Create users",
-                      onPress: () => {Navigator.pushNamed(context, '/createusers')}
+                      text: "List users",
+                      onPress: () => {Navigator.pushNamed(context, '/listusers')}
 
                   ),
                   const SizedBox(height: 20,),

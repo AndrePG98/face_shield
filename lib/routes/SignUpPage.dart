@@ -41,11 +41,19 @@ class _SignUpPageState extends State<SignUpPage> {
                     ? CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: () {
+                          setState(() {
+                            _loading = true;
+                          });
                           signUp(_emailController.text,
-                                  _passwordController.text);
-                              setState(() {
-                                _loading=true;
-                              });
+                                  _passwordController.text)
+                              .then((value) => {
+                                    setState(() {
+                                      _loading = false;
+                                    }),
+                            _emailController.clear(),
+                            _passwordController.clear(),
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Utilizador criado com sucesso!"))),
+                                  });
                         },
                         child: Text("Create Account"))
               ],
