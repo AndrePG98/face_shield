@@ -54,16 +54,21 @@ class _ListUsersPage extends State<ListUsersPage> {
         appBar: AppBar(
           title: Text("List Users"),
         ),
-        body: userList.length > 0 ? Text('teste ${userList.length}')
-        /*ListView.builder(itemBuilder: (context, index) {
-          final userData=userList[index];
-          return Card(
-            child: ListTile(
-              title: Text('Email: ${userData.email}'),
-              subtitle: Text('Face Data: ${userData.faceData}'),
-            ),
-          );*/
-         : CircularProgressIndicator());
+        body: userList.length > 0 ? //Text('teste ${userList.length}')
+        ListView.builder(
+          itemCount: userList.length,
+          itemBuilder: (context, index) {
+            final userData = userList[index];
+            return Card(
+              child: ListTile(
+                title: Text('Email: ${userData.email}'),
+                subtitle: Text('Face Data: ${userData.faceData}'),
+              ),
+            );
+          },
+        )
+
+        : CircularProgressIndicator());
   }
 }
 
