@@ -1,6 +1,7 @@
 import 'package:face_shield/routes/CreateUsersPage.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
+import 'package:face_shield/routes/UserDetailPage.dart';
 import 'package:face_shield/routes/camera.dart';
 import 'package:face_shield/routes/emailEditorPage.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
@@ -53,7 +54,14 @@ class MainApp extends StatelessWidget {
         '/signup' : (BuildContext context) => SignUpPage(),
         '/editemail': (BuildContext context) => EmailEditorPage(),
         '/createusers': (BuildContext context) => const CreateUsersPage(),
-        '/listusers': (BuildContext context) => const ListUsersPage()
+        '/listusers': (BuildContext context) => const ListUsersPage(),
+
+      },
+      onGenerateRoute: (settings){
+        if(settings.name == '/userdetail'){
+          final user=settings.arguments as UserData;
+          return MaterialPageRoute(builder: (context)=>UserDetailPage(email: user.email, faceData: user.faceData));
+        }
       },
     );
   }

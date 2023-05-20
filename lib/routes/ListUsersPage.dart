@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:face_shield/routes/UserDetailPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,13 +19,12 @@ class _ListUsersPage extends State<ListUsersPage> {
 
   void _loadUserData() async {
     try {
-      QuerySnapshot snapshot=await FirebaseFirestore.instance.collection('users').get();
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('users').get();
 
       if (snapshot.docs.isNotEmpty != null) {
-        print("Lista de utilizadores");
-        print(snapshot.docs[0]);
         setState(() {
-        //userList = snapshot.docs.map((e) => UserData(email: e.data()['email'], faceData: List<double>.from(e.data()['faceData']))).toList();
+          //userList = snapshot.docs.map((e) => UserData(email: e.data()['email'], faceData: List<double>.from(e.data()['faceData']))).toList();
           userList = snapshot.docs.map((doc) {
             final data = doc.data() as Map<String, dynamic>;
             return UserData(
@@ -32,10 +32,8 @@ class _ListUsersPage extends State<ListUsersPage> {
               faceData: List<double>.from(data['faceData'] ?? []),
             );
           }).toList();
-       });
+        });
         print(userList);
-
-
       }
     } catch (e) {
       print("Erro ao carregar dados do utilizador $e");
@@ -43,7 +41,7 @@ class _ListUsersPage extends State<ListUsersPage> {
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _loadUserData();
   }
@@ -54,21 +52,29 @@ class _ListUsersPage extends State<ListUsersPage> {
         appBar: AppBar(
           title: Text("List Users"),
         ),
-        body: userList.length > 0 ? //Text('teste ${userList.length}')
-        ListView.builder(
-          itemCount: userList.length,
-          itemBuilder: (context, index) {
-            final userData = userList[index];
-            return Card(
-              child: ListTile(
-                title: Text('Email: ${userData.email}'),
-                subtitle: Text('Face Data: ${userData.faceData}'),
-              ),
-            );
-          },
-        )
-
-        : CircularProgressIndicator());
+        body: userList.length > 0
+            ? //Text('teste ${userList.length}')
+            ListView.builder(
+                itemCount: userList.length,
+                itemBuilder: (context, index) {
+                  final userData = userList[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text('Email: ${userData.email}'),
+                      subtitle: Text('Face Data: ${userData.faceData}'),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => UserDetailPage(
+                                    email: userData.email,
+                                    faceData: userData.faceData)));
+                      },
+                    ),
+                  );
+                },
+              )
+            : Center(child: CircularProgressIndicator()));
   }
 }
 
@@ -76,5 +82,5 @@ class UserData {
   final String email;
   final List<double> faceData;
 
-  UserData({required this.email,required this.faceData});
+  UserData({required this.email, required this.faceData});
 }
