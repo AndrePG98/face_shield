@@ -1,3 +1,4 @@
+import 'package:face_shield/components/cameraBackup.dart';
 import 'package:face_shield/components/cameraWidget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
@@ -19,11 +20,13 @@ class DetectionState extends State<DetectionWidget>{
   @override
   Widget build(BuildContext context) {
     String username = ModalRoute.of(context)!.settings.arguments as String;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        cameraWidget,
-      ],
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          cameraWidget,
+        ],
+      ),
     );
   }
 }

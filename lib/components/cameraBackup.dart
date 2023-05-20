@@ -36,10 +36,10 @@ class CameraBackupState extends State<CameraBackup> {
   bool proofOfLifeResult = false;
   bool isControllerInitialized = false;
   bool isDetecting = false;
-  bool faceDetected = false;
   bool isPainterVisible = false;
   Face? detectedFace;
   CameraImage? faceImage;
+  bool faceDetected = false;
   Map<String, bool> proofOfLifeMap = {'isSmiling' :  false, 'isLookingLeft' : false, 'isLookingRight' : false};
 
   @override
