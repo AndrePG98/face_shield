@@ -3,10 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserDetailPage extends StatelessWidget {
+  final String id;
   final String email;
   final List<double> faceData;
 
-  UserDetailPage({required this.email, required this.faceData});
+  UserDetailPage({required this.id,required this.email, required this.faceData});
 
   void _showDeleteConfirmationDialog(BuildContext context) {
     showDialog(
@@ -19,24 +20,16 @@ class UserDetailPage extends StatelessWidget {
               TextButton(
                   onPressed: () async {
                     try {
-                      /*QuerySnapshot snapshot =
-                      await FirebaseFirestore.instance.collection('users').get();*/
-                      DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(email);
-                      DocumentSnapshot documentSnapshot = await userRef.get();
-                      print('userRed');
-                      print(documentSnapshot.reference);
-                      /*if(doc.exists) {
-                        await userRef.delete();
-                        print('User eliminado com sucesso');
-                      } else {
-                        print('User não existe');
-                      }
-*/
+                      final CollectionReference collections = FirebaseFirestore.instance.collection('users') ;
+                      collections.doc(id).delete();
+                      Navigator.pop(context,true);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Utilizador eliminado com sucesso!")));
+
                     } catch (e) {
                       print("Erro ao eliminar utilizador: $e");
                     }
                     if(context != null && Navigator.of(context).canPop()){
-                      Navigator.of(context).pop();
+                      Navigator.pop(context,true);
                     }
                   },
                   style: TextButton.styleFrom(backgroundColor: Colors.red),

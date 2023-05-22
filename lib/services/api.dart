@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-Future<void> signUp(String email, String password) async {
+Future<bool> signUp(String email, String password) async {
   try {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     final UserCredential userCredential =
@@ -23,12 +23,15 @@ Future<void> signUp(String email, String password) async {
           .doc(user.uid)
           .set({'email': user.email,'faceData': faceDataList});
       print("Utilizador criado ${userCredential.user!.uid} ");
+      return true;
     }
     else{
       print("User não criado!");
+      return false;
     }
   } catch (e) {
     print('Erro ao criar utilizador: $e');
+    return false;
   }
 }
 
