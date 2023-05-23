@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../helpers/Helpers.dart';
 import '../services/api.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -16,10 +17,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _loading = false;
 
-  bool isValidEmail(String value){
-    final RegExp emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$');
-    return emailRegex.hasMatch(value);
-  }
+
 
   @override
   Widget build(BuildContext context) {
