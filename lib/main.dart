@@ -1,25 +1,42 @@
-import 'package:face_shield/components/pages/signin.dart';
+import 'package:face_shield/components/cameraWidget.dart';
+import 'package:face_shield/routes/detection.dart';
+import 'package:face_shield/routes/forgotPassword.dart';
+import 'package:face_shield/routes/home.dart';
+import 'package:face_shield/routes/login.dart';
+import 'package:face_shield/routes/signup/email.dart';
+import 'package:face_shield/routes/signup/password.dart';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'components/pages/home.dart';
+
 
 main() async {
-  runApp(const MainApp());
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+
+  MainApp({super.key}){
+    _initProcessor();
+  }
+
+  _initProcessor () async {
+
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Face Shield',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.blue
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
       home: const HomePage(),
       routes: <String, WidgetBuilder> {
-        '/signin' : (BuildContext context) => const SignIn(),
+        '/login' : (BuildContext context) => const LogIn(),
+        '/email' : (BuildContext context) => const Email(),
+        '/username' : (BuildContext context) => const Username(),
+        '/recovery' : (BuildContext context) => const Recovery(),
+        '/camera' : (BuildContext context) => const DetectionWidget(),
       },
     );
   }
