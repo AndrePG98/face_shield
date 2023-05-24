@@ -34,10 +34,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     decoration: const InputDecoration(labelText: "Email"),
                     validator: (String ? value ){
                       if(value!.trim().isEmpty){
-                        return 'O email é obrigatório!';
+                        return 'Email is required!';
                       }
                       else if(!isValidEmail(value)){
-                        return "Formato de email incorreto";
+                        return "Invalid Email";
                       }
                       return null;
                     },
@@ -53,7 +53,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     decoration: const InputDecoration(labelText: "Password"),
                     validator: (String ? value ){
                       if(value!.trim().isEmpty){
-                        return 'A password é obrigatória!';
+                        return 'Password is required!';
                       }
                       return null;
                     },
@@ -87,7 +87,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(const SnackBar(
                                         content: Text(
-                                            "Utilizador criado com sucesso!"))),
+                                            "User created successfuly!"))),
                                   }
                                 else
                                   {
@@ -96,7 +96,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     }),
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(const SnackBar(
-                                        content: Text("Erro ao criar utilizador. Email já existente!"))),
+                                        content: Text("Error creating the user. Email already in use!"))),
                                   }
                               });
                             }

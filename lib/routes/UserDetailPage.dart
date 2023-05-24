@@ -49,9 +49,9 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       collections.doc(widget.id).delete();
                       Navigator.pop(context, true);
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("Utilizador eliminado com sucesso!")));
+                          content: Text("User deleted successfuly!")));
                     } catch (e) {
-                      print("Erro ao eliminar utilizador: $e");
+                      print("Error deleting the user: $e");
                     }
                     if (Navigator.of(context).canPop()) {
                       Navigator.pop(context, true);
@@ -89,9 +89,9 @@ class _UserDetailPageState extends State<UserDetailPage> {
                     decoration: const InputDecoration(labelText: 'Email'),
                     validator: (String? value) {
                       if (value!.trim().isEmpty) {
-                        return 'O email é obrigatório!';
+                        return 'The email is required!';
                       } else if (!isValidEmail(value)) {
-                        return "Formato de email incorreto";
+                        return "Invalid email";
                       }
                       return null;
                     },
@@ -106,9 +106,9 @@ class _UserDetailPageState extends State<UserDetailPage> {
                     decoration: const InputDecoration(labelText: 'Face Data'),
                     validator: (String? value) {
                       if (value!.trim().isEmpty) {
-                        return 'O Face Data é obrigatório!';
+                        return 'Face data is mandatory!';
                       } else if (int.parse(value.trim()) == 0) {
-                        return 'O Face Data tem de ser maior que 0!';
+                        return 'Face Data must be greater than 0!';
                       }
                     },
                     onChanged: (String value) {
@@ -141,7 +141,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                            });
                            Navigator.of(context).pop();
                      }).catchError((error){
-                       print("Erro ao atualizar os dados do utilizador $error");
+                       print("Error updating the user's data! $error");
                        setState(() {
                          _loading=false;
                        });

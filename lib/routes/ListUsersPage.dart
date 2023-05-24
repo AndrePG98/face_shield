@@ -34,7 +34,7 @@ class _ListUsersPage extends State<ListUsersPage> {
         _loading=false;
       });
     } catch (e) {
-      print("Erro ao carregar dados do utilizador $e");
+      print("Error loading user's data! $e");
     }
   }
 
@@ -85,7 +85,7 @@ class _ListUsersPage extends State<ListUsersPage> {
               )
             : userList.isEmpty && !_loading
                 ? const Center(
-                    child: Text("Sem utilizadores registados"),
+                    child: Text("No registered users!"),
                   )
                 : const Center(child: CircularProgressIndicator()));
   }

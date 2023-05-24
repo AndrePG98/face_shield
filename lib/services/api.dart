@@ -23,11 +23,11 @@ Future<bool> signUp(String email, String password) async {
       return true;
     }
     else{
-      print("User não criado!");
+      print("User not created!");
       return false;
     }
   } catch (e) {
-    print('Erro ao criar utilizador: $e');
+    print('Error creating the user: $e');
     return false;
   }
 }
@@ -39,11 +39,11 @@ Future<void> logIn(String email, String password) async {
     final User? user = userCredential.user;
 
     if (user != null) {
-      print("Utilizador logado ${userCredential.user!.uid} ");
+      print("User logged in ${userCredential.user!.uid} ");
     }
 
   } catch (e) {
-    print('Erro ao autenticar utilizador: $e');
+    print('Error authenticating the user: $e');
   }
 }
 
@@ -53,8 +53,8 @@ Future<void> editEmail(String email) async {
     if (user != null) {
       print(user);
       await user?.updateEmail(email);
-      print("Email atualizado com sucesso ${user.email} ");
+      print("Updated Email successfuly ${user.email} ");
     } else {
-      print("Falha ao atualizar email!");
+      print("Error updating the Email!");
     }
   }
