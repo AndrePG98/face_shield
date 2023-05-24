@@ -22,13 +22,11 @@ main() async {
 }
 
 class MainApp extends StatelessWidget {
-
   MainApp({super.key}){
     _initProcessor();
   }
 
   _initProcessor () async {
-
   }
 
   @override

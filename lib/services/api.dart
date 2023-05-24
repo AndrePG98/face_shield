@@ -11,18 +11,15 @@ Future<bool> signUp(String email, String password) async {
       email: email,
       password: password,
     );
-    Random random = new Random();
+    Random random = Random();
     double randomNumber = random.nextDouble();
     List<double> faceDataList = [randomNumber];
     final User? user = userCredential.user;
-
-
     if (user != null) {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .set({'email': user.email,'faceData': faceDataList});
-      print("Utilizador criado ${userCredential.user!.uid} ");
       return true;
     }
     else{
@@ -44,7 +41,6 @@ Future<void> logIn(String email, String password) async {
     if (user != null) {
       print("Utilizador logado ${userCredential.user!.uid} ");
     }
-
 
   } catch (e) {
     print('Erro ao autenticar utilizador: $e');

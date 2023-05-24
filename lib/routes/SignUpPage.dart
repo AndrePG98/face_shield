@@ -17,8 +17,6 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _loading = false;
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,11 +63,11 @@ class _SignUpPageState extends State<SignUpPage> {
                       });
                     },
                   ),
-                  const SizedBox(
+                   const SizedBox(
                     height: 16,
                   ),
                   _loading
-                      ? CircularProgressIndicator()
+                      ? const CircularProgressIndicator()
                       : ElevatedButton(
                           onPressed: () async {
                             if(_formKey.currentState!.validate()){

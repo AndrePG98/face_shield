@@ -26,10 +26,10 @@ class _UserDetailPageState extends State<UserDetailPage> {
   late TextEditingController _faceDataController;
   @override
   void initState(){
-    String faceDataString = widget.faceData[0].toString().replaceAll(RegExp(r'([.]*0)(?!.*\d)'),'');
+    //String faceDataString = widget.faceData[0].toString().replaceAll(RegExp(r'([.]*0)(?!.*\d)'),'');
     super.initState();
     _emailController = TextEditingController(text: widget.email);
-    _faceDataController=TextEditingController(text: faceDataString);
+    _faceDataController=TextEditingController();
   }
 
 
@@ -53,7 +53,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                     } catch (e) {
                       print("Erro ao eliminar utilizador: $e");
                     }
-                    if (context != null && Navigator.of(context).canPop()) {
+                    if (Navigator.of(context).canPop()) {
                       Navigator.pop(context, true);
                     }
                   },
@@ -73,7 +73,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
   }
 
   void _showEditConfirmationDialog(BuildContext context) {
-
     String faceDataText=widget.faceData.toString().replaceAll('[', '').replaceAll(']', '');
     showDialog(
         context: context,
@@ -135,7 +134,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
                          {
                            'email': _emailController.text, 'faceData' : faceDataList,
                          }).then((value) {
-                           print("Dados do utilizador atualizados com sucesso!");
                            setState(() {
                              _loading=false;
                              widget.email=_emailController.text;
@@ -149,8 +147,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                        });
                      });
 
-
-                      if (context != null && Navigator.of(context).canPop()) {
+                      if (Navigator.of(context).canPop()) {
                         Navigator.pop(context, true);
                       }
                     }
@@ -183,7 +180,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child:!_loading ? Column(
-                //crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Email',
