@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../helpers/Helpers.dart';
+
 class UserDetailPage extends StatefulWidget {
   final String id;
   late final String email;
   late final List<double> faceData;
-
 
   UserDetailPage(
       {super.key,
@@ -24,14 +24,19 @@ class _UserDetailPageState extends State<UserDetailPage> {
   bool _loading = false;
   late TextEditingController _emailController;
   late TextEditingController _faceDataController;
-  @override
-  void initState(){
-    //String faceDataString = widget.faceData[0].toString().replaceAll(RegExp(r'([.]*0)(?!.*\d)'),'');
-    super.initState();
-    _emailController = TextEditingController(text: widget.email);
-    _faceDataController=TextEditingController();
-  }
 
+  @override
+  void initState() {
+    super.initState();
+    String faceDataString = widget.faceData[0]
+        .toStringAsFixed(4)
+        .replaceAll(RegExp(r'([.]*0)(?!.*\d)'), '');
+    print("Aqui!");
+    print(faceDataString);
+    _emailController = TextEditingController(text: widget.email);
+    _faceDataController =
+        TextEditingController(text: widget.faceData[0].toStringAsFixed(4));
+  }
 
   void _showDeleteConfirmationDialog(BuildContext context) {
     showDialog(
@@ -49,7 +54,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       collections.doc(widget.id).delete();
                       Navigator.pop(context, true);
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("User deleted successfuly!")));
+                          content: Text("User deleted successfully!")));
                     } catch (e) {
                       print("Error deleting the user: $e");
                     }
@@ -73,7 +78,8 @@ class _UserDetailPageState extends State<UserDetailPage> {
   }
 
   void _showEditConfirmationDialog(BuildContext context) {
-    String faceDataText=widget.faceData.toString().replaceAll('[', '').replaceAll(']', '');
+    String faceDataText =
+        widget.faceData.toString().replaceAll('[', '').replaceAll(']', '');
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -95,14 +101,18 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       }
                       return null;
                     },
-                    onChanged: (String value) {
-                      setState(() {
-                        _formKey.currentState!.validate();
-                      });
-                    },
+                    //  onChanged: (String value) {
+                    //  setState(() {
+                    //  final FormState form = _formKey.currentState;
+                    // form.widget.
+                    // _formKey.currentState['email'].validate();
+                    //  });
+                    // },
                   ),
                   TextFormField(
                     controller: _faceDataController,
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(labelText: 'Face Data'),
                     validator: (String? value) {
                       if (value!.trim().isEmpty) {
@@ -111,11 +121,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
                         return 'Face Data must be greater than 0!';
                       }
                     },
-                    onChanged: (String value) {
-                      setState(() {
-                        _formKey.currentState!.validate();
-                      });
-                    },
                   )
                 ],
               ),
@@ -123,29 +128,35 @@ class _UserDetailPageState extends State<UserDetailPage> {
             actions: [
               TextButton(
                   onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                       setState(() {
-                      _loading = true;
+                    if (isValidEmail(_emailController.text)) {
+                      setState(() {
+                        _loading = true;
                       });
 
-                       List<double> faceDataList = [double.parse(_faceDataController.text)];
+                      List<double> faceDataList = [
+                        double.parse(_faceDataController.text)
+                      ];
                       //atualizar os dados no firebaseStore
-                     FirebaseFirestore.instance.collection('users').doc(widget.id).update(
-                         {
-                           'email': _emailController.text, 'faceData' : faceDataList,
-                         }).then((value) {
-                           setState(() {
-                             _loading=false;
-                             widget.email=_emailController.text;
-                             //widget.faceData=_faceDataController.text.toString() as List<double>;
-                           });
-                           Navigator.of(context).pop();
-                     }).catchError((error){
-                       print("Error updating the user's data! $error");
-                       setState(() {
-                         _loading=false;
-                       });
-                     });
+                      FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(widget.id)
+                          .update({
+                        'email': _emailController.text,
+                        'faceData': faceDataList,
+                      }).then((value) {
+                        setState(() {
+                          _loading = false;
+                          widget.email = _emailController.text;
+                        });
+
+                        if (Navigator.of(context).canPop()) {
+                        Navigator.pop(context);
+                    }
+                      }).catchError((error) {
+                        setState(() {
+                          _loading = false;
+                        });
+                      });
 
                       if (Navigator.of(context).canPop()) {
                         Navigator.pop(context, true);
@@ -179,69 +190,73 @@ class _UserDetailPageState extends State<UserDetailPage> {
             margin: const EdgeInsets.all(16),
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child:!_loading ? Column(
-                children: [
-                  const Text(
-                    'Email',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                  ),
-                  Text(
-                    _emailController.text,
-                    style: const TextStyle(fontSize: 25),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const Text(
-                    'FaceData',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                  ),
-                  Text(
-                    _faceDataController.text,
-                    style: const TextStyle(fontSize: 25),
-                  ),
-                  const SizedBox(
-                    height: 26,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _showEditConfirmationDialog(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 38)),
-                          child: const Text(
-                            'Edit',
-                            style: TextStyle(fontSize: 25),
-                          ),
+              child: !_loading
+                  ? Column(
+                      children: [
+                        const Text(
+                          'Email',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 30),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 26,
-                      ),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _showDeleteConfirmationDialog(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 30),
-                              backgroundColor: Colors.red),
-                          child: const Text(
-                            'Delete',
-                            style: TextStyle(fontSize: 25),
-                          ),
+                        Text(
+                          _emailController.text,
+                          style: const TextStyle(fontSize: 25),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ): const Center(child: CircularProgressIndicator()),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const Text(
+                          'FaceData',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 30),
+                        ),
+                        Text(
+                          _faceDataController.text,
+                          style: const TextStyle(fontSize: 25),
+                        ),
+                        const SizedBox(
+                          height: 26,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _showEditConfirmationDialog(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20, horizontal: 38)),
+                                child: const Text(
+                                  'Edit',
+                                  style: TextStyle(fontSize: 25),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 26,
+                            ),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _showDeleteConfirmationDialog(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20, horizontal: 30),
+                                    backgroundColor: Colors.red),
+                                child: const Text(
+                                  'Delete',
+                                  style: TextStyle(fontSize: 25),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  : const Center(child: CircularProgressIndicator()),
             ),
           ),
         ));
