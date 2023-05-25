@@ -91,7 +91,7 @@ class _LogInState extends State<LogIn> {
                                 });
                               },
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             ElevatedButton(
@@ -100,7 +100,7 @@ class _LogInState extends State<LogIn> {
                                       _passwordController.text);
                                   Navigator.pushNamed(context, '/editemail');
                                 },
-                                child: Text("Login", style: TextStyle(fontSize: 18)),)
+                                child: const Text("Login", style: TextStyle(fontSize: 18)),)
                           ],
                         ),
                       ),

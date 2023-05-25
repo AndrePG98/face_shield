@@ -35,12 +35,11 @@ class HomePage extends StatelessWidget{
                           text: "Sign up",
                           onPress: () => {Navigator.pushNamed(context, '/signup')}
                       ),
-                      const SizedBox(height: 20,),
-                      DefaultButton(
-                          text: "List users",
-                          onPress: () => {Navigator.pushNamed(context, '/listusers')}
+                    //  DefaultButton(
+                      //    text: "List users",
+                        //  onPress: () => {Navigator.pushNamed(context, '/listusers')}
 
-                      ),
+                    //  ),
                       const SizedBox(height: 20,),
                       const PopupButton()
                     ],

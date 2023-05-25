@@ -2,6 +2,7 @@ import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
 import 'package:face_shield/routes/camera.dart';
+import 'package:face_shield/routes/feed.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
@@ -46,6 +47,7 @@ class MainApp extends StatelessWidget {
         '/camera' : (BuildContext context) => CameraPage(),
         '/signup' : (BuildContext context) => SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),
+        '/feed': (BuildContext context) => const FeedPage()
 
       },
       onGenerateRoute: (settings){
