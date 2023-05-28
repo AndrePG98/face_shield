@@ -5,13 +5,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 Future<bool> signUp(String email, String password) async {
   try {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseAuth auth = FirebaseAuth.instance;
     final UserCredential userCredential =
-    await _auth.createUserWithEmailAndPassword(
+    await auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
-    Random random = new Random();
+    Random random = Random();
     double randomNumber = random.nextDouble();
     List<double> faceDataList = [randomNumber];
     final User? user = userCredential.user;

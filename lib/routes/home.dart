@@ -41,8 +41,7 @@ class HomePage extends StatelessWidget{
                           onPress: () => {Navigator.pushNamed(context, '/listusers')}
 
                       ),
-                      const SizedBox(height: 20,),
-                      const PopupButton()
+                      const SizedBox(height: 20,)
                     ],
                   ),
                 )
