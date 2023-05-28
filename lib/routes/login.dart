@@ -40,15 +40,15 @@ class _LogInState extends State<LogIn> {
                         children: [
                           TextField(
                             controller: _emailController,
-                            decoration: InputDecoration(labelText: "Email"),
+                            decoration: const InputDecoration(labelText: "Email"),
                           ),
                           const SizedBox(height: 25),
                           TextField(
                             controller: _passwordController,
                             obscureText: true,
-                            decoration: InputDecoration(labelText: "Password"),
+                            decoration: const InputDecoration(labelText: "Password"),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 16,
                           ),
                           ElevatedButton(
@@ -57,7 +57,7 @@ class _LogInState extends State<LogIn> {
                                     _passwordController.text);
                                 Navigator.pushNamed(context, '/editemail');
                               },
-                              child: Text("Login"))
+                              child: const Text("Login"))
                         ],
                       ),
                       const SizedBox(height: 25),
