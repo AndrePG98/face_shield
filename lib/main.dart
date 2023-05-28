@@ -1,14 +1,23 @@
-import 'package:face_shield/components/cameraWidget.dart';
-import 'package:face_shield/routes/detection.dart';
+import 'package:face_shield/routes/ListUsersPage.dart';
+import 'package:face_shield/routes/SignUpPage.dart';
+import 'package:face_shield/routes/UserDetailPage.dart';
+import 'package:face_shield/routes/camera.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
 import 'package:face_shield/routes/signup/email.dart';
 import 'package:face_shield/routes/signup/password.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 
 main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await Firebase.initializeApp();
   runApp(MainApp());
 }
 
@@ -36,7 +45,16 @@ class MainApp extends StatelessWidget {
         '/email' : (BuildContext context) => const Email(),
         '/username' : (BuildContext context) => const Username(),
         '/recovery' : (BuildContext context) => const Recovery(),
-        '/camera' : (BuildContext context) => const DetectionWidget(),
+        '/camera' : (BuildContext context) => CameraPage(),
+        '/signup' : (BuildContext context) => SignUpPage(),
+        '/listusers': (BuildContext context) => const ListUsersPage(),
+
+      },
+      onGenerateRoute: (settings){
+        if(settings.name == '/userdetail'){
+          final user=settings.arguments as UserData;
+          return MaterialPageRoute(builder: (context)=>UserDetailPage(id: user.id,email: user.email, faceData: user.faceData));
+        }
       },
     );
   }

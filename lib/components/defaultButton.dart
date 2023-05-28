@@ -17,7 +17,7 @@ class _DefaultBtnState extends State<DefaultButton> {
   late final ButtonStyle homePageBtnStyle = ButtonStyle(
     shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
     minimumSize: MaterialStateProperty.all<Size>(const Size(150,50)),
-    maximumSize: MaterialStateProperty.all<Size>(const Size(150,50)),
+    maximumSize: MaterialStateProperty.all<Size>(const Size(190,50)),
     textStyle: MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 25.0)),
   );
 
