@@ -41,11 +41,10 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       home: const HomePage(),
       routes: <String, WidgetBuilder> {
-        '/login' : (BuildContext context) => const LogIn(),
+        '/login' : (BuildContext context) => const DetectionWidget(),
         '/email' : (BuildContext context) => const Email(),
         '/username' : (BuildContext context) => const Username(),
         '/recovery' : (BuildContext context) => const Recovery(),
-        '/camera' : (BuildContext context) => const DetectionWidget(),
         '/signup' : (BuildContext context) => const SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),
 

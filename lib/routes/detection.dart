@@ -19,7 +19,6 @@ class DetectionState extends State<DetectionWidget>{
 
   @override
   Widget build(BuildContext context) {
-    String username = ModalRoute.of(context)!.settings.arguments as String;
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,

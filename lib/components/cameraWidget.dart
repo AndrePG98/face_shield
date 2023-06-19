@@ -20,7 +20,7 @@ class CameraWidget extends StatefulWidget {
 
   late final FaceProcessor faceProcessor;
   late final CameraProcessor cameraProcessor;
-  Map<String, bool> promptsMap = {'promptingSmile' : false, 'promptingLookLeft' : false, 'promptingLookRight' : false};
+  final Map<String, bool> promptsMap = {'promptingSmile' : false, 'promptingLookLeft' : false, 'promptingLookRight' : false};
 
   CameraWidget({Key? key}) : super(key: key){
     cameraProcessor = CameraProcessor();
