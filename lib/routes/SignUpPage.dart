@@ -17,7 +17,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _repeatPasswordController = TextEditingController();
   final TextEditingController _requirementsController = TextEditingController();
   bool showPasswordRequirements = false;
-  FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
   bool _loading = false;
 
   @override
@@ -160,10 +160,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                   }),
                                   _emailController.clear(),
                                   _passwordController.clear(),
+                                  _repeatPasswordController.clear(),
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(const SnackBar(
-                                      content: Text(
-                                          "User created"))),
+                                      content: Text("User created"))),
                                 }
                               else
                                 {
