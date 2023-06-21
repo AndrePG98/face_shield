@@ -1,3 +1,4 @@
+import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
@@ -47,7 +48,7 @@ class MainApp extends StatelessWidget {
         '/recovery' : (BuildContext context) => const Recovery(),
         '/signup' : (BuildContext context) => const SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),
-
+        '/feed' : (BuildContext context) => const FeedPage()
       },
       onGenerateRoute: (settings){
         if(settings.name == '/userdetail'){
