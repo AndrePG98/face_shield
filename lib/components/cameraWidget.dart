@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
@@ -20,7 +21,6 @@ class CameraWidget extends StatefulWidget {
 
   late final FaceProcessor faceProcessor;
   late final CameraProcessor cameraProcessor;
-  final Map<String, bool> promptsMap = {'promptingSmile' : false, 'promptingLookLeft' : false, 'promptingLookRight' : false};
 
   CameraWidget({Key? key}) : super(key: key){
     cameraProcessor = CameraProcessor();
@@ -39,12 +39,16 @@ class CameraWidgetState extends State<CameraWidget> {
   bool isInitialized = false;
   bool isPainterVisible = false;
   bool proofOfLifeTesting = false;
+  bool isFaceSquared = false;
   Face? detectedFace;
   CameraImage? faceImage;
   ConditionChecker conditionChecker = ConditionChecker();
   bool isSmiling = false;
   bool isLookingLeft = false;
   bool isLookingRight = false;
+  List<bool> conditions = [];
+  int maxAngle = 30;
+
 
 
   @override
@@ -55,6 +59,7 @@ class CameraWidgetState extends State<CameraWidget> {
 
   @override
   void initState(){
+    conditions = [isSmiling, isLookingLeft, isLookingRight];
     _start();
     super.initState();
   }
@@ -70,6 +75,50 @@ class CameraWidgetState extends State<CameraWidget> {
     }
   }
 
+  void _resetProofOflifeTesting(){
+    if(mounted){
+      setState(() {
+        conditionChecker.dispose();
+        proofOfLifeTesting = false;
+        isSmiling = false;
+        isLookingLeft = false;
+        isLookingRight = false;
+        conditionChecker = ConditionChecker();
+      });
+    }
+  }
+
+  void _proofOfLifeTest(image) async {
+    if(!isSmiling) {
+      isSmiling = await widget.faceProcessor.checkSmiling(image);
+    }
+    if(!isLookingLeft) {
+      isLookingLeft = await widget.faceProcessor.checkLookLeft(image);
+    }
+    if(!isLookingRight) {
+      isLookingRight = await widget.faceProcessor.checkLookRight(image);
+    }
+    if(mounted) {
+      setState(() {
+        conditionChecker.addConditions([isSmiling, isLookingLeft, isLookingRight]);
+      });
+    }
+  }
+
+  void _isFaceSquared() async {
+    if(mounted){
+      setState(() {
+        isFaceSquared = (detectedFace!.headEulerAngleY! < maxAngle && detectedFace!.headEulerAngleY! > -maxAngle)
+            && (detectedFace!.headEulerAngleX! < maxAngle && detectedFace!.headEulerAngleX! > -maxAngle);
+        if(isFaceSquared) {
+          proofOfLifeTesting = true;
+        } else {
+          _resetProofOflifeTesting();
+        }
+      });
+    }
+  }
+
   void detect() async {
     await widget.cameraProcessor.controller.startImageStream((image) async {
       if(isDetecting) return;
@@ -82,31 +131,26 @@ class CameraWidgetState extends State<CameraWidget> {
             detectedFace = faces[0];
             faceImage = image;
           });
-          if(proofOfLifeTesting){
-            if(!isSmiling) isSmiling = await widget.faceProcessor.checkSmiling(image);
-            if(!isLookingLeft) isLookingLeft = await widget.faceProcessor.checkLookLeft(image);
-            if(!isLookingRight) isLookingRight = await widget.faceProcessor.checkLookRight(image);
-            setState(() {
-              conditionChecker.checkConditions([isSmiling, isLookingLeft, isLookingRight]);
-            });
-          } else {
+          _isFaceSquared();
+          if(isFaceSquared){
+            _proofOfLifeTest(image);
+          } else{
             if(mounted){
-              setState(()  {
-                if((detectedFace!.headEulerAngleY! < 20 && detectedFace!.headEulerAngleY! > -20) && (detectedFace!.headEulerAngleX! < 20 && detectedFace!.headEulerAngleX! > -20)){
-                  proofOfLifeTesting = true;
-                }
+              setState(() {
+                _resetProofOflifeTesting();
               });
             }
           }
         }
-      } else {
+      } else { // 0 faces detected
         if(mounted){
           setState(() {
             isPainterVisible = false;
+            _resetProofOflifeTesting();
           });
         }
       }
-      if(mounted){
+      if(mounted){ // loop over
         setState(() {
           isDetecting = false;
           faces = [];

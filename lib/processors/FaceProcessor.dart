@@ -137,6 +137,7 @@ class FaceProcessor{
     }
     return sqrt(sum);
   }
+
   Future<bool> compareFaces(CameraImage cameraImage,List<double> prediction) async{
     List<dynamic> inputFace = await _imageToFaceData(cameraImage);
     return _euclideanDistance(inputFace, prediction) <= _threshold;
