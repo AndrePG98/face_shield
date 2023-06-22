@@ -1,9 +1,5 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -26,22 +22,19 @@ class _ListUsersPage extends State<ListUsersPage> {
       QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('users').get();
 
-      if (snapshot.docs.isNotEmpty != null) {
-        setState(() {
-
-          userList = snapshot.docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            return UserData(
-              id: doc.id,
-              email: data['email'] ?? '',
-              faceData: List<double>.from(data['faceData'] ?? []),
-            );
-          }).toList();
-          _loading=false;
-        });
-      }
+      setState(() {
+        userList = snapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return UserData(
+            id: doc.id,
+            email: data['email'] ?? '',
+            faceData: List<double>.from(data['faceData'] ?? []),
+          );
+        }).toList();
+        _loading=false;
+      });
     } catch (e) {
-      print("Erro ao carregar dados do utilizador $e");
+      print("Error loading user's data! $e");
     }
   }
 
@@ -55,9 +48,9 @@ class _ListUsersPage extends State<ListUsersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("List Users"),
+          title: const Text("List Users"),
         ),
-        body: userList.length > 0
+        body: userList.isNotEmpty
             ? SingleChildScrollView(
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height,
@@ -90,11 +83,18 @@ class _ListUsersPage extends State<ListUsersPage> {
                   ),
                 ),
               )
-            : userList.length == 0 && !_loading
-                ? const Center(
-                    child: Text("Sem utilizadores registados"),
+            : userList.isEmpty && !_loading
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.warning, size: 64, color: Colors.grey,),
+                        SizedBox(height: 16,),
+                        Text("No registered users!", style: TextStyle(fontSize: 28),),
+                      ],
+                    ),
                   )
-                : Center(child: CircularProgressIndicator()));
+                : const Center(child: CircularProgressIndicator()));
   }
 }
 

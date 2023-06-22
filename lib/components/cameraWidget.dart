@@ -1,5 +1,4 @@
 
-import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
@@ -185,7 +184,7 @@ class CameraWidgetState extends State<CameraWidget> {
             bool result = snapshot.data!.every((element) => element == true);
             if(result) {
               widget.cameraProcessor.dispose();
-              Future.delayed(const Duration(milliseconds: 50), () => Navigator.popAndPushNamed(context, '/'));
+              Future.delayed(const Duration(milliseconds: 50), () => Navigator.popAndPushNamed(context, '/feed'));
               return const Center();
             }
             return Stack(
