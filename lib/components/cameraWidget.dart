@@ -86,9 +86,12 @@ class CameraWidgetState extends State<CameraWidget> {
             if(!isSmiling) isSmiling = await widget.faceProcessor.checkSmiling(image);
             if(!isLookingLeft) isLookingLeft = await widget.faceProcessor.checkLookLeft(image);
             if(!isLookingRight) isLookingRight = await widget.faceProcessor.checkLookRight(image);
-            setState(() {
-              conditionChecker.checkConditions([isSmiling, isLookingLeft, isLookingRight]);
-            });
+            if(mounted){
+              setState(() {
+                conditionChecker.checkConditions([isSmiling, isLookingLeft, isLookingRight]);
+              });
+            }
+
           } else {
             if(mounted){
               setState(()  {
