@@ -2,8 +2,9 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:flutter/material.dart';
 
 class FacePainter extends CustomPainter {
-  FacePainter({required this.imageSize, required this.face});
+  FacePainter({required this.imageSize, required this.face, required this.maxAngle});
   final Size imageSize;
+  int maxAngle;
   double? scaleX, scaleY;
   Face? face;
   @override
@@ -12,7 +13,7 @@ class FacePainter extends CustomPainter {
 
     Paint paint;
 
-    if ((face!.headEulerAngleY! > 5 || face!.headEulerAngleY! < -5) || (face!.headEulerAngleX! > 5 || face!.headEulerAngleX! < -5)) {
+    if ((face!.headEulerAngleY! > maxAngle || face!.headEulerAngleY! < -maxAngle) || (face!.headEulerAngleX! > maxAngle || face!.headEulerAngleX! < -maxAngle)) {
       paint = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3.0
@@ -40,6 +41,10 @@ class FacePainter extends CustomPainter {
   @override
   bool shouldRepaint(FacePainter oldDelegate) {
     return oldDelegate.imageSize != imageSize || oldDelegate.face != face;
+  }
+
+  void setMaxAngle(int newAngle){
+    maxAngle = newAngle;
   }
 }
 

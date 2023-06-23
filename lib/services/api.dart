@@ -6,9 +6,9 @@ import 'package:face_shield/processors/FaceProcessor.dart';
 
 Future<bool> signUp(String email, String password, {List<double>? faceDataList}) async {
   try {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseAuth auth = FirebaseAuth.instance;
     final UserCredential userCredential =
-    await _auth.createUserWithEmailAndPassword(
+    await auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );

@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget{
   Widget build(BuildContext context){
     return Scaffold(
       body: SingleChildScrollView(
-        child: SizedBox(
+        child: Container(
           height: MediaQuery.of(context).size.height,
           child: Center(
             child: Column(
@@ -35,13 +35,13 @@ class HomePage extends StatelessWidget{
                           text: "Sign up",
                           onPress: () => {Navigator.pushNamed(context, '/signup')}
                       ),
-                    //  DefaultButton(
-                      //    text: "List users",
-                        //  onPress: () => {Navigator.pushNamed(context, '/listusers')}
-
-                    //  ),
                       const SizedBox(height: 20,),
-                      const PopupButton()
+                      DefaultButton(
+                          text: "List users",
+                          onPress: () => {Navigator.pushNamed(context, '/listusers')}
+
+                      ),
+                      const SizedBox(height: 20,)
                     ],
                   ),
                 )

@@ -1,13 +1,13 @@
+import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
 import 'package:face_shield/routes/camera.dart';
 import 'package:face_shield/routes/feed.dart';
+import 'package:face_shield/routes/detection.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
-import 'package:face_shield/routes/signup/email.dart';
-import 'package:face_shield/routes/signup/password.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -40,15 +40,11 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       home: const HomePage(),
       routes: <String, WidgetBuilder> {
-        '/login' : (BuildContext context) => const LogIn(),
-        '/email' : (BuildContext context) => const Email(),
-        '/username' : (BuildContext context) => const Username(),
+        '/login' : (BuildContext context) => const DetectionWidget(),
         '/recovery' : (BuildContext context) => const Recovery(),
-        '/camera' : (BuildContext context) => CameraPage(),
-        '/signup' : (BuildContext context) => SignUpPage(),
+        '/signup' : (BuildContext context) => const SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),
-        '/feed': (BuildContext context) => const FeedPage()
-
+        '/feed' : (BuildContext context) => const FeedPage()
       },
       onGenerateRoute: (settings){
         if(settings.name == '/userdetail'){

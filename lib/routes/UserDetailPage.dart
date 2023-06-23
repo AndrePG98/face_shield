@@ -7,13 +7,9 @@ import '../helpers/Helpers.dart';
 class UserDetailPage extends StatefulWidget {
   final String id;
   late final String email;
-  late final List<double> faceData;
+  final List<double> faceData;
 
-  UserDetailPage(
-      {super.key,
-      required this.id,
-      required this.email,
-      required this.faceData});
+  UserDetailPage({super.key, required this.id,required this.email, required this.faceData});
 
   @override
   State<UserDetailPage> createState() => _UserDetailPageState();
@@ -25,14 +21,13 @@ class _UserDetailPageState extends State<UserDetailPage> {
   late TextEditingController _emailController;
   late TextEditingController _faceDataController;
 
+
   @override
   void initState() {
     super.initState();
     String faceDataString = widget.faceData[0]
         .toStringAsFixed(4)
         .replaceAll(RegExp(r'([.]*0)(?!.*\d)'), '');
-    print("Aqui!");
-    print(faceDataString);
     _emailController = TextEditingController(text: widget.email);
     _faceDataController =
         TextEditingController(text: widget.faceData[0].toStringAsFixed(4));
@@ -43,23 +38,22 @@ class _UserDetailPageState extends State<UserDetailPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Confirmation'),
-            content: const Text('Do you want to delete this user?'),
+            title: Text('Confirmation'),
+            content: Text('Do you want to delete this user?'),
             actions: [
               TextButton(
                   onPressed: () async {
                     try {
-                      final CollectionReference collections =
-                          FirebaseFirestore.instance.collection('users');
+                      final CollectionReference collections = FirebaseFirestore.instance.collection('users') ;
                       collections.doc(widget.id).delete();
-                      Navigator.pop(context, true);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("User deleted successfully!")));
+                      Navigator.pop(context,true);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User deleted successfully!")));
+
                     } catch (e) {
                       print("Error deleting the user: $e");
                     }
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.pop(context, true);
+                    if(context != null && Navigator.of(context).canPop()){
+                      Navigator.pop(context,true);
                     }
                   },
                   style: TextButton.styleFrom(backgroundColor: Colors.red),
@@ -79,7 +73,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
 
   void _showEditConfirmationDialog(BuildContext context) {
     String faceDataText =
-        widget.faceData.toString().replaceAll('[', '').replaceAll(']', '');
+    widget.faceData.toString().replaceAll('[', '').replaceAll(']', '');
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -101,18 +95,11 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       }
                       return null;
                     },
-                    //  onChanged: (String value) {
-                    //  setState(() {
-                    //  final FormState form = _formKey.currentState;
-                    // form.widget.
-                    // _formKey.currentState['email'].validate();
-                    //  });
-                    // },
                   ),
                   TextFormField(
                     controller: _faceDataController,
                     keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
+                    TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(labelText: 'Face Data'),
                     validator: (String? value) {
                       if (value!.trim().isEmpty) {
@@ -150,8 +137,8 @@ class _UserDetailPageState extends State<UserDetailPage> {
                         });
 
                         if (Navigator.of(context).canPop()) {
-                        Navigator.pop(context);
-                    }
+                          Navigator.pop(context, true);
+                        }
                       }).catchError((error) {
                         setState(() {
                           _loading = false;
@@ -178,85 +165,93 @@ class _UserDetailPageState extends State<UserDetailPage> {
         });
   }
 
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text("User Detail"),
         ),
-        body: SizedBox(
-          width: double.infinity,
-          child: Card(
-            margin: const EdgeInsets.all(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: !_loading
-                  ? Column(
+        body: WillPopScope(
+          onWillPop: () async{
+            Navigator.pop(context, true);
+            return false;
+          },
+          child: SizedBox(
+            width: double.infinity,
+            child: Card(
+              margin: const EdgeInsets.all(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: !_loading
+                ? Column(
+                  children: [
+                    const Text(
+                      'Email',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                    ),
+                    Text(
+                      _emailController.text,
+                      style: const TextStyle(fontSize: 25),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const Text(
+                      'FaceData',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                    ),
+                    Text(
+                      _faceDataController.text,
+                      style: const TextStyle(fontSize: 25),
+                    ),
+                    const SizedBox(
+                      height: 26,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'Email',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 30),
-                        ),
-                        Text(
-                          _emailController.text,
-                          style: const TextStyle(fontSize: 25),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _showEditConfirmationDialog(context);
+                            },
+                            child: const Text(
+                              'Edit',
+                              style: TextStyle(fontSize: 25),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 38)),
+                          ),
                         ),
                         const SizedBox(
-                          height: 20,
+                          width: 26,
                         ),
-                        const Text(
-                          'FaceData',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 30),
-                        ),
-                        Text(
-                          _faceDataController.text,
-                          style: const TextStyle(fontSize: 25),
-                        ),
-                        const SizedBox(
-                          height: 26,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  _showEditConfirmationDialog(context);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 20, horizontal: 38)),
-                                child: const Text(
-                                  'Edit',
-                                  style: TextStyle(fontSize: 25),
-                                ),
-                              ),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _showDeleteConfirmationDialog(context);
+                            },
+                            child: Text(
+                              'Delete',
+                              style: TextStyle(fontSize: 25),
                             ),
-                            const SizedBox(
-                              width: 26,
-                            ),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  _showDeleteConfirmationDialog(context);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 20, horizontal: 30),
-                                    backgroundColor: Colors.red),
-                                child: const Text(
-                                  'Delete',
-                                  style: TextStyle(fontSize: 25),
-                                ),
-                              ),
-                            ),
-                          ],
+                            style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 30),
+                                backgroundColor: Colors.red),
+                          ),
                         ),
                       ],
-                    )
-                  : const Center(child: CircularProgressIndicator()),
+                    ),
+                  ],
+                )
+                    : const Center(child: CircularProgressIndicator()),
+              ),
             ),
           ),
         ));
