@@ -46,7 +46,7 @@ class CameraWidgetState extends State<CameraWidget> {
   bool isLookingLeft = false;
   bool isLookingRight = false;
   List<bool> conditions = [];
-  int maxAngle = 30;
+  int maxAngle = 20;
 
 
 
@@ -111,8 +111,6 @@ class CameraWidgetState extends State<CameraWidget> {
             && (detectedFace!.headEulerAngleX! < maxAngle && detectedFace!.headEulerAngleX! > -maxAngle);
         if(isFaceSquared) {
           proofOfLifeTesting = true;
-        } else {
-          _resetProofOflifeTesting();
         }
       });
     }
@@ -133,12 +131,6 @@ class CameraWidgetState extends State<CameraWidget> {
           _isFaceSquared();
           if(isFaceSquared){
             _proofOfLifeTest(image);
-          } else{
-            if(mounted){
-              setState(() {
-                _resetProofOflifeTesting();
-              });
-            }
           }
         }
       } else { // 0 faces detected
@@ -167,16 +159,19 @@ class CameraWidgetState extends State<CameraWidget> {
   Widget build(BuildContext context) {
     Widget body;
     if(isInitialized){
-     Visibility painter = Visibility(
-          visible: isPainterVisible,
-          child: CustomPaint(
-              painter: FacePainter(
-                  face: detectedFace,
-                  imageSize: widget.cameraProcessor.getImageSize()
-              )
-          )
-      );
      if(proofOfLifeTesting){
+       FacePainter facePainter = FacePainter(
+           face: detectedFace,
+           imageSize: widget.cameraProcessor.getImageSize(),
+           maxAngle: 50
+       );
+       Visibility painter = Visibility(
+           visible: isPainterVisible,
+           child: CustomPaint(
+               painter: facePainter
+           )
+       );
+       maxAngle = facePainter.maxAngle;
        body = StreamBuilder<List<bool>>(
          stream: conditionChecker.conditionStream,
          builder: (context, snapshot) {
@@ -217,6 +212,18 @@ class CameraWidgetState extends State<CameraWidget> {
          }
        );
      } else {
+       FacePainter facePainter = FacePainter(
+           face: detectedFace,
+           imageSize: widget.cameraProcessor.getImageSize(),
+           maxAngle: 20
+       );
+       Visibility painter = Visibility(
+           visible: isPainterVisible,
+           child: CustomPaint(
+               painter: facePainter
+           )
+       );
+       maxAngle = facePainter.maxAngle;
        body = Stack(
          fit: StackFit.expand,
          children: [
