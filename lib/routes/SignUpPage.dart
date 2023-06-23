@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../helpers/Helpers.dart';
 import '../services/api.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -12,6 +13,7 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _isPasswordVisible = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController = TextEditingController();
@@ -38,7 +40,6 @@ class _SignUpPageState extends State<SignUpPage> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -8,6 +8,7 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 import 'dart:math';
+import 'package:face_shield/services/api.dart';
 
 class FaceProcessor{
   final double _threshold = 0.6; // threshold for face recognition (euclidean distance)
@@ -156,7 +157,7 @@ class FaceProcessor{
   }
   List _imageToByteListFloat32(img.Image image) { //turn image in usable data to pass to
     var convertedBytes = Float32List(1 * 112 * 112 * 3); // tensorflow interpreter
-    var buffer = Float32List.view(convertedBytes.buffer); // with facenet model
+    var buffer = Float32List.view(convertedBytes.buffer); // with faceNet model
     int pixelIndex = 0;
 
     for (var i = 0; i < 112; i++) {
@@ -169,7 +170,7 @@ class FaceProcessor{
     }
     return convertedBytes.buffer.asFloat32List();
   }
-  double _euclideanDistance(List? face1, List? face2) {
+  double euclideanDistance(List? face1, List? face2) {
     double sum = 0.0;
     for (int i = 0; i < face1!.length; i++) {
       sum += pow((face1[i] - face2![i]), 2);
@@ -179,7 +180,7 @@ class FaceProcessor{
 
   Future<bool> compareFaces(CameraImage cameraImage,List<double> prediction) async{
     List<dynamic> inputFace = await _imageToFaceData(cameraImage);
-    return _euclideanDistance(inputFace, prediction) <= _threshold;
+    return euclideanDistance(inputFace, prediction) <= _threshold;
   }
   void _initiateInterpreter() async{
     _delegate = GpuDelegateV2(
@@ -195,12 +196,8 @@ class FaceProcessor{
     _interpreter = await Interpreter.fromAsset('mobilefacenet.tflite',
         options: _options);
   }
-  void insertUserInDataBase(String username,String password,List<double> faceData){
-    // DBhelper.insertUser(username,password,faceData);
-  }
 
-  Future<List<dynamic>> convertCameraImageToInputList(CameraImage cameraImage) async {
-    img.Image? returnImage = null;
+Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
     InputImage inputImage = InputImage.fromBytes(
       bytes: _concatenatePlanes(cameraImage.planes),
       inputImageData: InputImageData(
@@ -218,13 +215,18 @@ class FaceProcessor{
         ).toList(),
       ),
     );
+    return inputImage;
+  }
+
+  Future<img.Image?> _fromCameraImageToImage(CameraImage cameraImage, InputImage inputImage) async{
+    img.Image? returnImage;
     final bytes = inputImage.bytes;
-    if(bytes != null || inputImage.bytes!.length <= 1843200) {
+    if(bytes != null) {
       if(Platform.isAndroid){
-        returnImage = img.decodeTga(bytes!);
+        returnImage = img.decodeImage(bytes);
       } else if (Platform.isIOS){
         final rgbaBytes = Uint8List(cameraImage.width * cameraImage.height * 4);
-        for (var i=0 , j=0; i < bytes!.length; i+= 4 , j+= 3) {
+        for (var i=0 , j=0; i < bytes.length; i+= 4 , j+= 3) {
           rgbaBytes[j] = bytes[i + 2];
           rgbaBytes[j + 1] = bytes[i + 1];
           rgbaBytes[j + 2] = bytes[i];
@@ -233,7 +235,12 @@ class FaceProcessor{
         returnImage = img.decodeImage(rgbaBytes);
       }
     }
+    return returnImage;
+  }
 
+  Future<List<dynamic>> convertCameraImageToInputList(CameraImage cameraImage)  async{
+    InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
+    img.Image? returnImage = await _fromCameraImageToImage(cameraImage, inputImage);
     return [inputImage, returnImage];
   }
 
@@ -244,4 +251,34 @@ class FaceProcessor{
     }
     return allBytes.done().buffer.asUint8List();
   }
+
+  Future<Object> findBestMatchingUser(List<double> currentUserFaceData) async {
+    final allUsers = await fetchAllUsers();
+
+    double bestDistance = 1.0;
+    Map<String, dynamic>? bestMatchingUser;
+
+    for (var user in allUsers) {
+      final faceData = List<double>.from(user['faceData']);
+      double distance = euclideanDistance(currentUserFaceData, faceData);
+
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestMatchingUser = user;
+      }
+    }
+
+    if (bestDistance > _threshold){
+      return 'No matching user';
+    }
+    else{
+      if(bestMatchingUser == null){
+        return 'No matching user';
+      }
+      else{
+        return bestMatchingUser;
+      }
+    }
+  }
 }
+

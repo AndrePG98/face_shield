@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:face_shield/processors/FaceProcessor.dart';
 
-Future<bool> signUp(String email, String password) async {
+Future<bool> signUp(String email, String password, {List<double>? faceDataList}) async {
   try {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final UserCredential userCredential =
@@ -11,43 +12,47 @@ Future<bool> signUp(String email, String password) async {
       email: email,
       password: password,
     );
-    Random random = Random();
-    double randomNumber = random.nextDouble();
-    List<double> faceDataList = [randomNumber];
     final User? user = userCredential.user;
-
-
     if (user != null) {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .set({'email': user.email,'faceData': faceDataList});
-      print("Utilizador criado ${userCredential.user!.uid} ");
       return true;
     }
     else{
-      print("User não criado!");
+      print("User not created!");
       return false;
     }
   } catch (e) {
-    print('Erro ao criar utilizador: $e');
+    print('Error creating the user: $e');
     return false;
   }
 }
 
 
-Future<void> logIn(String email, String password) async {
-  try {
-    final UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-    final User? user = userCredential.user;
+Future<void> logIn(String email, String password, List<double> faceData) async {
+  //face comparison for login
+  var user = await fetchUserByEmail(email);
+  List<double> facePrediction = user!['faceData'];
+  double distance = FaceProcessor().euclideanDistance(faceData, facePrediction);
 
-    if (user != null) {
-      print("Utilizador logado ${userCredential.user!.uid} ");
+  if(distance <= 0.05){ //if ED from login attempt and prediction is small it is most likely the same person
+    try {
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        print("User logged in ${userCredential.user!.uid} ");
+      }
+
+    } catch (e) {
+      print('Error authenticating the user: $e');
     }
-
-
-  } catch (e) {
-    print('Erro ao autenticar utilizador: $e');
+  }
+  else{ // if ED from login attempt and prediction is greater than 0.05 than it is most likely not the same person
+    print('Face does not match user');
+    return null;
   }
 }
 
@@ -57,8 +62,39 @@ Future<void> editEmail(String email) async {
     if (user != null) {
       print(user);
       await user?.updateEmail(email);
-      print("Email atualizado com sucesso ${user.email} ");
+      print("Updated Email successfuly ${user.email} ");
     } else {
-      print("Falha ao atualizar email!");
+      print("Error updating the Email!");
     }
   }
+
+Future<List<Map<String, dynamic>>> fetchAllUsers() async { //lista de dicionarios de users
+  final usersCollection = FirebaseFirestore.instance.collection('users');
+  final querySnapshot = await usersCollection.get();
+  return querySnapshot.docs.map((doc) => doc.data()).toList();
+}
+
+Future<Map<String, dynamic>?> fetchUserByEmail(String email) async {
+  final usersCollection = FirebaseFirestore.instance.collection('users');
+  final querySnapshot = await usersCollection.where('email', isEqualTo: email).limit(1).get();
+
+  if (querySnapshot.docs.isNotEmpty) {
+    final userDocument = querySnapshot.docs.first;
+    return userDocument.data();
+  }
+
+  return null; // User with the specified email not found
+}
+
+Future<Map<String, dynamic>?> fetchUserByFace(List<double> face) async {
+  final usersCollection = FirebaseFirestore.instance.collection('users');
+  final querySnapshot = await usersCollection.where('faceData', isEqualTo: face).limit(1).get();
+
+  if (querySnapshot.docs.isNotEmpty) {
+    final userDocument = querySnapshot.docs.first;
+    return userDocument.data();
+  }
+
+  return null; // User with the specified email not found
+}
+

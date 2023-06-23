@@ -2,6 +2,8 @@ import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
+import 'package:face_shield/routes/camera.dart';
+import 'package:face_shield/routes/feed.dart';
 import 'package:face_shield/routes/detection.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
@@ -21,13 +23,11 @@ main() async {
 }
 
 class MainApp extends StatelessWidget {
-
   MainApp({super.key}){
     _initProcessor();
   }
 
   _initProcessor () async {
-
   }
 
   @override
