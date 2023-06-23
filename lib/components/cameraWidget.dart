@@ -1,18 +1,11 @@
-
-import 'dart:ffi';
-import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
-import 'package:face_shield/components/alertQueue.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/ConditioChecker.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:image/image.dart' as img;
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'dart:math';
+import 'package:face_shield/components/AnimatedText.dart';
+
 
 import 'facePainter.dart';
 
@@ -46,7 +39,6 @@ class CameraWidgetState extends State<CameraWidget> {
   bool isLookingLeft = false;
   bool isLookingRight = false;
   bool isBlinking = false;
-  List<bool> conditions = [];
   int maxAngle = 20;
   bool livenessCheck = false;
 
@@ -60,7 +52,6 @@ class CameraWidgetState extends State<CameraWidget> {
 
   @override
   void initState(){
-    conditions = [isSmiling, isLookingLeft, isLookingRight];
     _start();
     super.initState();
   }
@@ -84,6 +75,7 @@ class CameraWidgetState extends State<CameraWidget> {
         isSmiling = false;
         isLookingLeft = false;
         isLookingRight = false;
+        isBlinking = false;
         conditionChecker = ConditionChecker();
       });
     }
@@ -131,133 +123,142 @@ class CameraWidgetState extends State<CameraWidget> {
   }
 
   void detect() async {
-    await widget.cameraProcessor.controller.startImageStream((image) async {
-      if(isDetecting) return;
-      isDetecting = true;
-      List<Face> faces = await getFaces(image);
-      if(faces.isNotEmpty){
-        if(mounted){
-          setState(() {
-            isPainterVisible = true;
-            detectedFace = faces[0];
-            faceImage = image;
-          });
-          if(!livenessCheck){
-            _livenessCheck(image);
+    if(mounted){
+      await widget.cameraProcessor.controller.startImageStream((image) async {
+        if(isDetecting) return;
+        isDetecting = true;
+        List<Face> faces = await getFaces(image);
+        if(faces.isNotEmpty){
+          if(mounted){
+            setState(() {
+              isPainterVisible = true;
+              detectedFace = faces[0];
+              faceImage = image;
+            });
+            if(!livenessCheck){
+              _livenessCheck(image);
+            }
+            _isFaceSquared();
+            if(isFaceSquared && livenessCheck){
+              _proofOfLifeTest(image);
+
+            }
           }
-          _isFaceSquared();
-          if(isFaceSquared && livenessCheck){
-            _proofOfLifeTest(image);
+        } else { // 0 faces detected
+          if(mounted){
+            setState(() {
+              isPainterVisible = false;
+              _resetProofOflifeTesting();
+              livenessCheck = false;
+            });
           }
         }
-      } else { // 0 faces detected
-        if(mounted){
+        if(mounted){ // loop over
           setState(() {
-            isPainterVisible = false;
-            _resetProofOflifeTesting();
-            livenessCheck = false;
+            isDetecting = false;
+            faces = [];
           });
         }
-      }
-      if(mounted){ // loop over
-        setState(() {
-          isDetecting = false;
-          faces = [];
-        });
-      }
-    });
+      });
+    }
   }
 
   Future<List<Face>> getFaces(CameraImage image) async {
     return await widget.faceProcessor.detect(image);
   }
 
-
   @override
   Widget build(BuildContext context) {
     Widget body;
-    if(isInitialized){
-     if(proofOfLifeTesting){
-       FacePainter facePainter = FacePainter(
-           face: detectedFace,
-           imageSize: widget.cameraProcessor.getImageSize(),
-           maxAngle: 50
-       );
-       Visibility painter = Visibility(
-           visible: isPainterVisible,
-           child: CustomPaint(
-               painter: facePainter
-           )
-       );
-       maxAngle = facePainter.maxAngle;
-       body = StreamBuilder<List<bool>>(
-         stream: conditionChecker.conditionStream,
-         builder: (context, snapshot) {
-           if(snapshot.hasData){
-            bool result = snapshot.data!.every((element) => element == true);
-            if(result) {
-              widget.cameraProcessor.dispose();
-              Future.delayed(const Duration(milliseconds: 50), () => Navigator.popAndPushNamed(context, '/feed'));
-              return const Center();
-            }
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                CameraPreview(widget.cameraProcessor.controller),
-                painter,
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+    if(mounted){
+      if(isInitialized){
+        if(proofOfLifeTesting){
+          FacePainter facePainter = FacePainter(
+              face: detectedFace,
+              imageSize: widget.cameraProcessor.getImageSize(),
+              maxAngle: 50
+          );
+          Visibility painter = Visibility(
+              visible: isPainterVisible,
+              child: CustomPaint(
+                  painter: facePainter
+              )
+          );
+          maxAngle = facePainter.maxAngle;
+          body = StreamBuilder<List<bool>>(
+              stream: conditionChecker.conditionStream,
+              builder: (context, snapshot) {
+                if(snapshot.hasData){
+                  bool result = snapshot.data!.every((element) => element == true);
+                  if(result) {
+                    if(mounted){
+                      widget.cameraProcessor.dispose();
+                      Future.delayed(const Duration(milliseconds: 500), () => Navigator.popAndPushNamed(context, "/feed", arguments: [faceImage, detectedFace]));
+                    }
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Checkbox(value: isSmiling, onChanged: null,),
-                      Checkbox(value: isLookingLeft, onChanged: null),
-                      Checkbox(value: isLookingRight, onChanged: null),
-                      Checkbox(value: isBlinking, onChanged: null)
+                      CameraPreview(widget.cameraProcessor.controller),
+                      painter,
+                      Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                              padding: const EdgeInsets.only(bottom: 5.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  AnimatedText(value: isSmiling, label: "Smile"),
+                                  AnimatedText(value: isLookingLeft, label: "Look Left"),
+                                  AnimatedText(value: isLookingRight, label: "Look Right"),
+                                  AnimatedText(value: isBlinking, label: "Blink"),
+                                ],
+                              )
+                          )
+                      )
                     ],
-                  )
-                )
-              ],
-            );
-           }
-           return Stack(
-             fit: StackFit.expand,
-             children: [
-               CameraPreview(widget.cameraProcessor.controller),
-               painter
-             ],
-           );
-         }
-       );
-     } else {
-       FacePainter facePainter = FacePainter(
-           face: detectedFace,
-           imageSize: widget.cameraProcessor.getImageSize(),
-           maxAngle: 20
-       );
-       Visibility painter = Visibility(
-           visible: isPainterVisible,
-           child: CustomPaint(
-               painter: facePainter
-           )
-       );
-       maxAngle = facePainter.maxAngle;
-       body = Stack(
-         fit: StackFit.expand,
-         children: [
-           CameraPreview(widget.cameraProcessor.controller),
-           painter
-         ],
-       );
-     }
-    } else {
-      body = const Center(child: CircularProgressIndicator());
+                  );
+                }
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CameraPreview(widget.cameraProcessor.controller),
+                    painter
+                  ],
+                );
+              }
+          );
+        } else {
+          FacePainter facePainter = FacePainter(
+              face: detectedFace,
+              imageSize: widget.cameraProcessor.getImageSize(),
+              maxAngle: 20
+          );
+          Visibility painter = Visibility(
+              visible: isPainterVisible,
+              child: CustomPaint(
+                  painter: facePainter
+              )
+          );
+          body = Stack(
+            fit: StackFit.expand,
+            children: [
+              CameraPreview(widget.cameraProcessor.controller),
+              painter
+            ],
+          );
+        }
+      } else {
+        body = const Center(child: CircularProgressIndicator());
+      }
+      return Stack(
+          fit: StackFit.expand,
+          children: [body]
+      );
     }
-    return Stack(
-      fit: StackFit.expand,
-      children: [body]
-    );
+    return const Center();
   }
 }
 

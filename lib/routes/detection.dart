@@ -14,7 +14,14 @@ class DetectionWidget extends StatefulWidget{
 
 class DetectionState extends State<DetectionWidget>{
 
-  CameraWidget cameraWidget = CameraWidget();
+  final CameraWidget cameraWidget = CameraWidget();
+
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +29,7 @@ class DetectionState extends State<DetectionWidget>{
       body: Stack(
         fit: StackFit.expand,
         children: [
-          cameraWidget,
+          cameraWidget
         ],
       ),
     );

@@ -11,7 +11,7 @@ import 'dart:math';
 
 class FaceProcessor{
   final double _threshold = 0.6; // threshold for face recognition (euclidean distance)
-  final double _angleThreshold = 27.0;
+  final double _angleThreshold = 15.0;
   final double _eyesAndSmileThreshold = 0.9;
   late FaceDetector _detector;
   Delegate? _delegate;
@@ -59,7 +59,7 @@ class FaceProcessor{
     double rightEyeOpenProbability = face.rightEyeOpenProbability ?? 0.0;
 
     // Define a threshold for eye openness probability to consider an eye blink
-    double eyeOpenThreshold = 0.2;
+    double eyeOpenThreshold = 0.45;
 
     // Check if both eyes are closed (below the threshold)
     bool isBlinking = leftEyeOpenProbability < eyeOpenThreshold &&
