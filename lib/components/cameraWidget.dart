@@ -20,7 +20,6 @@ class CameraWidget extends StatefulWidget {
 
   late final FaceProcessor faceProcessor;
   late final CameraProcessor cameraProcessor;
-  final Map<String, bool> promptsMap = {'promptingSmile' : false, 'promptingLookLeft' : false, 'promptingLookRight' : false};
 
   CameraWidget({Key? key}) : super(key: key){
     cameraProcessor = CameraProcessor();
@@ -39,12 +38,18 @@ class CameraWidgetState extends State<CameraWidget> {
   bool isInitialized = false;
   bool isPainterVisible = false;
   bool proofOfLifeTesting = false;
+  bool isFaceSquared = false;
   Face? detectedFace;
   CameraImage? faceImage;
   ConditionChecker conditionChecker = ConditionChecker();
   bool isSmiling = false;
   bool isLookingLeft = false;
   bool isLookingRight = false;
+  bool isBlinking = false;
+  List<bool> conditions = [];
+  int maxAngle = 20;
+  bool livenessCheck = false;
+
 
 
   @override
@@ -55,6 +60,7 @@ class CameraWidgetState extends State<CameraWidget> {
 
   @override
   void initState(){
+    conditions = [isSmiling, isLookingLeft, isLookingRight];
     _start();
     super.initState();
   }
@@ -70,6 +76,60 @@ class CameraWidgetState extends State<CameraWidget> {
     }
   }
 
+  void _resetProofOflifeTesting(){
+    if(mounted){
+      setState(() {
+        conditionChecker.dispose();
+        proofOfLifeTesting = false;
+        isSmiling = false;
+        isLookingLeft = false;
+        isLookingRight = false;
+        conditionChecker = ConditionChecker();
+      });
+    }
+  }
+
+  void _proofOfLifeTest(CameraImage image) async {
+    if(!isSmiling) {
+      isSmiling = await widget.faceProcessor.checkSmiling(image);
+    }
+    if(!isLookingLeft) {
+      isLookingLeft = await widget.faceProcessor.checkLookLeft(image);
+    }
+    if(!isLookingRight) {
+      isLookingRight = await widget.faceProcessor.checkLookRight(image);
+    }
+    if(!isBlinking){
+      isBlinking = await widget.faceProcessor.checkEyeBlink(image);
+    }
+    if(mounted) {
+      setState(() {
+        conditionChecker.addConditions([isSmiling, isLookingLeft, isLookingRight, isBlinking]);
+      });
+    }
+  }
+
+  void _isFaceSquared() async {
+    if(mounted){
+      setState(() {
+        isFaceSquared = (detectedFace!.headEulerAngleY! < maxAngle && detectedFace!.headEulerAngleY! > -maxAngle)
+            && (detectedFace!.headEulerAngleX! < maxAngle && detectedFace!.headEulerAngleX! > -maxAngle);
+        if(isFaceSquared) {
+          proofOfLifeTesting = true;
+        }
+      });
+    }
+  }
+
+  void _livenessCheck(CameraImage image) async {
+    bool moved = await widget.faceProcessor.checkFaceMovement(image);
+    if(mounted){
+      setState(() {
+        if(moved) livenessCheck = true;
+      });
+    }
+  }
+
   void detect() async {
     await widget.cameraProcessor.controller.startImageStream((image) async {
       if(isDetecting) return;
@@ -82,34 +142,24 @@ class CameraWidgetState extends State<CameraWidget> {
             detectedFace = faces[0];
             faceImage = image;
           });
-          if(proofOfLifeTesting){
-            if(!isSmiling) isSmiling = await widget.faceProcessor.checkSmiling(image);
-            if(!isLookingLeft) isLookingLeft = await widget.faceProcessor.checkLookLeft(image);
-            if(!isLookingRight) isLookingRight = await widget.faceProcessor.checkLookRight(image);
-            if(mounted){
-              setState(() {
-                conditionChecker.checkConditions([isSmiling, isLookingLeft, isLookingRight]);
-              });
-            }
-
-          } else {
-            if(mounted){
-              setState(()  {
-                if((detectedFace!.headEulerAngleY! < 20 && detectedFace!.headEulerAngleY! > -20) && (detectedFace!.headEulerAngleX! < 20 && detectedFace!.headEulerAngleX! > -20)){
-                  proofOfLifeTesting = true;
-                }
-              });
-            }
+          if(!livenessCheck){
+            _livenessCheck(image);
+          }
+          _isFaceSquared();
+          if(isFaceSquared && livenessCheck){
+            _proofOfLifeTest(image);
           }
         }
-      } else {
+      } else { // 0 faces detected
         if(mounted){
           setState(() {
             isPainterVisible = false;
+            _resetProofOflifeTesting();
+            livenessCheck = false;
           });
         }
       }
-      if(mounted){
+      if(mounted){ // loop over
         setState(() {
           isDetecting = false;
           faces = [];
@@ -127,16 +177,19 @@ class CameraWidgetState extends State<CameraWidget> {
   Widget build(BuildContext context) {
     Widget body;
     if(isInitialized){
-     Visibility painter = Visibility(
-          visible: isPainterVisible,
-          child: CustomPaint(
-              painter: FacePainter(
-                  face: detectedFace,
-                  imageSize: widget.cameraProcessor.getImageSize()
-              )
-          )
-      );
      if(proofOfLifeTesting){
+       FacePainter facePainter = FacePainter(
+           face: detectedFace,
+           imageSize: widget.cameraProcessor.getImageSize(),
+           maxAngle: 50
+       );
+       Visibility painter = Visibility(
+           visible: isPainterVisible,
+           child: CustomPaint(
+               painter: facePainter
+           )
+       );
+       maxAngle = facePainter.maxAngle;
        body = StreamBuilder<List<bool>>(
          stream: conditionChecker.conditionStream,
          builder: (context, snapshot) {
@@ -160,7 +213,8 @@ class CameraWidgetState extends State<CameraWidget> {
                     children: [
                       Checkbox(value: isSmiling, onChanged: null,),
                       Checkbox(value: isLookingLeft, onChanged: null),
-                      Checkbox(value: isLookingRight, onChanged: null)
+                      Checkbox(value: isLookingRight, onChanged: null),
+                      Checkbox(value: isBlinking, onChanged: null)
                     ],
                   )
                 )
@@ -177,6 +231,18 @@ class CameraWidgetState extends State<CameraWidget> {
          }
        );
      } else {
+       FacePainter facePainter = FacePainter(
+           face: detectedFace,
+           imageSize: widget.cameraProcessor.getImageSize(),
+           maxAngle: 20
+       );
+       Visibility painter = Visibility(
+           visible: isPainterVisible,
+           child: CustomPaint(
+               painter: facePainter
+           )
+       );
+       maxAngle = facePainter.maxAngle;
        body = Stack(
          fit: StackFit.expand,
          children: [
