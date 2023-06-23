@@ -18,12 +18,13 @@ class FaceProcessor{
   InterpreterOptions? _options;
   Interpreter? _interpreter;
   late InputImageRotation? cameraRotation;
+  Map<FaceLandmarkType, FaceLandmark?> _previousFrameLandmarks = Map();
   late CameraImage _tempImage; //later bull
 
   FaceProcessor(){
     _initiateInterpreter();
     _detector = FaceDetector(options: FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate,
-    enableClassification: true,enableTracking: true, enableContours: true));
+    enableClassification: true,enableTracking: true, enableContours: true, enableLandmarks: true));
   }
   Future<Face> _fromImgToFace(CameraImage cameraImage) async{
     List<dynamic> lists = await convertCameraImageToInputList(cameraImage);
@@ -51,6 +52,44 @@ class FaceProcessor{
     // picture taken is mirrored so we check the other eye
     // we are checking if the eye is closed
   }
+
+  Future<bool> checkEyeBlink(CameraImage cameraImage) async {
+    Face face = await _fromImgToFace(cameraImage);
+    double leftEyeOpenProbability = face.leftEyeOpenProbability ?? 0.0;
+    double rightEyeOpenProbability = face.rightEyeOpenProbability ?? 0.0;
+
+    // Define a threshold for eye openness probability to consider an eye blink
+    double eyeOpenThreshold = 0.2;
+
+    // Check if both eyes are closed (below the threshold)
+    bool isBlinking = leftEyeOpenProbability < eyeOpenThreshold &&
+        rightEyeOpenProbability < eyeOpenThreshold;
+
+    return isBlinking;
+  }
+
+  Future<bool> checkFaceMovement(CameraImage cameraImage) async {
+    Face face = await _fromImgToFace(cameraImage);
+    double faceMovementThreshold = 4.0; // Define a threshold for face movement
+    if(_previousFrameLandmarks.isEmpty){
+      _previousFrameLandmarks = face.landmarks;
+      return false;
+    }
+   Map<FaceLandmarkType, FaceLandmark?> landmarks = face.landmarks;
+    double totalDistance = 0.0;
+    for (var element in landmarks.values) {
+      totalDistance += element!.position.distanceTo(_previousFrameLandmarks[element.type]!.position);
+    }
+
+    // Calculate the average distance
+    double averageDistance = totalDistance / landmarks.length;
+
+    // Check if the average distance exceeds the threshold
+    bool isMoving = averageDistance > faceMovementThreshold;
+    _previousFrameLandmarks = face.landmarks;
+    return isMoving;
+  }
+
   Future<bool> checkSmiling(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
     //print(_faces.smilingProbability!);

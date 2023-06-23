@@ -45,8 +45,10 @@ class CameraWidgetState extends State<CameraWidget> {
   bool isSmiling = false;
   bool isLookingLeft = false;
   bool isLookingRight = false;
+  bool isBlinking = false;
   List<bool> conditions = [];
   int maxAngle = 20;
+  bool livenessCheck = false;
 
 
 
@@ -87,7 +89,7 @@ class CameraWidgetState extends State<CameraWidget> {
     }
   }
 
-  void _proofOfLifeTest(image) async {
+  void _proofOfLifeTest(CameraImage image) async {
     if(!isSmiling) {
       isSmiling = await widget.faceProcessor.checkSmiling(image);
     }
@@ -97,9 +99,12 @@ class CameraWidgetState extends State<CameraWidget> {
     if(!isLookingRight) {
       isLookingRight = await widget.faceProcessor.checkLookRight(image);
     }
+    if(!isBlinking){
+      isBlinking = await widget.faceProcessor.checkEyeBlink(image);
+    }
     if(mounted) {
       setState(() {
-        conditionChecker.addConditions([isSmiling, isLookingLeft, isLookingRight]);
+        conditionChecker.addConditions([isSmiling, isLookingLeft, isLookingRight, isBlinking]);
       });
     }
   }
@@ -116,6 +121,15 @@ class CameraWidgetState extends State<CameraWidget> {
     }
   }
 
+  void _livenessCheck(CameraImage image) async {
+    bool moved = await widget.faceProcessor.checkFaceMovement(image);
+    if(mounted){
+      setState(() {
+        if(moved) livenessCheck = true;
+      });
+    }
+  }
+
   void detect() async {
     await widget.cameraProcessor.controller.startImageStream((image) async {
       if(isDetecting) return;
@@ -128,8 +142,11 @@ class CameraWidgetState extends State<CameraWidget> {
             detectedFace = faces[0];
             faceImage = image;
           });
+          if(!livenessCheck){
+            _livenessCheck(image);
+          }
           _isFaceSquared();
-          if(isFaceSquared){
+          if(isFaceSquared && livenessCheck){
             _proofOfLifeTest(image);
           }
         }
@@ -138,6 +155,7 @@ class CameraWidgetState extends State<CameraWidget> {
           setState(() {
             isPainterVisible = false;
             _resetProofOflifeTesting();
+            livenessCheck = false;
           });
         }
       }
@@ -195,7 +213,8 @@ class CameraWidgetState extends State<CameraWidget> {
                     children: [
                       Checkbox(value: isSmiling, onChanged: null,),
                       Checkbox(value: isLookingLeft, onChanged: null),
-                      Checkbox(value: isLookingRight, onChanged: null)
+                      Checkbox(value: isLookingRight, onChanged: null),
+                      Checkbox(value: isBlinking, onChanged: null)
                     ],
                   )
                 )
