@@ -153,18 +153,16 @@ class _SignUpPageState extends State<SignUpPage> {
                             setState(() {
                               _loading = true;
                             });
-                            signUp(_emailController.text, _passwordController.text).then((value) => {
-                              if (value)
+                            checkIfUserExists(_emailController.text).then((value) => {
+                              if (!value)
                                 {
                                   setState(() {
                                     _loading = false;
                                   }),
+                                  Navigator.popAndPushNamed(context, "/faceRegister", arguments: [_emailController.text, _passwordController.text]),
                                   _emailController.clear(),
                                   _passwordController.clear(),
                                   _repeatPasswordController.clear(),
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                      content: Text("User created"))),
                                 }
                               else
                                 {

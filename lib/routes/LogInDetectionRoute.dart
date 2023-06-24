@@ -1,21 +1,20 @@
-import 'package:face_shield/components/cameraWidget.dart';
+import 'package:face_shield/components/LogInCameraWidget.dart';
+import 'package:face_shield/components/SignUpCameraWidget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
-class DetectionWidget extends StatefulWidget{
-  const DetectionWidget({super.key});
+class LogInDetectionWidget extends StatefulWidget{
+
+  LogInDetectionWidget({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return DetectionState();
+    return LogInDetectionState();
   }
 
 }
 
-class DetectionState extends State<DetectionWidget>{
-
-  final CameraWidget cameraWidget = CameraWidget();
-
+class LogInDetectionState extends State<LogInDetectionWidget>{
 
   @override
   void dispose() {
@@ -29,7 +28,7 @@ class DetectionState extends State<DetectionWidget>{
       body: Stack(
         fit: StackFit.expand,
         children: [
-          cameraWidget
+          LogInCameraWidget()
         ],
       ),
     );

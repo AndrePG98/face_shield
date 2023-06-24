@@ -44,57 +44,80 @@ class _ListUsersPage extends State<ListUsersPage> {
     _loadUserData();
   }
 
+  Future<void> deleteAllDocuments() async {
+    final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
+    QuerySnapshot querySnapshot = await usersCollection.get();
+    for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
+      await documentSnapshot.reference.delete();
+    }
+    if(mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("List Users"),
-        ),
-        body: userList.isNotEmpty
-            ? SingleChildScrollView(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: ListView.builder(
-                    itemCount: userList.length,
-                    itemBuilder: (context, index) {
-                      final userData = userList[index];
-                      return Card(
-                        child: ListTile(
-                          title: Text('Email: ${userData.email}'),
-                          subtitle: Text('Face Data: ${userData.faceData}'),
-                          onTap: () async {
-                            Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => UserDetailPage(
-                                            id: userData.id,
-                                            email: userData.email,
-                                            faceData: userData.faceData)))
-                                .then((result) => {
-                                      if (result == true)
-                                        {
-                                          _loadUserData(),
-                                        }
-                                    });
-                          },
+      appBar: AppBar(
+        title: const Text("List Users"),
+      ),
+      body: userList.isNotEmpty
+          ? Column(
+        children: [
+          OutlinedButton(
+            onPressed: deleteAllDocuments,
+            child: const Text("Delete All"),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: userList.length,
+              itemBuilder: (context, index) {
+                final userData = userList[index];
+                return Card(
+                  child: ListTile(
+                    title: Text('Email: ${userData.email}'),
+                    subtitle: Text('Face Data: ${userData.faceData}'),
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserDetailPage(
+                            id: userData.id,
+                            email: userData.email,
+                            faceData: userData.faceData,
+                          ),
                         ),
-                      );
+                      ).then((result) {
+                        if (result == true) {
+                          _loadUserData();
+                        }
+                      });
                     },
                   ),
-                ),
-              )
-            : userList.isEmpty && !_loading
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.warning, size: 64, color: Colors.grey,),
-                        SizedBox(height: 16,),
-                        Text("No registered users!", style: TextStyle(fontSize: 28),),
-                      ],
-                    ),
-                  )
-                : const Center(child: CircularProgressIndicator()));
+                );
+              },
+            ),
+          ),
+        ],
+      )
+          : userList.isEmpty && !_loading
+          ? const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning,
+              size: 64,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16),
+            Text(
+              "No registered users!",
+              style: TextStyle(fontSize: 28),
+            ),
+          ],
+        ),
+      )
+          : const Center(child: CircularProgressIndicator()),
+    );
   }
 }
 

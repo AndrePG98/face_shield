@@ -10,23 +10,23 @@ import 'package:face_shield/components/AnimatedText.dart';
 
 import 'facePainter.dart';
 
-class CameraWidget extends StatefulWidget {
+class LogInCameraWidget extends StatefulWidget {
 
   late final FaceProcessor faceProcessor;
   late final CameraProcessor cameraProcessor;
 
-  CameraWidget({Key? key}) : super(key: key){
+  LogInCameraWidget({Key? key}) : super(key: key){
     cameraProcessor = CameraProcessor();
     faceProcessor = FaceProcessor();
   }
 
   @override
   State<StatefulWidget> createState() {
-    return CameraWidgetState();
+    return LogInCameraWidgetState();
   }
 }
 
-class CameraWidgetState extends State<CameraWidget> {
+class LogInCameraWidgetState extends State<LogInCameraWidget> {
 
   bool isDetecting = false;
   bool isInitialized = false;
@@ -44,6 +44,7 @@ class CameraWidgetState extends State<CameraWidget> {
   bool livenessCheck = false;
   String picturePath = "";
   Object bestMatchingUser = "";
+  List<double> faceData = [];
 
 
   @override
@@ -174,12 +175,12 @@ class CameraWidgetState extends State<CameraWidget> {
       if (widget.cameraProcessor.controller.value.isStreamingImages) {
         String? path = await widget.cameraProcessor.takePicture();
         List<double> data = await widget.faceProcessor.imageToFaceData(faceImage!);
-        Object user = await widget.faceProcessor.findBestMatchingUser(data);
+        //Object user = await widget.faceProcessor.findBestMatchingUser(data);
 
         if (mounted) {
           setState(() {
             picturePath = path!;
-            bestMatchingUser = user;
+            faceData = data;
           });
         }
       }
@@ -218,7 +219,7 @@ class CameraWidgetState extends State<CameraWidget> {
                     }
                     if(picturePath.isNotEmpty){
                       Future.delayed(const Duration(milliseconds: 500), () {
-                        Navigator.popAndPushNamed(context, '/feed', arguments: [picturePath, bestMatchingUser]);
+                        Navigator.popAndPushNamed(context, '/feed', arguments: [picturePath, faceData]);
                       }
                       );
                       return const Center(child: CircularProgressIndicator());

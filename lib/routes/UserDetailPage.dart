@@ -19,18 +19,12 @@ class _UserDetailPageState extends State<UserDetailPage> {
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
   late TextEditingController _emailController;
-  late TextEditingController _faceDataController;
 
 
   @override
   void initState() {
     super.initState();
-    String faceDataString = widget.faceData[0]
-        .toStringAsFixed(4)
-        .replaceAll(RegExp(r'([.]*0)(?!.*\d)'), '');
     _emailController = TextEditingController(text: widget.email);
-    _faceDataController =
-        TextEditingController(text: widget.faceData[0].toStringAsFixed(4));
   }
 
   void _showDeleteConfirmationDialog(BuildContext context) {
@@ -96,19 +90,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       return null;
                     },
                   ),
-                  TextFormField(
-                    controller: _faceDataController,
-                    keyboardType:
-                    TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Face Data'),
-                    validator: (String? value) {
-                      if (value!.trim().isEmpty) {
-                        return 'Face data is mandatory!';
-                      } else if (int.parse(value.trim()) == 0) {
-                        return 'Face Data must be greater than 0!';
-                      }
-                    },
-                  )
                 ],
               ),
             ),
@@ -119,17 +100,12 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       setState(() {
                         _loading = true;
                       });
-
-                      List<double> faceDataList = [
-                        double.parse(_faceDataController.text)
-                      ];
                       //atualizar os dados no firebaseStore
                       FirebaseFirestore.instance
                           .collection('users')
                           .doc(widget.id)
                           .update({
                         'email': _emailController.text,
-                        'faceData': faceDataList,
                       }).then((value) {
                         setState(() {
                           _loading = false;
@@ -199,14 +175,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
                     ),
                     const SizedBox(
                       height: 20,
-                    ),
-                    const Text(
-                      'FaceData',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                    ),
-                    Text(
-                      _faceDataController.text,
-                      style: const TextStyle(fontSize: 25),
                     ),
                     const SizedBox(
                       height: 26,

@@ -1,9 +1,10 @@
 import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
+import 'package:face_shield/routes/SignUpDetectionRoute.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
 import 'package:face_shield/routes/FeedPage.dart';
-import 'package:face_shield/routes/detection.dart';
+import 'package:face_shield/routes/LogInDetectionRoute.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
@@ -39,7 +40,8 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       home: const HomePage(),
       routes: <String, WidgetBuilder> {
-        '/login' : (BuildContext context) => const DetectionWidget(),
+        '/login' : (BuildContext context) => LogInDetectionWidget(),
+        '/faceRegister' : (BuildContext context) => SignUpDetectionWidget(),
         '/recovery' : (BuildContext context) => const Recovery(),
         '/signup' : (BuildContext context) => const SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),

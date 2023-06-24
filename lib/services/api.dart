@@ -5,29 +5,43 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
 
 Future<bool> signUp(String email, String password, {List<double>? faceDataList}) async {
-  try {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    final UserCredential userCredential =
-    await auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    final User? user = userCredential.user;
-    if (user != null) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .set({'email': user.email,'faceData': faceDataList});
-      return true;
+  int maxRetries = 5;
+  int retryDelay = 1000; // Initial delay in milliseconds
+
+  for (int retryCount = 0; retryCount < maxRetries; retryCount++) {
+    try {
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      final UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final User? user = userCredential.user;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .set({'email': user.email, 'faceData': faceDataList});
+        return true;
+      } else {
+        print("User not created!");
+        return false;
+      }
+    } on FirebaseAuthException catch (e) {
+      print('Error creating the user: ${e.code}');
+      if (e.code == 'firebase_auth/too-many-requests') {
+        // If the error is due to too many requests, retry after a delay
+        await Future.delayed(Duration(milliseconds: retryDelay));
+        // Increase the delay exponentially for the next retry
+        retryDelay *= 2;
+      } else {
+        // If the error is not due to rate limiting, propagate the error
+        return false;
+      }
     }
-    else{
-      print("User not created!");
-      return false;
-    }
-  } catch (e) {
-    print('Error creating the user: $e');
-    return false;
   }
+
+  // Maximum number of retries reached, return false
+  return false;
 }
 
 
@@ -61,12 +75,19 @@ Future<void> editEmail(String email) async {
 
     if (user != null) {
       print(user);
-      await user?.updateEmail(email);
+      await user.updateEmail(email);
       print("Updated Email successfuly ${user.email} ");
     } else {
       print("Error updating the Email!");
     }
-  }
+}
+
+Future<bool> checkIfUserExists(String email) async {
+  final usersCollection = FirebaseFirestore.instance.collection('users');
+  final querySnapshot =  await usersCollection.where("email", isEqualTo: email).get();
+  return querySnapshot.docs.isNotEmpty;
+}
+
 
 Future<List<Map<String, dynamic>>> fetchAllUsers() async { //lista de dicionarios de users
   final usersCollection = FirebaseFirestore.instance.collection('users');
