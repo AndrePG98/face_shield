@@ -259,7 +259,8 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
   }
 
   Future<Uint8List> getDisplayImg(CameraImage cameraImage) async {
-    img.Image? result = await fromCameraImageToImage(cameraImage);
+    InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
+    img.Image? result = await fromCameraImageToImage(cameraImage,inputImage);
     return img.encodePng(result!);
   }
 
