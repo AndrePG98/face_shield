@@ -214,14 +214,14 @@ class CameraWidgetState extends State<CameraWidget> {
                     if(isFaceSquared){
                       if(mounted){
                         takePicture();
-                        if(picturePath.isNotEmpty){
-                          Future.delayed(const Duration(milliseconds: 200), () {
-                            Navigator.popAndPushNamed(context, '/feed', arguments: [picturePath, bestMatchingUser]);
-                          }
-                          );
-                          return const Center(child: CircularProgressIndicator());
-                        }
                       }
+                    }
+                    if(picturePath.isNotEmpty){
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        Navigator.popAndPushNamed(context, '/feed', arguments: [picturePath, bestMatchingUser]);
+                      }
+                      );
+                      return const Center(child: CircularProgressIndicator());
                     }
                   }
                   return Stack(

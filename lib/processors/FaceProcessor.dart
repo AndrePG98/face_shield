@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:camera/camera.dart';
-import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -28,15 +27,14 @@ class FaceProcessor{
     enableClassification: true,enableTracking: true, enableContours: true, enableLandmarks: true));
   }
   Future<Face> _fromImgToFace(CameraImage cameraImage) async{
-    List<dynamic> lists = await convertCameraImageToInputList(cameraImage);
-    InputImage inputImage = lists[0];
+    InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
     List<Face> faces= await _detector.processImage(inputImage);
     return faces[0];
   }
 
   Future<List<Face>> detect(CameraImage cameraImage) async {
-    List<dynamic> inputs = await convertCameraImageToInputList(cameraImage);
-    return await _detector.processImage(inputs[0]);
+    InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
+    return await _detector.processImage(inputImage);
   }
 
   Future<bool> checkLeftEye(CameraImage cameraImage) async {
@@ -119,9 +117,7 @@ class FaceProcessor{
     Face face = await _fromImgToFace(cameraImage);
     return face.headEulerAngleX! <= -_angleThreshold;
   }
-  Future<Face> getFirstFaceFromImage(CameraImage cameraImage) async{
-    List<dynamic> lists = await convertCameraImageToInputList(cameraImage);
-    InputImage inputImage = lists[0];
+  Future<Face> getFirstFaceFromImage(InputImage inputImage) async{
     List<Face> faceList= await _detector.processImage(inputImage);
     return faceList[0];
   }
@@ -131,21 +127,20 @@ class FaceProcessor{
     List<Face> faceList= await _detector.processImage(inputImage);
     return faceList.isNotEmpty;
   }
-  Future<img.Image> cropFaceFromImage(CameraImage cameraImage) async{
-    List<dynamic> inputs = await convertCameraImageToInputList(cameraImage);
-    Face face = await getFirstFaceFromImage(inputs[0]);
-    img.Image? image = inputs[1];
+  Future<img.Image> cropFaceFromImage(InputImage inputImage, img.Image image) async{
+    Face face = await getFirstFaceFromImage(inputImage);
     double x = face.boundingBox.left - 10.0;
     double y = face.boundingBox.top - 10.0;
     double w = face.boundingBox.width + 10.0;
     double h = face.boundingBox.height + 10.0;
-    return img.copyCrop(image!, x: x.round(), y: y.round(), width: w.round(), height: h.round());
+    return img.copyCrop(image!, x.round(), y.round(), w.round(), h.round());
   }
   Future<List<double>> imageToFaceData(CameraImage cameraImage) async{
-    img.Image temp = await cropFaceFromImage(cameraImage);
-    img.Image pic = img.copyResizeCropSquare(temp, size: 112);
+    List<dynamic> inputs = await convertCameraImageToInputList(cameraImage);
+    img.Image temp = await cropFaceFromImage(inputs[0], inputs[1]);
+    img.Image pic = img.copyResizeCropSquare(temp, 112);
     List imageAsList = _imageToByteListFloat32(pic);
-    if (getFirstFaceFromImage(cameraImage) == null) throw Exception('NO FACE DETECTED IN PICTURE');
+    if (getFirstFaceFromImage(inputs[0]) == null) throw Exception('NO FACE DETECTED IN PICTURE');
     imageAsList = imageAsList.reshape([1, 112, 112, 3]);
     List output = List.generate(1, (index) => List.filled(192, 0));
 
@@ -163,9 +158,9 @@ class FaceProcessor{
     for (var i = 0; i < 112; i++) {
       for (var j = 0; j < 112; j++) {
         var pixel = image.getPixel(j, i);
-        buffer[pixelIndex++] = (pixel.r - 128) / 128;
-        buffer[pixelIndex++] = (pixel.g - 128) / 128;
-        buffer[pixelIndex++] = (pixel.b - 128) / 128;
+        buffer[pixelIndex++] = (img.getRed(pixel) - 128) / 128;
+        buffer[pixelIndex++] = (img.getGreen(pixel) - 128) / 128;
+        buffer[pixelIndex++] = (img.getBlue(pixel) - 128) / 128;
       }
     }
     return convertedBytes.buffer.asFloat32List();
@@ -228,7 +223,9 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
     final bytes = inputImage.bytes;
     if(bytes != null) {
       if(Platform.isAndroid){
-        return img.decodeImage(bytes);
+        img.Image? image = img.decodeImage(bytes);
+        print('${image == null} AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+        return image;
       } else if (Platform.isIOS){
         final rgbaBytes = Uint8List(cameraImage.width * cameraImage.height * 4);
         for (var i=0 , j=0; i < bytes.length; i+= 4 , j+= 3) {
@@ -240,7 +237,7 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
         return img.decodeImage(rgbaBytes);
       }
     }
-    return img.decodeImage(0 as Uint8List);
+    return null;
   }
 
   Future<Uint8List> fromCameraImageToBytes(CameraImage cameraImage) async{
@@ -258,15 +255,10 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
     return rgbaBytes;
   }
 
-  Future<Uint8List> getDisplayImg(CameraImage cameraImage) async {
-    InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
-    img.Image? result = await fromCameraImageToImage(cameraImage,inputImage);
-    return img.encodePng(result!);
-  }
 
   Future<List<dynamic>> convertCameraImageToInputList(CameraImage cameraImage)  async{
     InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
-    img.Image? returnImage = await fromCameraImageToImage(cameraImage, inputImage);
+    img.Image? returnImage = convertToImage(cameraImage);
     return [inputImage, returnImage];
   }
 
@@ -308,5 +300,54 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
       }
     }
   }
+  img.Image _convertYUV420(CameraImage cameraImage) {
+    int width = cameraImage.width;
+    int height = cameraImage.height;
+    var image = img.Image(width, height);
+    const int hexFF = 0xFF000000;
+    final int uvyButtonStride = cameraImage.planes[1].bytesPerRow;
+    final int? uvPixelStride = cameraImage.planes[1].bytesPerPixel;
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        final int uvIndex =
+            uvPixelStride! * (x / 2).floor() + uvyButtonStride * (y / 2).floor();
+        final int index = y * width + x;
+        final yp = cameraImage.planes[0].bytes[index];
+        final up = cameraImage.planes[1].bytes[uvIndex];
+        final vp = cameraImage.planes[2].bytes[uvIndex];
+        int r = (yp + vp * 1436 / 1024 - 179).round().clamp(0, 255);
+        int g = (yp - up * 46549 / 131072 + 44 - vp * 93604 / 131072 + 91)
+            .round()
+            .clamp(0, 255);
+        int b = (yp + up * 1814 / 1024 - 227).round().clamp(0, 255);
+        image.data[index] = hexFF | (b << 16) | (g << 8) | r;
+      }
+    }
+
+    return image;
+  }
+  img.Image _convertBGRA8888(CameraImage cameraImage) {
+    return img.Image.fromBytes(
+      cameraImage.width,
+      cameraImage.height,
+      cameraImage.planes[0].bytes,
+      format: img.Format.bgra,
+    );
+  }
+  img.Image convertToImage(CameraImage cameraImage) {
+    try {
+      print('image.format.group=>${cameraImage.format.group}');
+      if (cameraImage.format.group == ImageFormatGroup.yuv420) {
+        return _convertYUV420(cameraImage);
+      } else if (cameraImage.format.group == ImageFormatGroup.bgra8888) {
+        return _convertBGRA8888(cameraImage);
+      }
+      throw Exception('Image format not supported');
+    } catch (e) {
+      print("ERROR:" + e.toString());
+    }
+    throw Exception('Image format not supported');
+  }
+
 }
 

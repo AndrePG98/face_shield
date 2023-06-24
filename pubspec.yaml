@@ -14,7 +14,7 @@ dependencies:
   shared_preferences: ^2.1.1
   font_awesome_flutter: ^10.4.0
   google_mlkit_face_detection: ^0.6.0
-  image: ^4.0.17
+  image: 3.3.0
   tflite_flutter: ^0.9.5
   firebase_core: ^2.12.0
   firebase_auth: ^4.6.0
@@ -26,7 +26,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.1
-  flutter_launcher_icons: ^0.13.1
+
 
 flutter:
   uses-material-design: true
