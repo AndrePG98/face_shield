@@ -43,6 +43,7 @@ class CameraWidgetState extends State<CameraWidget> {
   int maxAngle = 20;
   bool livenessCheck = false;
   String picturePath = "";
+  Object bestMatchingUser = "";
 
 
   @override
@@ -172,10 +173,13 @@ class CameraWidgetState extends State<CameraWidget> {
     if (widget.cameraProcessor.isInitialized) {
       if (widget.cameraProcessor.controller.value.isStreamingImages) {
         String? path = await widget.cameraProcessor.takePicture();
+        List<double> data = await widget.faceProcessor.imageToFaceData(faceImage!);
+        Object user = await widget.faceProcessor.findBestMatchingUser(data);
 
         if (mounted) {
           setState(() {
             picturePath = path!;
+            bestMatchingUser = user;
           });
         }
       }
@@ -210,14 +214,14 @@ class CameraWidgetState extends State<CameraWidget> {
                     if(isFaceSquared){
                       if(mounted){
                         takePicture();
+                        if(picturePath.isNotEmpty){
+                          Future.delayed(const Duration(milliseconds: 200), () {
+                            Navigator.popAndPushNamed(context, '/feed', arguments: [picturePath, bestMatchingUser]);
+                          }
+                          );
+                          return const Center(child: CircularProgressIndicator());
+                        }
                       }
-                    }
-                    if(picturePath.isNotEmpty){
-                      Future.delayed(const Duration(milliseconds: 500), () {
-                        Navigator.popAndPushNamed(context, '/feed', arguments: picturePath);
-                      }
-                      );
-                      return const Center(child: CircularProgressIndicator());
                     }
                   }
                   return Stack(

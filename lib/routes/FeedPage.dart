@@ -11,26 +11,38 @@ import 'package:image/image.dart' as img;
 class FeedPage extends StatelessWidget {
   FeedPage({Key? key}) : super(key: key);
 
-  Future<String?> _getPicturePath(context) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    final String? path = ModalRoute.of(context)?.settings.arguments as String?;
-    return path;
+  List<dynamic> argumentsList = [];
+
+
+  Future<List> _getPicturePath(context) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    final List<dynamic> list = ModalRoute.of(context)?.settings.arguments as List;
+    return list;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<String?>(
+      body: FutureBuilder<List>(
         future: _getPicturePath(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
-            final picturePath = snapshot.data!;
+            final picturePath = snapshot.data?[0];
+            final user = snapshot.data?[1];
             return Center(
-                child: Image.file(
-                  File(picturePath),
-                  fit: BoxFit.contain,
+                child: Stack(
+                  children: [
+                    Image.file(
+                      File(picturePath),
+                      fit: BoxFit.contain,
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Text("$user"),
+                    )
+                  ],
                 )
             );
           } else {

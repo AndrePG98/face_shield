@@ -141,7 +141,7 @@ class FaceProcessor{
     double h = face.boundingBox.height + 10.0;
     return img.copyCrop(image!, x: x.round(), y: y.round(), width: w.round(), height: h.round());
   }
-  Future<List<double>> _imageToFaceData(CameraImage cameraImage) async{
+  Future<List<double>> imageToFaceData(CameraImage cameraImage) async{
     img.Image temp = await cropFaceFromImage(cameraImage);
     img.Image pic = img.copyResizeCropSquare(temp, size: 112);
     List imageAsList = _imageToByteListFloat32(pic);
@@ -179,9 +179,15 @@ class FaceProcessor{
   }
 
   Future<bool> compareFaces(CameraImage cameraImage,List<double> prediction) async{
-    List<dynamic> inputFace = await _imageToFaceData(cameraImage);
+    List<dynamic> inputFace = await imageToFaceData(cameraImage);
     return euclideanDistance(inputFace, prediction) <= _threshold;
   }
+
+  Future<bool> compareFacesWithoutCameraImage(List<double> inputFace,List<double> prediction) async{
+    return euclideanDistance(inputFace, prediction) <= _threshold;
+  }
+
+
   void _initiateInterpreter() async{
     _delegate = GpuDelegateV2(
       options: GpuDelegateOptionsV2(
