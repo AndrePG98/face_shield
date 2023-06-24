@@ -224,9 +224,7 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
     return inputImage;
   }
 
-  Future<img.Image?> fromCameraImageToImage(CameraImage cameraImage) async{
-    img.Image? returnImage;
-    InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
+  Future<img.Image?> fromCameraImageToImage(CameraImage cameraImage, InputImage inputImage) async{
     final bytes = inputImage.bytes;
     if(bytes != null) {
       if(Platform.isAndroid){
@@ -267,7 +265,7 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
 
   Future<List<dynamic>> convertCameraImageToInputList(CameraImage cameraImage)  async{
     InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
-    img.Image? returnImage = await fromCameraImageToImage(cameraImage);
+    img.Image? returnImage = await fromCameraImageToImage(cameraImage, inputImage);
     return [inputImage, returnImage];
   }
 
