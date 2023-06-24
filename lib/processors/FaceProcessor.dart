@@ -37,6 +37,7 @@ class FaceProcessor{
     return await _detector.processImage(inputImage);
   }
 
+  /*deprecated use checkEyeBlink instead
   Future<bool> checkLeftEye(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
     //print(_face.rightEyeOpenProbability);
@@ -51,6 +52,7 @@ class FaceProcessor{
     // picture taken is mirrored so we check the other eye
     // we are checking if the eye is closed
   }
+   */
 
   Future<bool> checkEyeBlink(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
@@ -94,12 +96,14 @@ class FaceProcessor{
     //print(_faces.smilingProbability!);
     return face.smilingProbability! >= _eyesAndSmileThreshold;
   }
+  /*
   Future<bool> checkSmilingAndLeftEye(CameraImage cameraImage) async {
     return await checkSmiling(cameraImage) && await checkLeftEye(cameraImage);
   }
   Future<bool> checkSmilingAndRightEye(CameraImage cameraImage) async {
     return await checkSmiling(cameraImage) && await checkRightEye(cameraImage);
   }
+   */
   //Checking for head rotation (up/down/left/right)
   Future<bool> checkLookLeft(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
@@ -109,6 +113,7 @@ class FaceProcessor{
     Face face = await _fromImgToFace(cameraImage);
     return face.headEulerAngleY! <= -_angleThreshold;
   }
+  /* Not used
   Future<bool> checkLookUp(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
     return face.headEulerAngleX! >= _angleThreshold;
@@ -117,16 +122,22 @@ class FaceProcessor{
     Face face = await _fromImgToFace(cameraImage);
     return face.headEulerAngleX! <= -_angleThreshold;
   }
+
+   */
   Future<Face> getFirstFaceFromImage(InputImage inputImage) async{
     List<Face> faceList= await _detector.processImage(inputImage);
     return faceList[0];
   }
+
+  /* Not used
   Future<bool>  isFaceDetected(CameraImage cameraImage) async{
     List<dynamic> lists = await convertCameraImageToInputList(cameraImage);
     InputImage inputImage = lists[0];
     List<Face> faceList= await _detector.processImage(inputImage);
     return faceList.isNotEmpty;
   }
+   */
+
   Future<img.Image> cropFaceFromImage(InputImage inputImage, img.Image image) async{
     Face face = await getFirstFaceFromImage(inputImage);
     double x = face.boundingBox.left - 10.0;
@@ -172,7 +183,7 @@ class FaceProcessor{
     }
     return sqrt(sum);
   }
-
+  /*deprecated use findBestMatchingUser instead to search all entries in DB
   Future<bool> compareFaces(CameraImage cameraImage,List<double> prediction) async{
     List<dynamic> inputFace = await imageToFaceData(cameraImage);
     return euclideanDistance(inputFace, prediction) <= _threshold;
@@ -181,6 +192,7 @@ class FaceProcessor{
   Future<bool> compareFacesWithoutCameraImage(List<double> inputFace,List<double> prediction) async{
     return euclideanDistance(inputFace, prediction) <= _threshold;
   }
+   */
 
 
   void _initiateInterpreter() async{
@@ -198,7 +210,7 @@ class FaceProcessor{
         options: _options);
   }
 
-Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
+Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ //helper function for convertCameraImageToInputList
     InputImage inputImage = InputImage.fromBytes(
       bytes: _concatenatePlanes(cameraImage.planes),
       inputImageData: InputImageData(
@@ -218,13 +230,12 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
     );
     return inputImage;
   }
-
+  /* deprecated use _convertToImage instead
   Future<img.Image?> fromCameraImageToImage(CameraImage cameraImage, InputImage inputImage) async{
     final bytes = inputImage.bytes;
     if(bytes != null) {
       if(Platform.isAndroid){
         img.Image? image = img.decodeImage(bytes);
-        print('${image == null} AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
         return image;
       } else if (Platform.isIOS){
         final rgbaBytes = Uint8List(cameraImage.width * cameraImage.height * 4);
@@ -254,15 +265,15 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
     }
     return rgbaBytes;
   }
-
+   */
 
   Future<List<dynamic>> convertCameraImageToInputList(CameraImage cameraImage)  async{
     InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
-    img.Image? returnImage = convertToImage(cameraImage);
+    img.Image? returnImage = _convertToImage(cameraImage);
     return [inputImage, returnImage];
   }
 
-  Uint8List _concatenatePlanes(List<Plane> planes) {
+  Uint8List _concatenatePlanes(List<Plane> planes) { // helper function for _fromCameraImageToInputImage
     final WriteBuffer allBytes = WriteBuffer();
     for (final Plane plane in planes) {
       allBytes.putUint8List(plane.bytes);
@@ -274,7 +285,6 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
 
   Future<Object> findBestMatchingUser(List<double> currentUserFaceData) async {
     final allUsers = await fetchAllUsers();
-
     double bestDistance = 1.0;
     Map<String, dynamic>? bestMatchingUser;
 
@@ -300,7 +310,7 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
       }
     }
   }
-  img.Image _convertYUV420(CameraImage cameraImage) {
+  img.Image _convertYUV420(CameraImage cameraImage) { //helper function for _convertToImage
     int width = cameraImage.width;
     int height = cameraImage.height;
     var image = img.Image(width, height);
@@ -326,7 +336,7 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
 
     return image;
   }
-  img.Image _convertBGRA8888(CameraImage cameraImage) {
+  img.Image _convertBGRA8888(CameraImage cameraImage) { //helper function for _convertToImage
     return img.Image.fromBytes(
       cameraImage.width,
       cameraImage.height,
@@ -334,7 +344,10 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
       format: img.Format.bgra,
     );
   }
-  img.Image convertToImage(CameraImage cameraImage) {
+  img.Image _convertToImage(CameraImage cameraImage) {
+    //converting CameraImage object to Image
+    //for cropping and usage in _imageToByteListFloat32
+    //helper function for convertCameraImageToInputList
     try {
       print('image.format.group=>${cameraImage.format.group}');
       if (cameraImage.format.group == ImageFormatGroup.yuv420) {
@@ -344,7 +357,7 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
       }
       throw Exception('Image format not supported');
     } catch (e) {
-      print("ERROR:" + e.toString());
+      print("ERROR:$e");
     }
     throw Exception('Image format not supported');
   }
