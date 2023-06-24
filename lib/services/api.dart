@@ -31,7 +31,7 @@ Future<bool> signUp(String email, String password, {List<double>? faceDataList})
 }
 
 
-Future<void> logIn(String email, String password, List<double> faceData) async {
+Future<void> logIn(String email, String password, {List<double>? faceData}) async {
   //face comparison for login
   var user = await fetchUserByEmail(email);
   List<double> facePrediction = user!['faceData'];

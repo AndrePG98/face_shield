@@ -218,12 +218,13 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
     return inputImage;
   }
 
-  Future<img.Image?> _fromCameraImageToImage(CameraImage cameraImage, InputImage inputImage) async{
+  Future<img.Image?> fromCameraImageToImage(CameraImage cameraImage) async{
     img.Image? returnImage;
+    InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
     final bytes = inputImage.bytes;
     if(bytes != null) {
       if(Platform.isAndroid){
-        returnImage = img.decodeImage(bytes);
+        return img.decodeImage(bytes);
       } else if (Platform.isIOS){
         final rgbaBytes = Uint8List(cameraImage.width * cameraImage.height * 4);
         for (var i=0 , j=0; i < bytes.length; i+= 4 , j+= 3) {
@@ -232,15 +233,35 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
           rgbaBytes[j + 2] = bytes[i];
           rgbaBytes[j + 3] = 255;
         }
-        returnImage = img.decodeImage(rgbaBytes);
+        return img.decodeImage(rgbaBytes);
       }
     }
-    return returnImage;
+    return img.decodeImage(0 as Uint8List);
+  }
+
+  Future<Uint8List> fromCameraImageToBytes(CameraImage cameraImage) async{
+    final rgbaBytes = Uint8List(cameraImage.width * cameraImage.height * 4);
+    InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
+    final bytes = inputImage.bytes;
+    if(bytes != null) {
+      for (var i=0 , j=0; i < bytes.length; i+= 4 , j+= 3) {
+        rgbaBytes[j] = bytes[i + 2];
+        rgbaBytes[j + 1] = bytes[i + 1];
+        rgbaBytes[j + 2] = bytes[i];
+        rgbaBytes[j + 3] = 255;
+      }
+    }
+    return rgbaBytes;
+  }
+
+  Future<Uint8List> getDisplayImg(CameraImage cameraImage) async {
+    img.Image? result = await fromCameraImageToImage(cameraImage);
+    return img.encodePng(result!);
   }
 
   Future<List<dynamic>> convertCameraImageToInputList(CameraImage cameraImage)  async{
     InputImage inputImage = await _fromCameraImageToInputImage(cameraImage);
-    img.Image? returnImage = await _fromCameraImageToImage(cameraImage, inputImage);
+    img.Image? returnImage = await fromCameraImageToImage(cameraImage);
     return [inputImage, returnImage];
   }
 
@@ -251,6 +272,8 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{
     }
     return allBytes.done().buffer.asUint8List();
   }
+
+
 
   Future<Object> findBestMatchingUser(List<double> currentUserFaceData) async {
     final allUsers = await fetchAllUsers();

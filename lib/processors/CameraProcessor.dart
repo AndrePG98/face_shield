@@ -41,11 +41,16 @@ class CameraProcessor{
     await _controller.initialize();
   }
 
-  Future<XFile?> takePicture() async {
-    await _controller.stopImageStream();
+  Future<String?> takePicture() async {
+    if (_controller.value.isStreamingImages) {
+      await _controller.stopImageStream();
+    }
+
     XFile? file = await _controller.takePicture();
+
     _imagePath = file.path;
-    return file;
+
+    return _imagePath;
   }
 
   Size getImageSize() {

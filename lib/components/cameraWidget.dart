@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/ConditioChecker.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:face_shield/components/AnimatedText.dart';
@@ -41,7 +42,7 @@ class CameraWidgetState extends State<CameraWidget> {
   bool isBlinking = false;
   int maxAngle = 20;
   bool livenessCheck = false;
-
+  String picturePath = "";
 
 
   @override
@@ -135,11 +136,11 @@ class CameraWidgetState extends State<CameraWidget> {
               detectedFace = faces[0];
               faceImage = image;
             });
-            if(!livenessCheck){
+            _isFaceSquared();
+            if(!livenessCheck && isFaceSquared){
               _livenessCheck(image);
             }
-            _isFaceSquared();
-            if(isFaceSquared && livenessCheck){
+            if(livenessCheck){
               _proofOfLifeTest(image);
 
             }
@@ -167,6 +168,21 @@ class CameraWidgetState extends State<CameraWidget> {
     return await widget.faceProcessor.detect(image);
   }
 
+  void takePicture() async {
+    if (widget.cameraProcessor.isInitialized) {
+      if (widget.cameraProcessor.controller.value.isStreamingImages) {
+        String? path = await widget.cameraProcessor.takePicture();
+
+        if (mounted) {
+          setState(() {
+            picturePath = path!;
+          });
+        }
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     Widget body;
@@ -176,7 +192,7 @@ class CameraWidgetState extends State<CameraWidget> {
           FacePainter facePainter = FacePainter(
               face: detectedFace,
               imageSize: widget.cameraProcessor.getImageSize(),
-              maxAngle: 50
+              maxAngle: 15
           );
           Visibility painter = Visibility(
               visible: isPainterVisible,
@@ -191,11 +207,18 @@ class CameraWidgetState extends State<CameraWidget> {
                 if(snapshot.hasData){
                   bool result = snapshot.data!.every((element) => element == true);
                   if(result) {
-                    if(mounted){
-                      widget.cameraProcessor.dispose();
-                      Future.delayed(const Duration(milliseconds: 500), () => Navigator.popAndPushNamed(context, "/feed", arguments: [faceImage, detectedFace]));
+                    if(isFaceSquared){
+                      if(mounted){
+                        takePicture();
+                      }
                     }
-                    return const Center(child: CircularProgressIndicator());
+                    if(picturePath.isNotEmpty){
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        Navigator.popAndPushNamed(context, '/feed', arguments: picturePath);
+                      }
+                      );
+                      return const Center(child: CircularProgressIndicator());
+                    }
                   }
                   return Stack(
                     fit: StackFit.expand,
@@ -234,7 +257,7 @@ class CameraWidgetState extends State<CameraWidget> {
           FacePainter facePainter = FacePainter(
               face: detectedFace,
               imageSize: widget.cameraProcessor.getImageSize(),
-              maxAngle: 20
+              maxAngle: 15
           );
           Visibility painter = Visibility(
               visible: isPainterVisible,

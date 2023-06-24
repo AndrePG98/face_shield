@@ -2,8 +2,7 @@ import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
-import 'package:face_shield/routes/camera.dart';
-import 'package:face_shield/routes/feed.dart';
+import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/detection.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
@@ -44,7 +43,7 @@ class MainApp extends StatelessWidget {
         '/recovery' : (BuildContext context) => const Recovery(),
         '/signup' : (BuildContext context) => const SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),
-        '/feed' : (BuildContext context) => const FeedPage()
+        '/feed' : (BuildContext context) => FeedPage()
       },
       onGenerateRoute: (settings){
         if(settings.name == '/userdetail'){
