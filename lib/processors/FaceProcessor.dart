@@ -283,21 +283,25 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
 
   Future<Object> findBestMatchingUser(List<double> currentUserFaceData) async {
     final allUsers = await fetchAllUsers();
-    double bestDistance = double.infinity;
-    Map<String, dynamic>? bestMatchingUser;
-    for (var user in allUsers) {
-      final faceData = List<double>.from(user['faceData']);
-      double distance = euclideanDistance(currentUserFaceData, faceData);
-      print('$distance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        bestMatchingUser = user;
+    if(allUsers.isNotEmpty){
+      double bestDistance = double.infinity;
+      Map<String, dynamic>? bestMatchingUser;
+      for (var user in allUsers) {
+        final faceData = List<double>.from(user['faceData']);
+        double distance = euclideanDistance(currentUserFaceData, faceData);
+        print('$distance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestMatchingUser = user;
+        }
       }
-    }
-    if (bestMatchingUser == null){
-      return false;
-    }
-    if(bestDistance <= _threshold){
+      if (bestMatchingUser == null){
+        return false;
+      }
+      if(bestDistance >= 0.8){
+        return false;
+      }
+      print('$bestDistance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
       return bestMatchingUser;
     }
     return false;

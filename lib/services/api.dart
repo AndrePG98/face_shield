@@ -71,6 +71,20 @@ Future<void> logIn(String email, String password, {List<double>? faceData}) asyn
   }
 }
 
+Future<bool> logInWithPassword(String email, String password) async {
+  try{
+    final UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+    final User? user = userCredential.user;
+    if (user != null) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch(e){
+    return false;
+  }
+}
+
 Future<void> editEmail(String email) async {
     final User? user = FirebaseAuth.instance.currentUser;
 

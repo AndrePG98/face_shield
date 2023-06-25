@@ -8,8 +8,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:face_shield/components/AnimatedText.dart';
+import "package:face_shield/services/api.dart" as api;
 
 
+import 'ErrorMessageWidget.dart';
 import 'facePainter.dart';
 
 class LogInCameraWidget extends StatefulWidget {
@@ -50,7 +52,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   Map<String, dynamic>? user;
   bool performedLogin = false;
   bool personValid = false;
-  bool? test;
+  bool wrongPasswordEntered = false;
 
   @override
   void dispose(){
@@ -210,7 +212,6 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
         if(mounted){
           setState(() {
             performedLogin = true;
-            testValue(false);
           });
         }
         return false;
@@ -219,7 +220,6 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
           setState(() {
             user = result as Map<String, dynamic>?;
             performedLogin = true;
-            testValue(true);
           });
         }
         return true;
@@ -228,14 +228,18 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
     return false;
   }
 
-  void testValue(bool value){
+  Future<bool> loginWithPassword(String password, String email) async{
+    bool result = await api.logInWithPassword(email, password);
+    return result;
+  }
+
+ void changeState(bool value){
     if(mounted){
       setState(() {
-        test = value;
+        wrongPasswordEntered = value;
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -243,20 +247,89 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
       if(isInitialized){
         FacePainter facePainter = FacePainter(face: detectedFace, imageSize: widget.cameraProcessor.getImageSize(), maxAngle: 15);
         Visibility painter = Visibility(visible: isPainterVisible, child: CustomPaint(painter: facePainter));
-        if(personValid) {
-          logIn().then((value) => {
-            if(value){
-              if(Navigator.canPop(context)){
-                Navigator.popAndPushNamed(context, "/sucessLogin", arguments: [picturePath, user?["email"]])
-              }
-            } else{
-              if(Navigator.canPop(context)){
-                Navigator.popAndPushNamed(context, "/failedLogin")
-              }
+        if (personValid) {
+          logIn().then((value) {
+            if (value) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  String enteredPassword = '';
+
+                  void handleLogin() {
+                    loginWithPassword(enteredPassword, user?["email"]).then(
+                          (passwordVerificationResult) {
+                        if (passwordVerificationResult) {
+                          if (Navigator.canPop(context)) {
+                            Navigator.popAndPushNamed(
+                              context, "/sucessLogin", arguments: [picturePath, user?["email"]],
+                            );
+                          }
+                        } else {
+                          changeState(true);
+                          Future.delayed(const Duration(seconds: 1), () {
+                            changeState(false);
+                          });
+                        }
+                      },
+                    );
+                  }
+
+                  return AlertDialog(
+                    title: const Text("Confirm User"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("${user!["email"]} Is this the correct user?"),
+                        const SizedBox(height: 10),
+                        if (wrongPasswordEntered) ...[
+                          Column(
+                            children: const [
+                              Icon(Icons.cancel, size: 48, color: Colors.red),
+                              SizedBox(height: 8),
+                              Text(
+                                "Wrong password",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              SizedBox(height: 16),
+                            ],
+                          ),
+                        ],
+                        if (!wrongPasswordEntered)
+                          TextField(
+                            obscureText: true,
+                            onChanged: (password) {
+                              enteredPassword = password;
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Enter your password',
+                            ),
+                          ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: handleLogin,
+                        child: const Text("Yes"),
+                      ),
+                      TextButton(
+                        child: const Text("No"),
+                        onPressed: () {
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            } else {
+              return Center(child: Text("$value"));
             }
           });
-          body = const Center(child: CircularProgressIndicator());
-        }else if(proofOfLifeTesting && !personValid){
+          body= const Center(child: CircularProgressIndicator());
+        }
+        else if(proofOfLifeTesting && !personValid){
           maxAngle = facePainter.maxAngle;
           body = StreamBuilder<List<bool>>(
               stream: conditionChecker.conditionStream,
@@ -267,19 +340,6 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
                     if(isFaceSquared){
                       takePicture();
                     }
-                    /*if(isFaceSquared && mounted && picturePath.isEmpty){
-                      takePicture();
-                    }
-                    if(picturePath.isNotEmpty && !performedLogin){
-                      logIn();
-                    }
-                    if(performedLogin && user != null && picturePath.isNotEmpty){
-                      *//*Future.delayed(const Duration(milliseconds: 250), () {
-                        Navigator.popAndPushNamed(context, "/feed", arguments: [picturePath, user]);
-                      });*//*
-                    } else {
-                      return Center(child: Text("Performed Login : $performedLogin, Picture Path Length : ${picturePath.length}, User: ${user?["email"]}"));
-                    }*/
                   }
                   return Stack(
                     fit: StackFit.expand,
