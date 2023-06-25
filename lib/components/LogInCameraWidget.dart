@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/ConditioChecker.dart';
@@ -47,7 +49,8 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   List<double> faceData = [];
   Map<String, dynamic>? user;
   bool performedLogin = false;
-
+  bool personValid = false;
+  bool? test;
 
   @override
   void dispose(){
@@ -172,7 +175,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
     return await widget.faceProcessor.detect(image);
   }
 
-  void takePicture() async {
+  Future<bool> takePicture() async {
     if (widget.cameraProcessor.isInitialized) {
       if (widget.cameraProcessor.controller.value.isStreamingImages) {
         String? path = await widget.cameraProcessor.takePicture();
@@ -181,43 +184,69 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
 
         if (mounted) {
           setState(() {
+            personValid = true;
             picturePath = path!;
             faceData = data;
+            proofOfLifeTesting = false;
+            widget.cameraProcessor.dispose();
           });
         }
       }
+      return true;
     }
+    return false;
   }
 
   Future<bool> logIn() async {
-    Object result = await widget.faceProcessor.findBestMatchingUser(faceData);
-    if(result is bool){
-      if(mounted){
-        setState(() {
-          performedLogin = true;
-        });
+    if(!performedLogin){
+      Object result = await widget.faceProcessor.findBestMatchingUser(faceData);
+      if(result is bool){
+        if(mounted){
+          setState(() {
+            performedLogin = true;
+            testValue(false);
+          });
+        }
+        return false;
+      } else {
+        if(mounted) {
+          setState(() {
+            user = result as Map<String, dynamic>?;
+            performedLogin = true;
+            testValue(true);
+          });
+        }
+        return true;
       }
-      return false;
-    } else {
-      if(mounted) {
-        setState(() {
-          user = result as Map<String, dynamic>?;
-          performedLogin = true;
-        });
-      }
-      return true;
+    }
+    return false;
+  }
+
+  void testValue(bool value){
+    if(mounted){
+      setState(() {
+        test = value;
+      });
     }
   }
 
 
   @override
   Widget build(BuildContext context) {
-    Widget body;
-    if(mounted){
+    Widget body = const Center(child: CircularProgressIndicator());
       if(isInitialized){
         FacePainter facePainter = FacePainter(face: detectedFace, imageSize: widget.cameraProcessor.getImageSize(), maxAngle: 15);
         Visibility painter = Visibility(visible: isPainterVisible, child: CustomPaint(painter: facePainter));
-        if(proofOfLifeTesting){
+        if(personValid) {
+          widget.cameraProcessor.dispose();
+          logIn().then((value) => {
+            if(value) {
+              body = Center(child: Text("Performed Login : $performedLogin, Picture Path Length : ${picturePath.length}, User: ${user?["email"]}"))
+            } else {
+              body = const Center(child: CircularProgressIndicator())
+            }
+          });
+        }else if(proofOfLifeTesting && !personValid){
           maxAngle = facePainter.maxAngle;
           body = StreamBuilder<List<bool>>(
               stream: conditionChecker.conditionStream,
@@ -225,25 +254,21 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
                 if(snapshot.hasData){
                   bool result = snapshot.data!.every((element) => element == true);
                   if(result) {
-                    if(isFaceSquared && mounted){
+                    if(isFaceSquared){
+                      takePicture();
+                    }
+                    /*if(isFaceSquared && mounted && picturePath.isEmpty){
                       takePicture();
                     }
                     if(picturePath.isNotEmpty && !performedLogin){
-                      logIn().then((value) => {
-                        if(value && user is Map<String, dynamic>){
-                          Future.delayed(const Duration(milliseconds: 500), () {
-                            Navigator.popAndPushNamed(context, "/feed", arguments: [picturePath, user]);
-                          })
-                        }
-                      });
-                      return const Center(child: CircularProgressIndicator(),);
+                      logIn();
                     }
-                    /*if(performedLogin && user is Map<String, dynamic>){
-                      Future.delayed(const Duration(milliseconds: 250), () {
+                    if(performedLogin && user != null && picturePath.isNotEmpty){
+                      *//*Future.delayed(const Duration(milliseconds: 250), () {
                         Navigator.popAndPushNamed(context, "/feed", arguments: [picturePath, user]);
-                      });
+                      });*//*
                     } else {
-                      return const Center(child: CircularProgressIndicator());
+                      return Center(child: Text("Performed Login : $performedLogin, Picture Path Length : ${picturePath.length}, User: ${user?["email"]}"));
                     }*/
                   }
                   return Stack(
@@ -293,10 +318,8 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
       }
       return Stack(
           fit: StackFit.expand,
-          children: [body]
+          children: [body, Align(alignment: Alignment.topCenter, child: Text("Performed Login : $performedLogin, Login result : $test, User: ${user?["email"]}"))]
       );
     }
-    return const Center();
-  }
 }
 

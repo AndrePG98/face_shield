@@ -153,7 +153,7 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
               }
             });
           }
-          body = Center(child: Text("Face Data length : ${faceData.length}, Sign up performed : $performedSignUp , Sign up result : $signUpResult"));
+          body = const Center(child: CircularProgressIndicator());
         } else {
           Visibility painter = Visibility(
               visible: isPainterVisible,
