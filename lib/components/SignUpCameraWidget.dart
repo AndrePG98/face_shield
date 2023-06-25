@@ -214,7 +214,7 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
       }
       return Stack(
           fit: StackFit.expand,
-          children: [body, Text("$isFaceHeld")]
+          children: [body]
       );
     }
     return const Center();

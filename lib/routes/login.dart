@@ -10,7 +10,7 @@ import '../helpers/Helpers.dart';
 import '../services/api.dart';
 
 class LogIn extends StatefulWidget {
-  const LogIn({super.key});
+  const LogIn({Key? key});
 
   @override
   State<LogIn> createState() => _LogInState();
@@ -28,14 +28,14 @@ class _LogInState extends State<LogIn> {
       appBar: AppBar(
         title: const Text("Login"),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Center(
-              child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 64, horizontal: 32),
+      body: SingleChildScrollView( // Added SingleChildScrollView
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 32),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -48,7 +48,9 @@ class _LogInState extends State<LogIn> {
                             TextFormField(
                               controller: _emailController,
                               decoration: const InputDecoration(
-                                  labelText: "Email", prefixIcon: Icon(Icons.mail)),
+                                labelText: "Email",
+                                prefixIcon: Icon(Icons.mail),
+                              ),
                               validator: (String? value) {
                                 if (value!.trim().isEmpty) {
                                   return 'Email is required!';
@@ -68,17 +70,19 @@ class _LogInState extends State<LogIn> {
                               controller: _passwordController,
                               obscureText: !_isPasswordVisible,
                               decoration: InputDecoration(
-                                  labelText: "Password",
-                                  prefixIcon: const Icon(Icons.lock),
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _isPasswordVisible = !_isPasswordVisible;
-                                        });
-                                      },
-                                      icon: Icon(_isPasswordVisible
-                                          ? Icons.visibility
-                                          : Icons.visibility_off))),
+                                labelText: "Password",
+                                prefixIcon: const Icon(Icons.lock),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                  icon: Icon(_isPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off),
+                                ),
+                              ),
                               validator: (String? value) {
                                 if (value!.trim().isEmpty) {
                                   return 'Password is required!';
@@ -91,24 +95,27 @@ class _LogInState extends State<LogIn> {
                                 });
                               },
                             ),
-                            const SizedBox(
-                              height: 20,
-                            ),
+                            const SizedBox(height: 20),
                             ElevatedButton(
-                                onPressed: () {
-                                  logIn(_emailController.text,
-                                      _passwordController.text);
-                                  Navigator.pushNamed(context, '/editemail');
-                                },
-                                child: const Text("Login", style: TextStyle(fontSize: 18)),)
+                              onPressed: () {
+                                logIn(_emailController.text, _passwordController.text);
+                                Navigator.pushNamed(context, '/editemail');
+                              },
+                              child: const Text(
+                                "Login",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            )
                           ],
                         ),
                       ),
                       const SizedBox(height: 25),
                     ],
-                  )),
-            ),
-          ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
