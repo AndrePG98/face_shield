@@ -45,6 +45,8 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   String picturePath = "";
   Object bestMatchingUser = "";
   List<double> faceData = [];
+  Map<String, dynamic>? user;
+  bool performedLogin = false;
 
 
   @override
@@ -187,24 +189,35 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
     }
   }
 
+  Future<bool> logIn() async {
+    Object result = await widget.faceProcessor.findBestMatchingUser(faceData);
+    if(result is bool){
+      if(mounted){
+        setState(() {
+          performedLogin = true;
+        });
+      }
+      return false;
+    } else {
+      if(mounted) {
+        setState(() {
+          user = result as Map<String, dynamic>?;
+          performedLogin = true;
+        });
+      }
+      return true;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     Widget body;
     if(mounted){
       if(isInitialized){
+        FacePainter facePainter = FacePainter(face: detectedFace, imageSize: widget.cameraProcessor.getImageSize(), maxAngle: 15);
+        Visibility painter = Visibility(visible: isPainterVisible, child: CustomPaint(painter: facePainter));
         if(proofOfLifeTesting){
-          FacePainter facePainter = FacePainter(
-              face: detectedFace,
-              imageSize: widget.cameraProcessor.getImageSize(),
-              maxAngle: 15
-          );
-          Visibility painter = Visibility(
-              visible: isPainterVisible,
-              child: CustomPaint(
-                  painter: facePainter
-              )
-          );
           maxAngle = facePainter.maxAngle;
           body = StreamBuilder<List<bool>>(
               stream: conditionChecker.conditionStream,
@@ -212,18 +225,26 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
                 if(snapshot.hasData){
                   bool result = snapshot.data!.every((element) => element == true);
                   if(result) {
-                    if(isFaceSquared){
-                      if(mounted){
-                        takePicture();
-                      }
+                    if(isFaceSquared && mounted){
+                      takePicture();
                     }
-                    if(picturePath.isNotEmpty){
-                      Future.delayed(const Duration(milliseconds: 500), () {
-                        Navigator.popAndPushNamed(context, '/feed', arguments: [picturePath, faceData]);
-                      }
-                      );
+                    if(picturePath.isNotEmpty && !performedLogin){
+                      logIn().then((value) => {
+                        if(value && user is Map<String, dynamic>){
+                          Future.delayed(const Duration(milliseconds: 500), () {
+                            Navigator.popAndPushNamed(context, "/feed", arguments: [picturePath, user]);
+                          })
+                        }
+                      });
+                      return const Center(child: CircularProgressIndicator(),);
+                    }
+                    /*if(performedLogin && user is Map<String, dynamic>){
+                      Future.delayed(const Duration(milliseconds: 250), () {
+                        Navigator.popAndPushNamed(context, "/feed", arguments: [picturePath, user]);
+                      });
+                    } else {
                       return const Center(child: CircularProgressIndicator());
-                    }
+                    }*/
                   }
                   return Stack(
                     fit: StackFit.expand,
@@ -259,17 +280,6 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
               }
           );
         } else {
-          FacePainter facePainter = FacePainter(
-              face: detectedFace,
-              imageSize: widget.cameraProcessor.getImageSize(),
-              maxAngle: 15
-          );
-          Visibility painter = Visibility(
-              visible: isPainterVisible,
-              child: CustomPaint(
-                  painter: facePainter
-              )
-          );
           body = Stack(
             fit: StackFit.expand,
             children: [

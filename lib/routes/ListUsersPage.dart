@@ -50,7 +50,10 @@ class _ListUsersPage extends State<ListUsersPage> {
     for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
       await documentSnapshot.reference.delete();
     }
-    if(mounted) setState(() {});
+    _loadUserData();
+    setState(() {
+
+    });
   }
 
   @override

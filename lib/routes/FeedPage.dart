@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
 import 'package:flutter/material.dart';
+import 'package:face_shield/services/api.dart' as api;
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 
@@ -16,7 +17,10 @@ class FeedPage extends StatelessWidget {
 
   Future<List> _getPicturePath(context) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    final List<dynamic> list = ModalRoute.of(context)?.settings.arguments as List;
+    final List<dynamic> list = ModalRoute
+        .of(context)
+        ?.settings
+        .arguments as List;
     return list;
   }
 
@@ -40,7 +44,7 @@ class FeedPage extends StatelessWidget {
                     ),
                     Align(
                       alignment: Alignment.bottomCenter,
-                      child: Text("$user"),
+                      child: Text("${user["email"]}"),
                     )
                   ],
                 )
