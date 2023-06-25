@@ -178,18 +178,24 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   Future<bool> takePicture() async {
     if (widget.cameraProcessor.isInitialized) {
       if (widget.cameraProcessor.controller.value.isStreamingImages) {
-        String? path = await widget.cameraProcessor.takePicture();
-        List<double> data = await widget.faceProcessor.imageToFaceData(faceImage!);
-        //Object user = await widget.faceProcessor.findBestMatchingUser(data);
+        try {
+          String? path = await widget.cameraProcessor.takePicture();
+          List<double> data = await widget.faceProcessor.imageToFaceData(faceImage!);
+          // Object user = await widget.faceProcessor.findBestMatchingUser(data);
 
-        if (mounted) {
-          setState(() {
-            personValid = true;
-            picturePath = path!;
-            faceData = data;
-            proofOfLifeTesting = false;
-            widget.cameraProcessor.dispose();
-          });
+          if (mounted) {
+            setState(() {
+              personValid = true;
+              picturePath = path!;
+              faceData = data;
+              proofOfLifeTesting = false;
+              widget.cameraProcessor.dispose();
+            });
+          }
+        } catch (e) {
+          print('Error taking picture: $e');
+          Navigator.pop(context);
+          // Handle the error appropriately, e.g., show an error message
         }
       }
       return true;
@@ -238,14 +244,8 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
         FacePainter facePainter = FacePainter(face: detectedFace, imageSize: widget.cameraProcessor.getImageSize(), maxAngle: 15);
         Visibility painter = Visibility(visible: isPainterVisible, child: CustomPaint(painter: facePainter));
         if(personValid) {
-          widget.cameraProcessor.dispose();
-          logIn().then((value) => {
-            if(value) {
-              body = Center(child: Text("Performed Login : $performedLogin, Picture Path Length : ${picturePath.length}, User: ${user?["email"]}"))
-            } else {
-              body = const Center(child: CircularProgressIndicator())
-            }
-          });
+          logIn();
+          body = Center(child: Align(alignment: Alignment.center, child: Text("Performed Login : $performedLogin, Login result : $test, User: ${user?["email"]}")));
         }else if(proofOfLifeTesting && !personValid){
           maxAngle = facePainter.maxAngle;
           body = StreamBuilder<List<bool>>(
@@ -318,7 +318,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
       }
       return Stack(
           fit: StackFit.expand,
-          children: [body, Align(alignment: Alignment.topCenter, child: Text("Performed Login : $performedLogin, Login result : $test, User: ${user?["email"]}"))]
+          children: [body]
       );
     }
 }
