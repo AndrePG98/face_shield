@@ -244,8 +244,18 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
         FacePainter facePainter = FacePainter(face: detectedFace, imageSize: widget.cameraProcessor.getImageSize(), maxAngle: 15);
         Visibility painter = Visibility(visible: isPainterVisible, child: CustomPaint(painter: facePainter));
         if(personValid) {
-          logIn();
-          body = Center(child: Align(alignment: Alignment.center, child: Text("Performed Login : $performedLogin, Login result : $test, User: ${user?["email"]}")));
+          logIn().then((value) => {
+            if(value){
+              if(Navigator.canPop(context)){
+                Navigator.popAndPushNamed(context, "/sucessLogin", arguments: [picturePath, user?["email"]])
+              }
+            } else{
+              if(Navigator.canPop(context)){
+                Navigator.popAndPushNamed(context, "/failedLogin")
+              }
+            }
+          });
+          body = const Center(child: CircularProgressIndicator());
         }else if(proofOfLifeTesting && !personValid){
           maxAngle = facePainter.maxAngle;
           body = StreamBuilder<List<bool>>(
@@ -316,9 +326,21 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
       } else {
         body = const Center(child: CircularProgressIndicator());
       }
-      return Stack(
-          fit: StackFit.expand,
-          children: [body]
+      return Scaffold(
+        body: Stack(
+        fit: StackFit.expand,
+          children: [
+            body,
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.login),
+                onPressed: () {Navigator.popAndPushNamed(context, "login2");},
+              ),
+            )
+          ],
+      )
       );
     }
 }

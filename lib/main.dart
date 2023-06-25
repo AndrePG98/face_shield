@@ -5,9 +5,11 @@ import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
 import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/LogInDetectionRoute.dart';
+import 'package:face_shield/routes/failedLogin.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
+import 'package:face_shield/routes/sucessLogin.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -41,11 +43,14 @@ class MainApp extends StatelessWidget {
       home: const HomePage(),
       routes: <String, WidgetBuilder> {
         '/login' : (BuildContext context) => LogInDetectionWidget(),
+        "login2" : (BuildContext context) => const LogIn(),
         '/faceRegister' : (BuildContext context) => SignUpDetectionWidget(),
         '/recovery' : (BuildContext context) => const Recovery(),
         '/signup' : (BuildContext context) => const SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),
-        '/feed' : (BuildContext context) => FeedPage()
+        '/feed' : (BuildContext context) => FeedPage(),
+        "/sucessLogin" : (BuildContext context) => SucessfulLoginWidget(),
+        "/failedLogin" : (BuildContext context) => const FailedLogin()
       },
       onGenerateRoute: (settings){
         if(settings.name == '/userdetail'){

@@ -8,9 +8,9 @@ import 'dart:math';
 import 'package:face_shield/services/api.dart';
 
 class FaceProcessor{
-  final double _threshold = 0.8; // threshold for face recognition (euclidean distance)
-  final double _angleThreshold = 15.0;
-  final double _eyesAndSmileThreshold = 0.9;
+  final double _threshold = 0.6; // threshold for face recognition (euclidean distance)
+  final double _angleThreshold = 20;
+  final double _eyesAndSmileThreshold = 0.8;
   late FaceDetector _detector;
   Delegate? _delegate;
   InterpreterOptions? _options;
