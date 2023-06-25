@@ -1,17 +1,13 @@
 import 'package:face_shield/components/logo.dart';
-import 'package:face_shield/firebase_options.dart';
-import 'package:face_shield/main.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/LogInDetectionRoute.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/home.dart';
-import 'package:face_shield/routes/login.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-
+// TODO: later mock firebase
   //setUpAll(() async{
   //  WidgetsFlutterBinding.ensureInitialized();
   //  await Firebase.initializeApp(
@@ -50,12 +46,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(SignUpPage), findsOneWidget);
 
-   // await tester.tap(listUsersButton);
+    //await tester.tap(listUsersButton);
    // await tester.pumpAndSettle();
    // expect(find.byType(ListUsersPage), findsOneWidget);
-
-
-
   });
 
 }
