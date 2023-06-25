@@ -12,15 +12,9 @@ import 'package:image/image.dart' as img;
 class SucessfulLoginWidget extends StatelessWidget {
   SucessfulLoginWidget({Key? key}) : super(key: key);
 
-  List<dynamic> argumentsList = [];
-
-
   Future<List> _getArguments(context) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    final List<dynamic> list = ModalRoute
-        .of(context)
-        ?.settings
-        .arguments as List;
+    final List<dynamic> list = ModalRoute.of(context)?.settings.arguments as List;
     return list;
   }
 
@@ -35,38 +29,40 @@ class SucessfulLoginWidget extends StatelessWidget {
           } else if (snapshot.hasData) {
             final picturePath = snapshot.data?[0];
             final userEmail = snapshot.data?[1];
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey[300],
-                  ),
-                  child: ClipOval(
-                    child: picturePath != null && File(picturePath).existsSync()
-                        ? Image.file(
-                      File(picturePath),
-                      fit: BoxFit.cover,
-                    )
-                        : Icon(
-                      Icons.account_circle,
-                      size: 120,
-                      color: Colors.grey[600],
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[300],
+                    ),
+                    child: ClipOval(
+                      child: picturePath != null && File(picturePath).existsSync()
+                          ? Image.file(
+                        File(picturePath),
+                        fit: BoxFit.cover,
+                      )
+                          : Icon(
+                        Icons.account_circle,
+                        size: 200,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  userEmail!,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Text(
+                    userEmail!,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           } else {
             return const Center(child: Text("Failed to load picture path."));
@@ -76,3 +72,4 @@ class SucessfulLoginWidget extends StatelessWidget {
     );
   }
 }
+
