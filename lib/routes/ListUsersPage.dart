@@ -74,7 +74,7 @@ class _ListUsersPage extends State<ListUsersPage> {
                 return Card(
                   child: ListTile(
                     title: Text('Email: ${userData.email}'),
-                    subtitle: Text('Face Data: ${userData.faceData}'),
+                    subtitle: Text('Face Data: ${userData.faceData.length}'),
                     onTap: () async {
                       Navigator.push(
                         context,
@@ -99,7 +99,7 @@ class _ListUsersPage extends State<ListUsersPage> {
         ],
       )
           : userList.isEmpty && !_loading
-          ? const Center(
+          ? Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
