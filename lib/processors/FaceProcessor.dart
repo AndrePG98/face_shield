@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -10,7 +8,7 @@ import 'dart:math';
 import 'package:face_shield/services/api.dart';
 
 class FaceProcessor{
-  final double _threshold = 0.6; // threshold for face recognition (euclidean distance)
+  final double _threshold = 0.8; // threshold for face recognition (euclidean distance)
   final double _angleThreshold = 15.0;
   final double _eyesAndSmileThreshold = 0.9;
   late FaceDetector _detector;
@@ -19,7 +17,7 @@ class FaceProcessor{
   Interpreter? _interpreter;
   late InputImageRotation? cameraRotation;
   Map<FaceLandmarkType, FaceLandmark?> _previousFrameLandmarks = Map();
-  late CameraImage _tempImage; //later bull
+  //late CameraImage _tempImage; //later bull
 
   FaceProcessor(){
     _initiateInterpreter();
@@ -140,27 +138,26 @@ class FaceProcessor{
 
   Future<img.Image> cropFaceFromImage(InputImage inputImage, img.Image image) async{
     Face face = await getFirstFaceFromImage(inputImage);
-    double x = face.boundingBox.left - 10.0;
-    double y = face.boundingBox.top - 10.0;
-    double w = face.boundingBox.width + 10.0;
-    double h = face.boundingBox.height + 10.0;
-    return img.copyCrop(image!, x.round(), y.round(), w.round(), h.round());
+    double x = face.boundingBox.left;
+    double y = face.boundingBox.top;
+    double w = face.boundingBox.width;
+    double h = face.boundingBox.height;
+    return img.copyCrop(image, x.round(), y.round(), w.round(), h.round());
   }
   Future<List<double>> imageToFaceData(CameraImage cameraImage) async{
     List<dynamic> inputs = await convertCameraImageToInputList(cameraImage);
     img.Image temp = await cropFaceFromImage(inputs[0], inputs[1]);
     img.Image pic = img.copyResizeCropSquare(temp, 112);
     List imageAsList = _imageToByteListFloat32(pic);
-    if (getFirstFaceFromImage(inputs[0]) == null) throw Exception('NO FACE DETECTED IN PICTURE');
     imageAsList = imageAsList.reshape([1, 112, 112, 3]);
     List output = List.generate(1, (index) => List.filled(192, 0));
 
     _interpreter?.run(imageAsList, output);
     output = output.reshape([192]);
-
     List<double> finalList = List<double>.from(List.from(output));
     return finalList;
   }
+
   List _imageToByteListFloat32(img.Image image) { //turn image in usable data to pass to
     var convertedBytes = Float32List(1 * 112 * 112 * 3); // tensorflow interpreter
     var buffer = Float32List.view(convertedBytes.buffer); // with faceNet model
@@ -183,6 +180,7 @@ class FaceProcessor{
     }
     return sqrt(sum);
   }
+
   /*deprecated use findBestMatchingUser instead to search all entries in DB
   Future<bool> compareFaces(CameraImage cameraImage,List<double> prediction) async{
     List<dynamic> inputFace = await imageToFaceData(cameraImage);
@@ -285,31 +283,26 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
 
   Future<Object> findBestMatchingUser(List<double> currentUserFaceData) async {
     final allUsers = await fetchAllUsers();
-    double bestDistance = 1.0;
+    double bestDistance = double.infinity;
     Map<String, dynamic>? bestMatchingUser;
-
     for (var user in allUsers) {
       final faceData = List<double>.from(user['faceData']);
       double distance = euclideanDistance(currentUserFaceData, faceData);
-
+      print('$distance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
       if (distance < bestDistance) {
         bestDistance = distance;
         bestMatchingUser = user;
       }
     }
-
-    if (bestDistance > _threshold){
+    if (bestMatchingUser == null){
       return false;
     }
-    else{
-      if(bestMatchingUser == null){
-        return false;
-      }
-      else{
-        return bestMatchingUser;
-      }
+    if(bestDistance <= _threshold){
+      return bestMatchingUser;
     }
+    return false;
   }
+
   img.Image _convertYUV420(CameraImage cameraImage) { //helper function for _convertToImage
     int width = cameraImage.width;
     int height = cameraImage.height;
