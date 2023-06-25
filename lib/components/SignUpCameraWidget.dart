@@ -126,11 +126,14 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
   }
 
   void signUp(String email, String password, List<double> faceData) async {
-    bool result = await api.signUp(email, password, faceDataList:  faceData);
-    if(mounted) {
+    bool alreadyExisting = await api.checkIfUserExists(email);
+    if(!alreadyExisting){
+      bool result = await api.signUp(email, password, faceDataList:  faceData);
+      if(mounted) {
         setState(() {
-        signUpResult = result;
-      });
+          signUpResult = result;
+        });
+      }
     }
   }
 
@@ -142,16 +145,11 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
       if(isInitialized){
         if(isFaceSquared){
           updateFaceData();
-          signUp(widget.userInfo[0], widget.userInfo[1], faceData);
+          if(faceData.isNotEmpty) signUp(widget.userInfo[0], widget.userInfo[1], faceData);
           if(signUpResult){
             widget.cameraProcessor.dispose();
-            Future.delayed(const Duration(milliseconds: 500), () => Navigator.popAndPushNamed(context, '/'));
-            body = const Center(child: CircularProgressIndicator());
-          } else {
-            Future.delayed(const Duration(milliseconds: 500), () => Navigator.popAndPushNamed(context, '/'));
-            body = Center(child: Text("$signUpResult"));
-
           }
+          body = const Center(child: CircularProgressIndicator());
         } else {
           Visibility painter = Visibility(
               visible: isPainterVisible,
