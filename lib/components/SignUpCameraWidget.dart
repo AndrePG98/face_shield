@@ -42,6 +42,7 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
   Object bestMatchingUser = "";
   List<double> faceData = [];
   bool signUpResult = false;
+  bool performedSignUp = false;
 
 
   @override
@@ -125,16 +126,15 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     }
   }
 
-  void signUp(String email, String password, List<double> faceData) async {
-    bool alreadyExisting = await api.checkIfUserExists(email);
-    if(!alreadyExisting){
-      bool result = await api.signUp(email, password, faceDataList:  faceData);
-      if(mounted) {
-        setState(() {
-          signUpResult = result;
-        });
-      }
+  Future<bool> signUp(String email, String password, List<double> faceData) async {
+    bool result = await api.signUp(email, password, faceDataList:  faceData);
+    if(mounted) {
+      setState(() {
+        signUpResult = result;
+        performedSignUp = true;
+      });
     }
+    return result;
   }
 
 
@@ -145,11 +145,15 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
       if(isInitialized){
         if(isFaceSquared){
           updateFaceData();
-          if(faceData.isNotEmpty) signUp(widget.userInfo[0], widget.userInfo[1], faceData);
-          if(signUpResult){
+          if(!performedSignUp && faceData.isNotEmpty){
             widget.cameraProcessor.dispose();
+            signUp(widget.userInfo[0], widget.userInfo[1], faceData).then((result) => {
+              if(result){
+                Navigator.pop(context)
+              }
+            });
           }
-          body = const Center(child: CircularProgressIndicator());
+          body = Center(child: Text("Face Data length : ${faceData.length}, Sign up performed : $performedSignUp , Sign up result : $signUpResult"));
         } else {
           Visibility painter = Visibility(
               visible: isPainterVisible,

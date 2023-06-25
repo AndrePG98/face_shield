@@ -299,11 +299,11 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
     }
 
     if (bestDistance > _threshold){
-      return 'No matching user';
+      return false;
     }
     else{
       if(bestMatchingUser == null){
-        return 'No matching user';
+        return false;
       }
       else{
         return bestMatchingUser;
