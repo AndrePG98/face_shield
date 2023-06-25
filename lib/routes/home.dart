@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../components/defaultButton.dart';
-import '../components/popupBtn.dart';
 import '../components/logo.dart';
 
 class HomePage extends StatelessWidget{

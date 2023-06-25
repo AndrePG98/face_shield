@@ -20,12 +20,14 @@ dependencies:
   firebase_auth: ^4.6.0
   cloud_firestore: any
   firebase_database: any
+  mockito: ^5.4.0
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.1
+
 
 
 flutter:
