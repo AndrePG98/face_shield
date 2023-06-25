@@ -55,6 +55,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   children: [
                     TextFormField(
                       controller: _emailController,
+                      key: Key ('emailField'),
                       decoration: const InputDecoration(
                         icon: FaIcon(FontAwesomeIcons.envelope),
                           labelText: "Email"
