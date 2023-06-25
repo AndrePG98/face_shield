@@ -99,7 +99,7 @@ class _LogInState extends State<LogIn> {
                             ElevatedButton(
                               onPressed: () {
                                 logIn(_emailController.text, _passwordController.text);
-                                Navigator.pushNamed(context, '/editemail');
+                                Navigator.pop(context);
                               },
                               child: const Text(
                                 "Login",
