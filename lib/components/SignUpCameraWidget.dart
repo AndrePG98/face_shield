@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/ConditioChecker.dart';
@@ -43,11 +45,14 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
   List<double> faceData = [];
   bool signUpResult = false;
   bool performedSignUp = false;
+  bool isFaceHeld = false;
+  Timer? faceHoldTimer;
 
 
   @override
   void dispose(){
     widget.cameraProcessor.dispose();
+    faceHoldTimer?.cancel();
     super.dispose();
   }
 
@@ -55,6 +60,17 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
   void initState(){
     _start();
     super.initState();
+    faceHoldTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (isFaceSquared) {
+        setState(() {
+          isFaceHeld = true;
+        });
+      } else {
+        setState(() {
+          isFaceHeld = false;
+        });
+      }
+    });
   }
 
   void _start()  async {
@@ -145,15 +161,35 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
       if(isInitialized){
         if(isFaceSquared){
           updateFaceData();
-          if(!performedSignUp && faceData.isNotEmpty){
-            widget.cameraProcessor.dispose();
-            signUp(widget.userInfo[0], widget.userInfo[1], faceData).then((result) => {
-              if(result){
-                Navigator.pop(context)
-              }
-            });
+          if(!isFaceHeld){
+            Visibility painter = Visibility(
+                visible: isPainterVisible,
+                child: CustomPaint(
+                    painter: FacePainter(
+                        face: detectedFace,
+                        imageSize: widget.cameraProcessor.getImageSize(),
+                        maxAngle: maxAngle
+                    )
+                )
+            );
+            body = Stack(
+              fit: StackFit.expand,
+              children: [
+                CameraPreview(widget.cameraProcessor.controller),
+                painter
+              ],
+            );
+          } else{
+            body = const Center(child: CircularProgressIndicator());
+            if(!performedSignUp && faceData.isNotEmpty && isFaceHeld){
+              widget.cameraProcessor.dispose();
+              signUp(widget.userInfo[0], widget.userInfo[1], faceData).then((result) => {
+                if(result){
+                  Navigator.pop(context)
+                }
+              });
+            }
           }
-          body = const Center(child: CircularProgressIndicator());
         } else {
           Visibility painter = Visibility(
               visible: isPainterVisible,
@@ -178,7 +214,7 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
       }
       return Stack(
           fit: StackFit.expand,
-          children: [body]
+          children: [body, Text("$isFaceHeld")]
       );
     }
     return const Center();

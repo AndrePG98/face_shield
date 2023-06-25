@@ -49,9 +49,10 @@ Future<void> logIn(String email, String password, {List<double>? faceData}) asyn
   //face comparison for login
   var user = await fetchUserByEmail(email);
   List<double> facePrediction = user!['faceData'];
+  //double distance = FaceProcessor().euclideanDistance(faceData, facePrediction);
   double distance = FaceProcessor().euclideanDistance(faceData, facePrediction);
 
-  if(distance <= 0.05){ //if ED from login attempt and prediction is small it is most likely the same person
+  if(distance <= 0.6){ //if ED from login attempt and prediction is small it is most likely the same person
     try {
       final UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       final User? user = userCredential.user;
