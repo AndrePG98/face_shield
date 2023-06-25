@@ -79,18 +79,21 @@ class _SignUpPageState extends State<SignUpPage> {
                     TextFormField(
                       focusNode: _focusNode,
                       controller: _passwordController,
-                      obscureText: true,
+                      obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                         icon: const FaIcon(FontAwesomeIcons.lock),
                         labelText: "Password",
-                        suffixIcon: InkWell(
-                          onTap: () {
-                            setState(() {
-                              showPasswordRequirements = !showPasswordRequirements;
-                            });
-                          },
-                          child: const Icon(Icons.info),
-                        )
+                          suffixIcon: InkWell(
+                            onTap: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible; // Toggle _isPasswordVisible
+                                showPasswordRequirements = false; // Reset showPasswordRequirements
+                              });
+                            },
+                            child: Icon(
+                              _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                            ),
+                          )
                       ),
                       validator: (String ? value ){
                         if(value!.trim().isEmpty){
@@ -125,8 +128,9 @@ class _SignUpPageState extends State<SignUpPage> {
                         ) : const Center(),
                     const SizedBox(height: 10),
                     TextFormField(
+                      key: const Key('repeatPasswordField'),
                       controller: _repeatPasswordController,
-                      obscureText: true,
+                      obscureText: !_isPasswordVisible,
                       decoration: const InputDecoration(
                         icon: FaIcon(FontAwesomeIcons.lock),
                           labelText: "Repeat Password"
