@@ -198,7 +198,7 @@ class FaceProcessor{
       options: GpuDelegateOptionsV2(
         isPrecisionLossAllowed: false,
         inferencePreference: TfLiteGpuInferenceUsage.fastSingleAnswer,
-        inferencePriority1: TfLiteGpuInferencePriority.minLatency,
+        inferencePriority1: TfLiteGpuInferencePriority.maxPrecision,
         inferencePriority2: TfLiteGpuInferencePriority.auto,
         inferencePriority3: TfLiteGpuInferencePriority.auto,
       ),
