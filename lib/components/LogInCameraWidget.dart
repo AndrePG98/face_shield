@@ -103,7 +103,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
       isLookingRight = await widget.faceProcessor.checkLookRight(image);
     }
     if(!isBlinking){
-      isBlinking = await widget.faceProcessor.checkEyeBlink(image);
+      isBlinking = await widget.faceProcessor.checkEyeBlinkWithCameraImage(image);
     }
     if(mounted) {
       setState(() {
@@ -138,7 +138,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   }
 
   void _livenessCheck(CameraImage image) async {
-    bool moved = await widget.faceProcessor.checkFaceMovement(image);
+    bool moved = await widget.faceProcessor.checkLiveness(image);
     if(mounted){
       setState(() {
         if(moved) livenessCheck = true;
@@ -209,7 +209,24 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
           }
         } catch (e) {
           print('Error taking picture: $e');
-          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Error'),
+                content: Text('An error occurred while taking a picture: $e'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close the dialog
+                      Navigator.pop(context); // Go back to the home page
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
         }
       }
       return true;
@@ -265,7 +282,9 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
                   if(result) {
                     if(isFaceSquared){
                       if(isFaceHeld){
-                        takePicture();
+                        if(widget.cameraProcessor.isInitialized){
+                          takePicture();
+                        }
                       } else {
                         return Stack(
                           fit: StackFit.expand,

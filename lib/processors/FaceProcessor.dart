@@ -17,6 +17,7 @@ class FaceProcessor{
   InterpreterOptions? _options;
   Interpreter? _interpreter;
   late InputImageRotation? cameraRotation;
+  Face? previousFace;
   Map<FaceLandmarkType, FaceLandmark?> _previousFrameLandmarks = Map();
   //late CameraImage _tempImage; //later bull
 
@@ -36,42 +37,87 @@ class FaceProcessor{
     return await _detector.processImage(inputImage);
   }
 
-  Future<bool> checkEyeBlink(CameraImage cameraImage) async {
+  Future<bool> checkLiveness(CameraImage cameraImage) async {
+    if(previousFace == null){
+      previousFace = await _fromImgToFace(cameraImage);
+      return false;
+    }
+    Face face = await _fromImgToFace(cameraImage);
+    bool isFaceMoving = await checkFaceMovement(face);
+    bool isEyeBlinking = await checkEyeBlink(face);
+
+    if (isFaceMoving && isEyeBlinking) {
+      return true; // If the face is moving and the user is blinking, consider it as a liveness indication
+    }
+
+    // If neither face movement nor blinking is detected, perform additional checks or return a default value
+    // You can implement other checks here, such as smiling detection, head rotation analysis, or a combination of different checks
+
+    return false; // Default return value if no conclusive result is obtained
+  }
+
+  Future<bool> checkEyeBlink(Face face) async {
+    double leftEyeOpenProbability = face.leftEyeOpenProbability ?? 0.0;
+    double rightEyeOpenProbability = face.rightEyeOpenProbability ?? 0.0;
+    double previousLeftEyeOpenProbability = previousFace?.leftEyeOpenProbability ?? 0.0;
+    double previousRightEyeOpenProbability = previousFace?.rightEyeOpenProbability ?? 0.0;
+
+    bool previousEyesOpen = (previousLeftEyeOpenProbability >= 0.5 && previousRightEyeOpenProbability >= 0.5);
+
+    // Define a threshold for eye openness probability to consider an eye blink
+    double eyeOpenThreshold = 0.2;
+
+    // Check if the eyes transitioned from open to closed or closed to open, considering the threshold
+    bool isBlinking = (previousEyesOpen && leftEyeOpenProbability < eyeOpenThreshold && rightEyeOpenProbability < eyeOpenThreshold) ||
+        (!previousEyesOpen && (leftEyeOpenProbability >= eyeOpenThreshold || rightEyeOpenProbability >= eyeOpenThreshold));
+
+    return isBlinking;
+  }
+
+  Future<bool> checkEyeBlinkWithCameraImage(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
     double leftEyeOpenProbability = face.leftEyeOpenProbability ?? 0.0;
     double rightEyeOpenProbability = face.rightEyeOpenProbability ?? 0.0;
 
     // Define a threshold for eye openness probability to consider an eye blink
-    double eyeOpenThreshold = 0.45;
 
     // Check if both eyes are closed (below the threshold)
-    bool isBlinking = leftEyeOpenProbability < eyeOpenThreshold &&
-        rightEyeOpenProbability < eyeOpenThreshold;
+    bool isBlinking = leftEyeOpenProbability < _eyesAndSmileThreshold &&
+        rightEyeOpenProbability < _eyesAndSmileThreshold;
 
     return isBlinking;
   }
 
-  Future<bool> checkFaceMovement(CameraImage cameraImage) async {
-    Face face = await _fromImgToFace(cameraImage);
-    double faceMovementThreshold = 4.0; // Define a threshold for face movement
-    if(_previousFrameLandmarks.isEmpty){
+  Future<bool> checkFaceMovement(Face face) async {
+    double faceMovementThreshold = 9; // Define a threshold for face movement
+
+    if (_previousFrameLandmarks.isEmpty) {
       _previousFrameLandmarks = face.landmarks;
       return false;
     }
-   Map<FaceLandmarkType, FaceLandmark?> landmarks = face.landmarks;
+
+    Map<FaceLandmarkType, FaceLandmark?> landmarks = face.landmarks;
     double totalDistance = 0.0;
-    for (var element in landmarks.values) {
-      totalDistance += element!.position.distanceTo(_previousFrameLandmarks[element.type]!.position);
+    int numValidLandmarks = 0;
+
+    for (var entry in landmarks.entries) {
+      FaceLandmarkType landmarkType = entry.key;
+      FaceLandmark? currentLandmark = entry.value;
+      FaceLandmark? previousLandmark = _previousFrameLandmarks[landmarkType];
+
+      if (currentLandmark != null && previousLandmark != null) {
+        double distance = currentLandmark.position.distanceTo(previousLandmark.position);
+        totalDistance += distance;
+        numValidLandmarks++;
+      }
     }
 
-    // Calculate the average distance
-    double averageDistance = totalDistance / landmarks.length;
+    double averageDistance = totalDistance / numValidLandmarks;
+    _previousFrameLandmarks = face.landmarks; // Update the previous frame landmarks
 
-    // Check if the average distance exceeds the threshold
-    bool isMoving = averageDistance > faceMovementThreshold;
-    _previousFrameLandmarks = face.landmarks;
-    return isMoving;
+    return averageDistance >= faceMovementThreshold;
   }
+
 
   Future<bool> checkSmiling(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
@@ -337,7 +383,6 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
       if(bestDistance <= _threshold){
         return false;
       }
-      print('$bestDistance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
       return bestMatchingUser;
     }
     return false;
