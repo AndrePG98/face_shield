@@ -98,7 +98,7 @@ class _LogInState extends State<LogIn> {
                             const SizedBox(height: 20),
                             ElevatedButton(
                               onPressed: () {
-                                logIn(_emailController.text, _passwordController.text);
+                                logInWithPassword(_emailController.text, _passwordController.text);
                                 Navigator.pop(context);
                               },
                               child: const Text(

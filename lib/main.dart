@@ -1,3 +1,4 @@
+import 'package:face_shield/routes/IdentityConfirmationWidget.dart';
 import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/SignUpDetectionRoute.dart';
@@ -43,14 +44,15 @@ class MainApp extends StatelessWidget {
       home: const HomePage(),
       routes: <String, WidgetBuilder> {
         '/login' : (BuildContext context) => LogInDetectionWidget(),
-        "login2" : (BuildContext context) => const LogIn(),
+        "/login2" : (BuildContext context) => const LogIn(),
         '/faceRegister' : (BuildContext context) => SignUpDetectionWidget(),
         '/recovery' : (BuildContext context) => const Recovery(),
         '/signup' : (BuildContext context) => const SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),
         '/feed' : (BuildContext context) => FeedPage(),
-        "/sucessLogin" : (BuildContext context) => SucessfulLoginWidget(),
-        "/failedLogin" : (BuildContext context) => const FailedLogin()
+        "/successLogin" : (BuildContext context) => SucessfulLoginWidget(),
+        "/failedLogin" : (BuildContext context) => const FailedLogin(),
+        "/confirm" : (BuildContext context) => IdentityConfirmationWidget()
       },
       onGenerateRoute: (settings){
         if(settings.name == '/userdetail'){
