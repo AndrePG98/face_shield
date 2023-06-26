@@ -168,13 +168,32 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
           }
         } catch (e) {
           print('Error taking picture: $e');
-          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Error'),
+                content: Text('An error occurred while taking a picture: $e'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+          return false;
         }
       }
       return true;
     }
     return false;
   }
+
 
 
   @override
@@ -211,7 +230,9 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
             );
           } else{
             if(!performedSignUp && isFaceHeld && !tookPicture){
-              takePicture();
+              if(widget.cameraProcessor.isInitialized){
+                takePicture();
+              }
             }
           }
         } else {
