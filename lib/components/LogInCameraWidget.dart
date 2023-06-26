@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
@@ -208,12 +207,11 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
             });
           }
         } catch (e) {
-          print('Error taking picture: $e');
           showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text('Error'),
+                title: const Text('Error'),
                 content: Text('An error occurred while taking a picture: $e'),
                 actions: [
                   TextButton(
@@ -221,7 +219,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
                       Navigator.pop(context); // Close the dialog
                       Navigator.pop(context); // Go back to the home page
                     },
-                    child: Text('OK'),
+                    child: const Text('OK'),
                   ),
                 ],
               );
@@ -235,7 +233,6 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   }
 
   Future<bool> logIn() async {
-    print("${faceData.length} Inside Login Camera Widget AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     Object result = await widget.faceProcessor.findBestMatchingUserCosine(faceData);
     if(result is bool){
       if(mounted){
@@ -305,7 +302,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
                       Align(
                           alignment: Alignment.topCenter,
                           child: Padding(
-                              padding: const EdgeInsets.all(5.0),
+                              padding: const EdgeInsets.fromLTRB(10, 40, 10, 20),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
