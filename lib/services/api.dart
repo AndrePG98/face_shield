@@ -1,10 +1,11 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
 
-Future<bool> signUp(String email, String password, {List<double>? faceDataList}) async {
+Future<bool> signUp(String email, String password, {Uint8List? faceDataList}) async {
   int maxRetries = 5;
   int retryDelay = 1000; // Initial delay in milliseconds
 
