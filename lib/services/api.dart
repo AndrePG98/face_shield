@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -5,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
 
-Future<bool> signUp(String email, String password, {Uint8List? faceDataList}) async {
+Future<bool> signUp(String email, String password, List<double> faceDataList) async {
   int maxRetries = 5;
   int retryDelay = 1000; // Initial delay in milliseconds
 
@@ -46,14 +47,14 @@ Future<bool> signUp(String email, String password, {Uint8List? faceDataList}) as
 }
 
 
-Future<void> logIn(String email, String password, {List<double>? faceData}) async {
+Future<void> logIn(String email, String password, List<double> faceData) async {
   //face comparison for login
   var user = await fetchUserByEmail(email);
   List<double> facePrediction = user!['faceData'];
   //double distance = FaceProcessor().euclideanDistance(faceData, facePrediction);
-  double distance = FaceProcessor().euclideanDistance(faceData, facePrediction);
+  double distance = FaceProcessor().cosineSim(faceData, facePrediction);
 
-  if(distance <= 0.6){ //if ED from login attempt and prediction is small it is most likely the same person
+  if(distance >= 0.8){ //if ED from login attempt and prediction is small it is most likely the same person
     try {
       final UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       final User? user = userCredential.user;
