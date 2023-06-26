@@ -196,13 +196,13 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
       if (widget.cameraProcessor.controller.value.isStreamingImages) {
         try {
           String? path = await widget.cameraProcessor.takePicture();
-          List<double> data = await widget.faceProcessor.imageToFaceData(faceImage!);
+          List<double> data = await widget.faceProcessor.imageToFaceData(path!);
           // Object user = await widget.faceProcessor.findBestMatchingUser(data);
 
           if (mounted) {
             setState(() {
               personValid = true;
-              picturePath = path!;
+              picturePath = path;
               faceData = data;
               proofOfLifeTesting = false;
             });
@@ -218,7 +218,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   }
 
   Future<bool> logIn() async {
-    Object result = await widget.faceProcessor.findBestMatchingUser(faceData);
+    Object result = await widget.faceProcessor.findBestMatchingUserCosine(faceData);
     if(result is bool){
       if(mounted){
         setState(() {

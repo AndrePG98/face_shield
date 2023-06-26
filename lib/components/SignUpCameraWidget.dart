@@ -41,6 +41,7 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
   CameraImage? faceImage;
   int maxAngle = 15;
   String picturePath = "";
+  bool tookPicture = false;
   Object bestMatchingUser = "";
   List<double> faceData = [];
   bool signUpResult = false;
@@ -130,7 +131,7 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     return await widget.faceProcessor.detect(image);
   }
 
-  void updateFaceData() async {
+  /*void updateFaceData() async {
     if(faceData.isEmpty){
       List<double> data = await widget.faceProcessor.imageToFaceData(faceImage!);
 
@@ -140,10 +141,10 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
         });
       }
     }
-  }
+  }*/
 
   Future<bool> signUp(String email, String password, List<double> faceData) async {
-    bool result = await api.signUp(email, password, faceDataList:  faceData);
+    bool result = await api.signUp(email, password, faceData);
     if(mounted) {
       setState(() {
         signUpResult = result;
@@ -153,14 +154,43 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     return result;
   }
 
+  Future<bool> takePicture() async {
+    if (widget.cameraProcessor.isInitialized) {
+      if (widget.cameraProcessor.controller.value.isStreamingImages) {
+        try {
+          String? path = await widget.cameraProcessor.takePicture();
+
+          if (mounted) {
+            setState(() {
+              picturePath = path!;
+              tookPicture = true;
+            });
+          }
+        } catch (e) {
+          print('Error taking picture: $e');
+          Navigator.pop(context);
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    Widget body;
-    if(mounted){
-      if(isInitialized){
+    Widget body = const Center(child: CircularProgressIndicator());
+    if(isInitialized){
+      if(tookPicture){
+        widget.faceProcessor.imageToFaceData(picturePath).then((faceData) => {
+          signUp(widget.userInfo[0], widget.userInfo[1], faceData).then((result) => {
+            if(result){
+              Navigator.pop(context)
+            }
+          })
+        });
+      } else{
         if(isFaceSquared){
-          updateFaceData();
           if(!isFaceHeld){
             Visibility painter = Visibility(
                 visible: isPainterVisible,
@@ -180,14 +210,8 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
               ],
             );
           } else{
-            body = const Center(child: CircularProgressIndicator());
-            if(!performedSignUp && faceData.isNotEmpty && isFaceHeld){
-              widget.cameraProcessor.dispose();
-              signUp(widget.userInfo[0], widget.userInfo[1], faceData).then((result) => {
-                if(result){
-                  Navigator.pop(context)
-                }
-              });
+            if(!performedSignUp && isFaceHeld && !tookPicture){
+              takePicture();
             }
           }
         } else {
@@ -209,15 +233,14 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
             ],
           );
         }
-      } else {
-        body = const Center(child: CircularProgressIndicator());
       }
-      return Stack(
-          fit: StackFit.expand,
-          children: [body]
-      );
+    } else {
+      body = const Center(child: CircularProgressIndicator());
     }
-    return const Center();
+    return Stack(
+        fit: StackFit.expand,
+        children: [body]
+    );
   }
 }
 
