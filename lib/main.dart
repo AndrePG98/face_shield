@@ -1,10 +1,8 @@
 import 'package:face_shield/routes/IdentityConfirmationWidget.dart';
-import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/ListUsersPage.dart';
 import 'package:face_shield/routes/SignUpDetectionRoute.dart';
 import 'package:face_shield/routes/SignUpPage.dart';
 import 'package:face_shield/routes/UserDetailPage.dart';
-import 'package:face_shield/routes/FeedPage.dart';
 import 'package:face_shield/routes/LogInDetectionRoute.dart';
 import 'package:face_shield/routes/failedLogin.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
@@ -14,7 +12,6 @@ import 'package:face_shield/routes/sucessLogin.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:flutter/services.dart';
 
 
 main() async {
@@ -49,7 +46,6 @@ class MainApp extends StatelessWidget {
         '/recovery' : (BuildContext context) => const Recovery(),
         '/signup' : (BuildContext context) => const SignUpPage(),
         '/listusers': (BuildContext context) => const ListUsersPage(),
-        '/feed' : (BuildContext context) => FeedPage(),
         "/successLogin" : (BuildContext context) => SucessfulLoginWidget(),
         "/failedLogin" : (BuildContext context) => const FailedLogin(),
         "/confirm" : (BuildContext context) => IdentityConfirmationWidget()
