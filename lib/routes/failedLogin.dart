@@ -24,14 +24,14 @@ class _FailedLoginState extends State<FailedLogin> {
   }
 
   void _startTimer() {
-    _timer = Timer(Duration(seconds: 15), () {
+    _timer = Timer(const Duration(seconds: 10), () {
       Navigator.pop(context); // Navigating back to the home page
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Center(
