@@ -138,10 +138,10 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   }
 
   void _livenessCheck(CameraImage image) async {
-    bool moved = await widget.faceProcessor.checkLiveness(image);
+    bool alive = await widget.faceProcessor.checkLiveness(image);
     if(mounted){
       setState(() {
-        if(moved) livenessCheck = true;
+        if(alive) livenessCheck = true;
       });
     }
   }
@@ -235,6 +235,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
   }
 
   Future<bool> logIn() async {
+    print("${faceData.length} Inside Login Camera Widget AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     Object result = await widget.faceProcessor.findBestMatchingUserCosine(faceData);
     if(result is bool){
       if(mounted){
@@ -272,7 +273,7 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
             });
           }
         }
-        else if(proofOfLifeTesting && !personValid){
+        else if(proofOfLifeTesting && !personValid && livenessCheck){
           maxAngle = facePainter.maxAngle;
           body = StreamBuilder<List<bool>>(
               stream: conditionChecker.conditionStream,
@@ -302,9 +303,9 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
                       CameraPreview(widget.cameraProcessor.controller),
                       painter,
                       Align(
-                          alignment: Alignment.bottomCenter,
+                          alignment: Alignment.topCenter,
                           child: Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
+                              padding: const EdgeInsets.all(5.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -346,12 +347,21 @@ class LogInCameraWidgetState extends State<LogInCameraWidget> {
         fit: StackFit.expand,
           children: [
             body,
-            Positioned(
-              top: 16,
-              left: 16,
-              child: IconButton(
-                icon: const Icon(Icons.login),
-                onPressed: () {Navigator.popAndPushNamed(context, "/login2");},
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 16, left: 16),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blue, // Choose the desired background color
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.login),
+                  color: Colors.white, // Choose the desired icon color
+                  onPressed: () {
+                    Navigator.popAndPushNamed(context, "/login2");
+                  },
+                ),
               ),
             )
           ],

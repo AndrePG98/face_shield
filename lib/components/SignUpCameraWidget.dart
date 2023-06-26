@@ -44,7 +44,7 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
   bool tookPicture = false;
   Object bestMatchingUser = "";
   List<double> faceData = [];
-  bool signUpResult = false;
+  Object? signUpResult;
   bool performedSignUp = false;
   bool isFaceHeld = false;
   Timer? faceHoldTimer;
@@ -131,27 +131,29 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     return await widget.faceProcessor.detect(image);
   }
 
-  /*void updateFaceData() async {
+  void updateFaceData() async {
     if(faceData.isEmpty){
-      List<double> data = await widget.faceProcessor.imageToFaceData(faceImage!);
+      List<double> data = await widget.faceProcessor.imageToFaceData(picturePath);
+      faceData = data;
+    }
+  }
 
-      if (mounted) {
-        setState(() {
-          faceData = data;
-        });
+  Future<void> signUp(String email, String password) async {
+    updateFaceData();
+    if(!performedSignUp && faceData.isNotEmpty){
+      Object result = await api.signUp(email, password, faceData);
+      if(result is bool){
+        if(mounted) {
+          setState(() {
+            signUpResult = result;
+            performedSignUp = true;
+          });
+        }
+      }
+      if(signUpResult != null){
+        showSignUpDialog(result);
       }
     }
-  }*/
-
-  Future<bool> signUp(String email, String password, List<double> faceData) async {
-    bool result = await api.signUp(email, password, faceData);
-    if(mounted) {
-      setState(() {
-        signUpResult = result;
-        performedSignUp = true;
-      });
-    }
-    return result;
   }
 
   Future<bool> takePicture() async {
@@ -194,20 +196,52 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     return false;
   }
 
+  void showSignUpDialog(Object signUpSuccess) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        if (signUpSuccess is bool && signUpSuccess == true) {
+          return AlertDialog(
+            title: const Text('Sign Up Successful'),
+            content: Text("Signed up as ${widget.userInfo[0]}"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        } else {
+          return AlertDialog(
+            title: const Text('Sign Up Failed'),
+            content: Text("$signUpResult"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        }
+      },
+    );
+  }
 
 
   @override
   Widget build(BuildContext context) {
     Widget body = const Center(child: CircularProgressIndicator());
     if(isInitialized){
-      if(tookPicture){
-        widget.faceProcessor.imageToFaceData(picturePath).then((faceData) => {
-          signUp(widget.userInfo[0], widget.userInfo[1], faceData).then((result) => {
-            if(result){
-              Navigator.pop(context)
-            }
-          })
-        });
+      if (tookPicture) {
+        if(!performedSignUp){
+          signUp(widget.userInfo[0], widget.userInfo[1]);
+        }
       } else{
         if(isFaceSquared){
           if(!isFaceHeld){
@@ -260,7 +294,21 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     }
     return Stack(
         fit: StackFit.expand,
-        children: [body]
+        children: [
+          body ,
+          /*Align(
+            alignment: Alignment.centerLeft,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("Took Picture : $tookPicture "),
+                Text("SignUpResult : $signUpResult"),
+                Text("PerformedSignUp = $performedSignUp"),
+                Text("isFaceHeld = $isFaceHeld")
+              ],
+            ),
+          )*/
+        ]
     );
   }
 }

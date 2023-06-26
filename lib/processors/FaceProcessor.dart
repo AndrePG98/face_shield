@@ -65,7 +65,7 @@ class FaceProcessor{
     bool previousEyesOpen = (previousLeftEyeOpenProbability >= 0.5 && previousRightEyeOpenProbability >= 0.5);
 
     // Define a threshold for eye openness probability to consider an eye blink
-    double eyeOpenThreshold = 0.2;
+    double eyeOpenThreshold = 0.15;
 
     // Check if the eyes transitioned from open to closed or closed to open, considering the threshold
     bool isBlinking = (previousEyesOpen && leftEyeOpenProbability < eyeOpenThreshold && rightEyeOpenProbability < eyeOpenThreshold) ||
@@ -89,7 +89,7 @@ class FaceProcessor{
   }
 
   Future<bool> checkFaceMovement(Face face) async {
-    double faceMovementThreshold = 9; // Define a threshold for face movement
+    double faceMovementThreshold = 4; // Define a threshold for face movement
 
     if (_previousFrameLandmarks.isEmpty) {
       _previousFrameLandmarks = face.landmarks;
@@ -321,6 +321,7 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
     double dot = 0.0;
     double x = 0.0;
     double y = 0.0;
+    print("${list2.length} Inside CosineSim AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     for (int i = 0; i < list1!.length; i++) {
       dot += list1[i] * list2[i];
       x += pow(list1[i],2);
@@ -370,7 +371,9 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
       double bestDistance = 0;
       Map<String, dynamic>? bestMatchingUser;
       for (var user in allUsers) {
+        print("$user USERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
         final faceData = List<double>.from(user['faceData']);
+        print("${faceData.length} Inside Face Processor AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         double distance = cosineSim(currentUserFaceData, faceData);
         if (distance > bestDistance) {
           bestDistance = distance;
