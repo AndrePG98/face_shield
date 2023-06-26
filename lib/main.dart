@@ -14,6 +14,7 @@ import 'package:face_shield/routes/sucessLogin.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter/services.dart';
 
 
 main() async {
@@ -21,7 +22,6 @@ main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await Firebase.initializeApp();
   runApp(MainApp());
 }
 

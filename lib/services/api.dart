@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
 
-Future<bool> signUp(String email, String password, List<double> faceDataList) async {
+Future<Object> signUp(String email, String password, List<double> faceDataList) async {
   int maxRetries = 5;
   int retryDelay = 1000; // Initial delay in milliseconds
 
@@ -25,11 +25,9 @@ Future<bool> signUp(String email, String password, List<double> faceDataList) as
             .set({'email': user.email, 'faceData': faceDataList});
         return true;
       } else {
-        print("User not created!");
-        return false;
+        return "User is null , sign up failed";
       }
     } on FirebaseAuthException catch (e) {
-      print('Error creating the user: ${e.code}');
       if (e.code == 'firebase_auth/too-many-requests') {
         // If the error is due to too many requests, retry after a delay
         await Future.delayed(Duration(milliseconds: retryDelay));
@@ -37,13 +35,13 @@ Future<bool> signUp(String email, String password, List<double> faceDataList) as
         retryDelay *= 2;
       } else {
         // If the error is not due to rate limiting, propagate the error
-        return false;
+        return "Sign up failed : ${e.code}";
       }
     }
   }
 
   // Maximum number of retries reached, return false
-  return false;
+  return "Sign up failed due to too many requests. Wait before trying again.";
 }
 
 
@@ -135,4 +133,8 @@ Future<Map<String, dynamic>?> fetchUserByFace(List<double> face) async {
 
   return null; // User with the specified email not found
 }
+
+
+
+
 

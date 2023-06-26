@@ -82,7 +82,7 @@ class _IdentityConfirmationWidgetState extends State<IdentityConfirmationWidget>
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: wrongPasswordEntered ? Colors.red : Colors.blue)))),
           Text(
-            wrongPasswordEntered ? "Wrong passowrd" : "",
+            wrongPasswordEntered ? "Wrong password! Try again" : "",
             style: const TextStyle(color: Colors.red),
           )
         ],
