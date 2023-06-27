@@ -7,16 +7,38 @@ environment:
   sdk: '>=2.19.4 <3.0.0'
 
 dependencies:
-  camera: ^0.10.3+2
+  camera: ^0.10.5
   flutter:
     sdk: flutter
+  google_fonts: ^4.0.4
+  shared_preferences: ^2.1.1
+  font_awesome_flutter: ^10.4.0
+  google_mlkit_face_detection: ^0.6.0
+  image: 3.3.0
+  tflite_flutter: ^0.9.5
+  firebase_core: ^2.12.0
+  firebase_auth: ^4.6.0
+  cloud_firestore: any
+  firebase_database: any
+  mockito: ^5.4.0
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^2.0.1
+
+
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/
+    - assets/images/
+    - assets/mobilefacenet.tflite
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "./assets/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
