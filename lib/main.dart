@@ -10,6 +10,7 @@ import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
 import 'package:face_shield/routes/sucessLogin.dart';
+import 'package:face_shield/routes/userFeed.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -39,7 +40,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(),
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.system,
-      home: AdminPage(),
+      home: UserFeed(),
       routes: <String, WidgetBuilder> {
         '/login' : (BuildContext context) => LogInDetectionWidget(),
         "/login2" : (BuildContext context) => const LogIn(),
@@ -50,7 +51,8 @@ class MainApp extends StatelessWidget {
         "/successLogin" : (BuildContext context) => SucessfulLoginWidget(),
         "/failedLogin" : (BuildContext context) => const FailedLogin(),
         "/confirm" : (BuildContext context) => IdentityConfirmationWidget(),
-        "/admin" : (BuildContext context) => AdminPage()
+        "/admin" : (BuildContext context) => AdminPage(),
+        "/userFeed" : (BuildContext context) => UserFeed()
       },
       onGenerateRoute: (settings){
         if(settings.name == '/userdetail'){
