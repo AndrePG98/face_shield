@@ -10,6 +10,7 @@ import 'package:face_shield/routes/failedLogin.dart';
 import 'package:face_shield/routes/forgotPassword.dart';
 import 'package:face_shield/routes/home.dart';
 import 'package:face_shield/routes/login.dart';
+import 'package:face_shield/routes/settings.dart';
 import 'package:face_shield/routes/sucessLogin.dart';
 import 'package:face_shield/routes/userFeed.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,8 @@ class MainApp extends StatelessWidget {
         "/confirm" : (BuildContext context) => IdentityConfirmationWidget(),
         "/admin" : (BuildContext context) => AdminPage(),
         "/userFeed" : (BuildContext context) => UserFeed(),
-        "/contactInfo" : (BuildContext context) => ContactInfoPage()
+        "/contactInfo" : (BuildContext context) => ContactInfoPage(),
+        "/settings" : (BuildContext context) => SettingsPage()
       },
       onGenerateRoute: (settings){
         if(settings.name == '/userdetail'){
