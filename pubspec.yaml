@@ -22,6 +22,7 @@ dependencies:
   firebase_database: any
   mockito: ^5.4.0
   url_launcher: 6.1.10
+  fluttertoast: ^8.0.8
 
 
 dev_dependencies:

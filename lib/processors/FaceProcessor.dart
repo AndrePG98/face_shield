@@ -121,7 +121,6 @@ class FaceProcessor{
 
   Future<bool> checkSmiling(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
-    //print(_faces.smilingProbability!);
     return face.smilingProbability! >= _eyesAndSmileThreshold;
   }
   //Checking for head rotation (up/down/left/right)
@@ -247,7 +246,6 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
       for (var user in allUsers) {
         final faceData = List<double>.from(user['faceData']);
         double distance = euclideanDistance(currentUserFaceData, faceData);
-        print('$distance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
         if (distance < bestDistance) {
           bestDistance = distance;
           bestMatchingUser = user;
@@ -259,7 +257,6 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
       if(bestDistance >= 0.8){
         return false;
       }
-      print('$bestDistance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
       return bestMatchingUser;
     }
     return false;
@@ -321,7 +318,6 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
     double dot = 0.0;
     double x = 0.0;
     double y = 0.0;
-    print("${list2.length} Inside CosineSim AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     for (int i = 0; i < list1!.length; i++) {
       dot += list1[i] * list2[i];
       x += pow(list1[i],2);
@@ -371,9 +367,7 @@ Future<InputImage> _fromCameraImageToInputImage(CameraImage cameraImage) async{ 
       double bestDistance = 0;
       Map<String, dynamic>? bestMatchingUser;
       for (var user in allUsers) {
-        print("$user USERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
         final faceData = List<double>.from(user['faceData']);
-        print("${faceData.length} Inside Face Processor AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         double distance = cosineSim(currentUserFaceData, faceData);
         if (distance > bestDistance) {
           bestDistance = distance;

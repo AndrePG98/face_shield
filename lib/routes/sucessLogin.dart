@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
+import 'package:face_shield/routes/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:face_shield/services/api.dart' as api;
 import 'package:flutter/services.dart';
@@ -37,11 +38,15 @@ class SucessfulLoginWidget extends StatelessWidget {
     return name;
   }
 
+  late String userEmail;
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Page'),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: Icon(Icons.info),
@@ -52,7 +57,12 @@ class SucessfulLoginWidget extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.pushNamed(context, '/settings');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(email: userEmail),
+                ),
+              );
             },
           ),
         ],
@@ -64,7 +74,7 @@ class SucessfulLoginWidget extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
             final picturePath = snapshot.data?[0];
-            final userEmail = snapshot.data?[1];
+            userEmail = snapshot.data?[1];
             return Padding(
               padding: EdgeInsets.all(16.0),
               child: ListView(

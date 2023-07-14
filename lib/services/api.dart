@@ -85,7 +85,6 @@ Future<void> editEmail(String email) async {
     final User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      print(user);
       await user.updateEmail(email);
       print("Updated Email successfuly ${user.email} ");
     } else {

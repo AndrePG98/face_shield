@@ -56,12 +56,17 @@ class MainApp extends StatelessWidget {
         "/admin" : (BuildContext context) => AdminPage(),
         "/userFeed" : (BuildContext context) => UserFeed(),
         "/contactInfo" : (BuildContext context) => ContactInfoPage(),
-        "/settings" : (BuildContext context) => SettingsPage()
+
       },
       onGenerateRoute: (settings){
         if(settings.name == '/userdetail'){
           final user=settings.arguments as UserData;
           return MaterialPageRoute(builder: (context)=>UserDetailPage(id: user.id,email: user.email, faceData: user.faceData));
+        }
+
+        if(settings.name == '/settings'){
+          final user=settings.arguments as UserData;
+          return MaterialPageRoute(builder: (context)=>SettingsPage(email: user.email));
         }
       },
     );

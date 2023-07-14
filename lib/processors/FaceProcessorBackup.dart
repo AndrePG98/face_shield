@@ -38,14 +38,14 @@ class FaceProcessorBackup{
   /*deprecated use checkEyeBlink instead
   Future<bool> checkLeftEye(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
-    //print(_face.rightEyeOpenProbability);
+
     return !(face.rightEyeOpenProbability! >= _eyesAndSmileThreshold);
     // picture taken is mirrored so we check the other eye
     // we are checking if the eye is closed
   }
   Future<bool> checkRightEye(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
-    //print(_face.leftEyeOpenProbability);
+
     return !(face.leftEyeOpenProbability! >= _eyesAndSmileThreshold);
     // picture taken is mirrored so we check the other eye
     // we are checking if the eye is closed
@@ -91,7 +91,7 @@ class FaceProcessorBackup{
 
   Future<bool> checkSmiling(CameraImage cameraImage) async {
     Face face = await _fromImgToFace(cameraImage);
-    //print(_faces.smilingProbability!);
+
     return face.smilingProbability! >= _eyesAndSmileThreshold;
   }
   /*
@@ -289,7 +289,6 @@ class FaceProcessorBackup{
       for (var user in allUsers) {
         final faceData = List<double>.from(user['faceData']);
         double distance = euclideanDistance(currentUserFaceData, faceData);
-        print('$distance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
         if (distance < bestDistance) {
           bestDistance = distance;
           bestMatchingUser = user;
@@ -301,7 +300,6 @@ class FaceProcessorBackup{
       if(bestDistance >= 0.8){
         return false;
       }
-      print('$bestDistance AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
       return bestMatchingUser;
     }
     return false;

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -66,8 +67,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
   }
 
   void _showEditConfirmationDialog(BuildContext context) {
-    String faceDataText =
-    widget.faceData.toString().replaceAll('[', '').replaceAll(']', '');
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -100,13 +99,21 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       setState(() {
                         _loading = true;
                       });
-                      //atualizar os dados no firebaseStore
-                      FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(widget.id)
-                          .update({
-                        'email': _emailController.text,
-                      }).then((value) {
+
+                      try {
+                        // Update the email in Firestore
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(widget.id)
+                            .update({
+                          'email': _emailController.text,
+                        });
+
+                        User? user = FirebaseAuth.instance.currentUser;
+                        if (user != null) {
+                          await user.updateEmail(_emailController.text);
+                        }
+
                         setState(() {
                           _loading = false;
                           widget.email = _emailController.text;
@@ -115,14 +122,11 @@ class _UserDetailPageState extends State<UserDetailPage> {
                         if (Navigator.of(context).canPop()) {
                           Navigator.pop(context, true);
                         }
-                      }).catchError((error) {
+                      } catch (error) {
                         setState(() {
                           _loading = false;
                         });
-                      });
-
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.pop(context, true);
+                        print("Error updating the email: $error");
                       }
                     }
                   },
