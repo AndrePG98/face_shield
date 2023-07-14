@@ -21,59 +21,6 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _loading = false;
   late TextEditingController _emailController= TextEditingController();
 
-  void _showDeleteConfirmationDialog(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Confirmation'),
-            content: Text('Do you want to delete this user?'),
-            actions: [
-              TextButton(
-                  onPressed: () async {
-                    try {
-                      final QuerySnapshot snapshot = await FirebaseFirestore.instance
-                          .collection('users')
-                          .where('email', isEqualTo: widget.email)
-                          .limit(1)
-                          .get();
-
-                      if (snapshot.docs.isNotEmpty) {
-                        final DocumentSnapshot userDoc = snapshot.docs.first;
-                        await userDoc.reference.delete();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("User deleted successfully!")),
-                        );
-                      }
-
-                      Navigator.pop(context, true);
-
-                      /*final CollectionReference collections = FirebaseFirestore.instance.collection('users') ;
-                      collections.doc(widget.id).delete();*/
-                      /* Navigator.pop(context,true);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User deleted successfully!")));
-*/
-                    } catch (e) {
-                      print("Error deleting the user: $e");
-                    }
-                    if(context != null && Navigator.of(context).canPop()){
-                      Navigator.pop(context,true);
-                    }
-                  },
-                  style: TextButton.styleFrom(backgroundColor: Colors.red),
-                  child: const Text(
-                    'Delete',
-                    style: TextStyle(color: Colors.white),
-                  )),
-              TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Cancel'))
-            ],
-          );
-        });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _showEditConfirmationDialog(context);
         break;
       case 1:
-        _showDeleteAccountConfirmationDialog(context);
+        _showDeleteConfirmationDialog(context);
         break;
       case 2:
         _logout(context);
@@ -268,30 +215,48 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  void _showDeleteAccountConfirmationDialog(BuildContext context) {
+  void _showDeleteConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Account'),
-          content: Text('Are you sure you want to delete your account?'),
+          title: Text('Confirmation'),
+          content: Text('Do you want to delete this user?'),
           actions: [
-            ElevatedButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
+            TextButton(
+              onPressed: () async {
+                try {
+                  User? user = FirebaseAuth.instance.currentUser;
+                  if (user != null) {
+                    // Delete the user account
+                    await user.delete();
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("User account deleted successfully!")),
+                    );
+
+                    // Navigate to the login screen or any other appropriate screen
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/',
+                          (Route<dynamic> route) => false,
+                    );
+                  }
+                } catch (e) {
+                  print("Error deleting the user account: $e");
+                }
               },
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red,
+              style: TextButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.white),
               ),
-              child: Text('Delete'),
+            ),
+            TextButton(
               onPressed: () {
-                // Implement the account deletion logic here
-                // ...
                 Navigator.of(context).pop();
               },
+              child: const Text('Cancel'),
             ),
           ],
         );
