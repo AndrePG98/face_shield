@@ -20,7 +20,6 @@ class FaceProcessor {
   late InputImageRotation? cameraRotation;
   Face? previousFace;
   Map<FaceLandmarkType, FaceLandmark?> _previousFrameLandmarks = Map();
-  //late CameraImage _tempImage; //later bull
 
   FaceProcessor() {
     _initiateInterpreter();
