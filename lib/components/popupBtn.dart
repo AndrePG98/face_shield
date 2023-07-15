@@ -42,9 +42,7 @@ class _PopupButtonState extends State<PopupButton> {
   Widget build(BuildContext context) {
     return DefaultButton(
       text: 'Check',
-      onPress: () => {
-        _showPopup(Random().nextInt(2))
-      },
+      onPress: () => {_showPopup(Random().nextInt(2))},
     );
   }
 }

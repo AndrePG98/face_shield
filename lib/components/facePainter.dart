@@ -2,7 +2,8 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:flutter/material.dart';
 
 class FacePainter extends CustomPainter {
-  FacePainter({required this.imageSize, required this.face, required this.maxAngle});
+  FacePainter(
+      {required this.imageSize, required this.face, required this.maxAngle});
   final Size imageSize;
   int maxAngle;
   double? scaleX, scaleY;
@@ -13,7 +14,10 @@ class FacePainter extends CustomPainter {
 
     Paint paint;
 
-    if ((face!.headEulerAngleY! > maxAngle || face!.headEulerAngleY! < -maxAngle) || (face!.headEulerAngleX! > maxAngle || face!.headEulerAngleX! < -maxAngle)) {
+    if ((face!.headEulerAngleY! > maxAngle ||
+            face!.headEulerAngleY! < -maxAngle) ||
+        (face!.headEulerAngleX! > maxAngle ||
+            face!.headEulerAngleX! < -maxAngle)) {
       paint = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3.0
@@ -43,17 +47,17 @@ class FacePainter extends CustomPainter {
     return oldDelegate.imageSize != imageSize || oldDelegate.face != face;
   }
 
-  void setMaxAngle(int newAngle){
+  void setMaxAngle(int newAngle) {
     maxAngle = newAngle;
   }
 }
 
 RRect _scaleRect(
     {required Rect rect,
-      required Size imageSize,
-      required Size widgetSize,
-      double scaleX = 1,
-      double scaleY = 1}) {
+    required Size imageSize,
+    required Size widgetSize,
+    double scaleX = 1,
+    double scaleY = 1}) {
   return RRect.fromLTRBR(
       (widgetSize.width - rect.left.toDouble() * scaleX),
       rect.top.toDouble() * scaleY,

@@ -1,24 +1,19 @@
-import 'package:face_shield/components/LogInCameraWidget.dart';
 import 'package:face_shield/components/SignUpCameraWidget.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
-class SignUpDetectionWidget extends StatefulWidget{
-
-  SignUpDetectionWidget({super.key});
+class SignUpDetectionWidget extends StatefulWidget {
+  const SignUpDetectionWidget({super.key});
 
   @override
   State<StatefulWidget> createState() {
     return SignUpDetectionState();
   }
-
 }
 
-class SignUpDetectionState extends State<SignUpDetectionWidget>{
-
-
+class SignUpDetectionState extends State<SignUpDetectionWidget> {
   Future<List<String>> _fetchData() async {
-    List<String> userInfo = ModalRoute.of(context)?.settings.arguments as List<String>;
+    List<String> userInfo =
+        ModalRoute.of(context)?.settings.arguments as List<String>;
     return userInfo;
   }
 
@@ -26,7 +21,6 @@ class SignUpDetectionState extends State<SignUpDetectionWidget>{
   void dispose() {
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +32,9 @@ class SignUpDetectionState extends State<SignUpDetectionWidget>{
         } else if (snapshot.hasError) {
           return Center(
               child: Text(
-                  snapshot.error.toString(),
-                style: TextStyle(fontSize: 10),
-              )
-          );
+            snapshot.error.toString(),
+            style: const TextStyle(fontSize: 10),
+          ));
         } else {
           final List args = snapshot.data ?? [];
           return Scaffold(

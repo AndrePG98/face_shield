@@ -4,20 +4,18 @@ class SignInField extends StatefulWidget {
   final String hintText;
   final TextEditingController controller;
 
-  const SignInField({super.key, required this.hintText, required this.controller});
+  const SignInField(
+      {super.key, required this.hintText, required this.controller});
 
   @override
   SignInFieldState createState() => SignInFieldState();
 }
 
 class SignInFieldState extends State<SignInField> {
-
   @override
   void initState() {
     super.initState();
   }
-
-
 
   @override
   Widget build(BuildContext context) {

@@ -3,8 +3,7 @@ import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
-
-class CameraProcessor{
+class CameraProcessor {
   late CameraController _controller;
   CameraController get controller => _controller;
 
@@ -19,7 +18,8 @@ class CameraProcessor{
   Future<void> initialize() async {
     CameraDescription cameraDescription = await _getCameraDescription();
     await _setupCameraController(description: cameraDescription);
-    _cameraRotation = rotationIntToImageRotation(cameraDescription.sensorOrientation);
+    _cameraRotation =
+        rotationIntToImageRotation(cameraDescription.sensorOrientation);
     _controller.setFlashMode(FlashMode.torch);
     isInitialized = true;
   }
@@ -27,7 +27,7 @@ class CameraProcessor{
   Future<CameraDescription> _getCameraDescription() async {
     List<CameraDescription> cameras = await availableCameras();
     return cameras.firstWhere((CameraDescription camera) =>
-    camera.lensDirection == CameraLensDirection.front);
+        camera.lensDirection == CameraLensDirection.front);
   }
 
   Future _setupCameraController({
@@ -55,8 +55,8 @@ class CameraProcessor{
 
   Size getImageSize() {
     assert(
-    _controller.value.previewSize != null,
-    'Preview size is null',
+      _controller.value.previewSize != null,
+      'Preview size is null',
     );
     return Size(
       _controller.value.previewSize!.height,

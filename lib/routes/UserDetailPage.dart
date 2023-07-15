@@ -10,7 +10,11 @@ class UserDetailPage extends StatefulWidget {
   late final String email;
   final List<double> faceData;
 
-  UserDetailPage({super.key, required this.id,required this.email, required this.faceData});
+  UserDetailPage(
+      {super.key,
+      required this.id,
+      required this.email,
+      required this.faceData});
 
   @override
   State<UserDetailPage> createState() => _UserDetailPageState();
@@ -20,7 +24,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
   late TextEditingController _emailController;
-
 
   @override
   void initState() {
@@ -33,22 +36,23 @@ class _UserDetailPageState extends State<UserDetailPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Confirmation'),
-            content: Text('Do you want to delete this user?'),
+            title: const Text('Confirmation'),
+            content: const Text('Do you want to delete this user?'),
             actions: [
               TextButton(
                   onPressed: () async {
                     try {
-                      final CollectionReference collections = FirebaseFirestore.instance.collection('users') ;
+                      final CollectionReference collections =
+                          FirebaseFirestore.instance.collection('users');
                       collections.doc(widget.id).delete();
-                      Navigator.pop(context,true);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User deleted successfully!")));
-
+                      Navigator.pop(context, true);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("User deleted successfully!")));
                     } catch (e) {
                       print("Error deleting the user: $e");
                     }
-                    if(context != null && Navigator.of(context).canPop()){
-                      Navigator.pop(context,true);
+                    if (context != null && Navigator.of(context).canPop()) {
+                      Navigator.pop(context, true);
                     }
                   },
                   style: TextButton.styleFrom(backgroundColor: Colors.red),
@@ -145,10 +149,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
         });
   }
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,7 +156,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
           title: const Text("User Detail"),
         ),
         body: WillPopScope(
-          onWillPop: () async{
+          onWillPop: () async {
             Navigator.pop(context, true);
             return false;
           },
@@ -167,61 +167,62 @@ class _UserDetailPageState extends State<UserDetailPage> {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: !_loading
-                ? Column(
-                  children: [
-                    const Text(
-                      'Email',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                    ),
-                    Text(
-                      _emailController.text,
-                      style: const TextStyle(fontSize: 25),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    const SizedBox(
-                      height: 26,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _showEditConfirmationDialog(context);
-                            },
-                            child: const Text(
-                              'Edit',
-                              style: TextStyle(fontSize: 25),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 20, horizontal: 38)),
+                    ? Column(
+                        children: [
+                          const Text(
+                            'Email',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 30),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 26,
-                        ),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _showDeleteConfirmationDialog(context);
-                            },
-                            child: Text(
-                              'Delete',
-                              style: TextStyle(fontSize: 25),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 20, horizontal: 30),
-                                backgroundColor: Colors.red),
+                          Text(
+                            _emailController.text,
+                            style: const TextStyle(fontSize: 25),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                )
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const SizedBox(
+                            height: 26,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _showEditConfirmationDialog(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 20, horizontal: 38)),
+                                  child: const Text(
+                                    'Edit',
+                                    style: TextStyle(fontSize: 25),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 26,
+                              ),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _showDeleteConfirmationDialog(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 20, horizontal: 30),
+                                      backgroundColor: Colors.red),
+                                  child: const Text(
+                                    'Delete',
+                                    style: TextStyle(fontSize: 25),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
                     : const Center(child: CircularProgressIndicator()),
               ),
             ),

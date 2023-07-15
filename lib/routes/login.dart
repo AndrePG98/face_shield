@@ -1,10 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:face_shield/components/defaultButton.dart';
-import 'package:face_shield/routes/home.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:face_shield/components/customTextField.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../helpers/Helpers.dart';
 import '../services/api.dart';
@@ -28,14 +22,16 @@ class _LogInState extends State<LogIn> {
       appBar: AppBar(
         title: const Text("Login"),
       ),
-      body: SingleChildScrollView( // Added SingleChildScrollView
+      body: SingleChildScrollView(
+        // Added SingleChildScrollView
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 32),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 64, horizontal: 32),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -98,7 +94,8 @@ class _LogInState extends State<LogIn> {
                             const SizedBox(height: 20),
                             ElevatedButton(
                               onPressed: () {
-                                logInWithPassword(_emailController.text, _passwordController.text);
+                                logInWithPassword(_emailController.text,
+                                    _passwordController.text);
                                 Navigator.pop(context);
                               },
                               child: const Text(

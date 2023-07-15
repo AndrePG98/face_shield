@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class ContactInfoPage extends StatelessWidget {
+  const ContactInfoPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contact Info'),
+        title: const Text('Contact Info'),
       ),
-      body: Padding(
+      body: const Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -17,7 +17,7 @@ class _ListUsersPage extends State<ListUsersPage> {
   void _loadUserData() async {
     try {
       setState(() {
-        _loading=true;
+        _loading = true;
       });
       QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('users').get();
@@ -31,7 +31,7 @@ class _ListUsersPage extends State<ListUsersPage> {
             faceData: List<double>.from(data['faceData'] ?? []),
           );
         }).toList();
-        _loading=false;
+        _loading = false;
       });
     } catch (e) {
       print("Error loading user's data! $e");
@@ -45,15 +45,14 @@ class _ListUsersPage extends State<ListUsersPage> {
   }
 
   Future<void> deleteAllDocuments() async {
-    final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
+    final CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('users');
     QuerySnapshot querySnapshot = await usersCollection.get();
     for (DocumentSnapshot documentSnapshot in querySnapshot.docs) {
       await documentSnapshot.reference.delete();
     }
     _loadUserData();
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   @override
@@ -64,62 +63,63 @@ class _ListUsersPage extends State<ListUsersPage> {
       ),
       body: userList.isNotEmpty
           ? Column(
-        children: [
-          OutlinedButton(
-            onPressed: deleteAllDocuments,
-            child: const Text("Delete All"),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: userList.length,
-              itemBuilder: (context, index) {
-                final userData = userList[index];
-                return Card(
-                  child: ListTile(
-                    title: Text('Email: ${userData.email}'),
-                    subtitle: Text('Face Data: ${userData.faceData.length}'),
-                    onTap: () async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UserDetailPage(
-                            id: userData.id,
-                            email: userData.email,
-                            faceData: userData.faceData,
-                          ),
+              children: [
+                OutlinedButton(
+                  onPressed: deleteAllDocuments,
+                  child: const Text("Delete All"),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: userList.length,
+                    itemBuilder: (context, index) {
+                      final userData = userList[index];
+                      return Card(
+                        child: ListTile(
+                          title: Text('Email: ${userData.email}'),
+                          subtitle:
+                              Text('Face Data: ${userData.faceData.length}'),
+                          onTap: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UserDetailPage(
+                                  id: userData.id,
+                                  email: userData.email,
+                                  faceData: userData.faceData,
+                                ),
+                              ),
+                            ).then((result) {
+                              if (result == true) {
+                                _loadUserData();
+                              }
+                            });
+                          },
                         ),
-                      ).then((result) {
-                        if (result == true) {
-                          _loadUserData();
-                        }
-                      });
+                      );
                     },
                   ),
-                );
-              },
-            ),
-          ),
-        ],
-      )
+                ),
+              ],
+            )
           : userList.isEmpty && !_loading
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.warning,
-              size: 64,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
-            Text(
-              "No registered users!",
-              style: TextStyle(fontSize: 28),
-            ),
-          ],
-        ),
-      )
-          : const Center(child: CircularProgressIndicator()),
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.warning,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        "No registered users!",
+                        style: TextStyle(fontSize: 28),
+                      ),
+                    ],
+                  ),
+                )
+              : const Center(child: CircularProgressIndicator()),
     );
   }
 }

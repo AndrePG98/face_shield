@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:face_shield/services/api.dart' as api;
 
 class IdentityConfirmationWidget extends StatefulWidget {
+  const IdentityConfirmationWidget({super.key});
+
   @override
   _IdentityConfirmationWidgetState createState() =>
       _IdentityConfirmationWidgetState();
 }
 
-class _IdentityConfirmationWidgetState extends State<IdentityConfirmationWidget> {
+class _IdentityConfirmationWidgetState
+    extends State<IdentityConfirmationWidget> {
   bool isIdentityConfirmed = false;
   bool wrongPasswordEntered = false;
   String enteredPassword = '';
@@ -34,7 +37,7 @@ class _IdentityConfirmationWidgetState extends State<IdentityConfirmationWidget>
         isIdentityConfirmed = true;
       });
     } else {
-      Navigator.pushNamed(context, "/"); // Navigate to home screen
+      Navigator.pushNamed(context, "/");
     }
   }
 
@@ -56,7 +59,7 @@ class _IdentityConfirmationWidgetState extends State<IdentityConfirmationWidget>
   @override
   Widget build(BuildContext context) {
     List<dynamic> arguments =
-    ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        ModalRoute.of(context)!.settings.arguments as List<dynamic>;
     picturePath = arguments[0];
     userEmail = arguments[1];
     return AlertDialog(
@@ -73,14 +76,21 @@ class _IdentityConfirmationWidgetState extends State<IdentityConfirmationWidget>
           if (isIdentityConfirmed)
             TextField(
                 obscureText: true,
-                onChanged: (password) {enteredPassword = password;},
+                onChanged: (password) {
+                  enteredPassword = password;
+                },
                 decoration: InputDecoration(
                     labelText: 'Enter your password',
-                    labelStyle: TextStyle(color: wrongPasswordEntered ? Colors.red : Colors.white),
+                    labelStyle: TextStyle(
+                        color:
+                            wrongPasswordEntered ? Colors.red : Colors.white),
                     border: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.black)),
                     focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: wrongPasswordEntered ? Colors.red : Colors.blue)))),
+                        borderSide: BorderSide(
+                            color: wrongPasswordEntered
+                                ? Colors.red
+                                : Colors.blue)))),
           Text(
             wrongPasswordEntered ? "Wrong password! Try again" : "",
             style: const TextStyle(color: Colors.red),

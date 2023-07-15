@@ -31,7 +31,7 @@ class _FailedLoginState extends State<FailedLogin> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Center(

@@ -2,24 +2,20 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
-import 'package:face_shield/processors/ConditioChecker.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:face_shield/components/AnimatedText.dart';
 import 'package:face_shield/services/api.dart' as api;
-
 
 import 'facePainter.dart';
 
 class SignUpCameraWidget extends StatefulWidget {
-
   late final FaceProcessor faceProcessor;
   late final CameraProcessor cameraProcessor;
   late final List userInfo;
 
-  SignUpCameraWidget({Key? key, required List userList}) : super(key: key){
+  SignUpCameraWidget({Key? key, required List userList}) : super(key: key) {
     cameraProcessor = CameraProcessor();
     faceProcessor = FaceProcessor();
     userInfo = userList;
@@ -32,7 +28,6 @@ class SignUpCameraWidget extends StatefulWidget {
 }
 
 class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
-
   bool isDetecting = false;
   bool isInitialized = false;
   bool isPainterVisible = false;
@@ -49,16 +44,15 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
   bool isFaceHeld = false;
   Timer? faceHoldTimer;
 
-
   @override
-  void dispose(){
+  void dispose() {
     widget.cameraProcessor.dispose();
     faceHoldTimer?.cancel();
     super.dispose();
   }
 
   @override
-  void initState(){
+  void initState() {
     _start();
     super.initState();
     faceHoldTimer = Timer.periodic(const Duration(seconds: 3), (_) {
@@ -74,35 +68,37 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     });
   }
 
-  void _start()  async {
-    if(mounted){
+  void _start() async {
+    if (mounted) {
       await widget.cameraProcessor.initialize();
       setState(() {
         isInitialized = widget.cameraProcessor.isInitialized;
-        widget.faceProcessor.cameraRotation = widget.cameraProcessor.cameraRotation;
+        widget.faceProcessor.cameraRotation =
+            widget.cameraProcessor.cameraRotation;
       });
       detect();
     }
   }
 
-
   void _isFaceSquared() async {
-    if(mounted){
+    if (mounted) {
       setState(() {
-        isFaceSquared = (detectedFace!.headEulerAngleY! < maxAngle && detectedFace!.headEulerAngleY! > -maxAngle)
-            && (detectedFace!.headEulerAngleX! < maxAngle && detectedFace!.headEulerAngleX! > -maxAngle);
+        isFaceSquared = (detectedFace!.headEulerAngleY! < maxAngle &&
+                detectedFace!.headEulerAngleY! > -maxAngle) &&
+            (detectedFace!.headEulerAngleX! < maxAngle &&
+                detectedFace!.headEulerAngleX! > -maxAngle);
       });
     }
   }
 
   void detect() async {
-    if(mounted){
+    if (mounted) {
       await widget.cameraProcessor.controller.startImageStream((image) async {
-        if(isDetecting) return;
+        if (isDetecting) return;
         isDetecting = true;
         List<Face> faces = await getFaces(image);
-        if(faces.isNotEmpty){
-          if(mounted){
+        if (faces.isNotEmpty) {
+          if (mounted) {
             setState(() {
               isPainterVisible = true;
               detectedFace = faces[0];
@@ -110,14 +106,16 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
             });
             _isFaceSquared();
           }
-        } else { // 0 faces detected
-          if(mounted){
+        } else {
+          // 0 faces detected
+          if (mounted) {
             setState(() {
               isPainterVisible = false;
             });
           }
         }
-        if(mounted){ // loop over
+        if (mounted) {
+          // loop over
           setState(() {
             isDetecting = false;
             faces = [];
@@ -132,25 +130,26 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
   }
 
   void updateFaceData() async {
-    if(faceData.isEmpty){
-      List<double> data = await widget.faceProcessor.imageToFaceData(picturePath);
+    if (faceData.isEmpty) {
+      List<double> data =
+          await widget.faceProcessor.imageToFaceData(picturePath);
       faceData = data;
     }
   }
 
   Future<void> signUp(String email, String password) async {
     updateFaceData();
-    if(!performedSignUp && faceData.isNotEmpty){
+    if (!performedSignUp && faceData.isNotEmpty) {
       Object result = await api.signUp(email, password, faceData);
-      if(result is bool){
-        if(mounted) {
+      if (result is bool) {
+        if (mounted) {
           setState(() {
             signUpResult = result;
             performedSignUp = true;
           });
         }
       }
-      if(signUpResult != null){
+      if (signUpResult != null) {
         showSignUpDialog(result);
       }
     }
@@ -233,28 +232,24 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     Widget body = const Center(child: CircularProgressIndicator());
-    if(isInitialized){
+    if (isInitialized) {
       if (tookPicture) {
-        if(!performedSignUp){
+        if (!performedSignUp) {
           signUp(widget.userInfo[0], widget.userInfo[1]);
         }
-      } else{
-        if(isFaceSquared){
-          if(!isFaceHeld){
+      } else {
+        if (isFaceSquared) {
+          if (!isFaceHeld) {
             Visibility painter = Visibility(
                 visible: isPainterVisible,
                 child: CustomPaint(
                     painter: FacePainter(
                         face: detectedFace,
                         imageSize: widget.cameraProcessor.getImageSize(),
-                        maxAngle: maxAngle
-                    )
-                )
-            );
+                        maxAngle: maxAngle)));
             body = Stack(
               fit: StackFit.expand,
               children: [
@@ -262,9 +257,9 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
                 painter
               ],
             );
-          } else{
-            if(!performedSignUp && isFaceHeld && !tookPicture){
-              if(widget.cameraProcessor.isInitialized){
+          } else {
+            if (!performedSignUp && isFaceHeld && !tookPicture) {
+              if (widget.cameraProcessor.isInitialized) {
                 takePicture();
               }
             }
@@ -276,10 +271,7 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
                   painter: FacePainter(
                       face: detectedFace,
                       imageSize: widget.cameraProcessor.getImageSize(),
-                      maxAngle: maxAngle
-                  )
-              )
-          );
+                      maxAngle: maxAngle)));
           body = Stack(
             fit: StackFit.expand,
             children: [
@@ -292,24 +284,8 @@ class SignUpCameraWidgetState extends State<SignUpCameraWidget> {
     } else {
       body = const Center(child: CircularProgressIndicator());
     }
-    return Stack(
-        fit: StackFit.expand,
-        children: [
-          body ,
-          /*Align(
-            alignment: Alignment.centerLeft,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text("Took Picture : $tookPicture "),
-                Text("SignUpResult : $signUpResult"),
-                Text("PerformedSignUp = $performedSignUp"),
-                Text("isFaceHeld = $isFaceHeld")
-              ],
-            ),
-          )*/
-        ]
-    );
+    return Stack(fit: StackFit.expand, children: [
+      body,
+    ]);
   }
 }
-

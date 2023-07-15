@@ -13,20 +13,16 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-
-
 class _SettingsPageState extends State<SettingsPage> {
-
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
-  late TextEditingController _emailController= TextEditingController();
-
+  late TextEditingController _emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
       ),
       body: ListView.separated(
         itemBuilder: (BuildContext context, int index) {
@@ -39,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
           );
         },
         separatorBuilder: (BuildContext context, int index) {
-          return Divider();
+          return const Divider();
         },
         itemCount: _getItemCount(),
       ),
@@ -66,13 +62,13 @@ class _SettingsPageState extends State<SettingsPage> {
   Icon _getItemIcon(int index) {
     switch (index) {
       case 0:
-        return Icon(Icons.email);
+        return const Icon(Icons.email);
       case 1:
-        return Icon(Icons.delete);
+        return const Icon(Icons.delete);
       case 2:
-        return Icon(Icons.logout);
+        return const Icon(Icons.logout);
       default:
-        return Icon(Icons.error);
+        return const Icon(Icons.error);
     }
   }
 
@@ -97,8 +93,6 @@ class _SettingsPageState extends State<SettingsPage> {
         String currentEmail = _emailController.text.trim().toLowerCase();
         late TextEditingController _newEmailController;
         _newEmailController = TextEditingController(text: currentEmail);
-
-
 
         return AlertDialog(
           title: const Text("Edit user"),
@@ -187,12 +181,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         gravity: ToastGravity.BOTTOM,
                       );
                     }
-
                   } catch (error) {
                     setState(() {
                       _loading = false;
                     });
                   }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text("User email edited successfully!")),
+                  );
                   Navigator.pushNamedAndRemoveUntil(
                       context, '/', (Route<dynamic> route) => false);
                 }
@@ -220,8 +217,8 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmation'),
-          content: Text('Do you want to delete this user?'),
+          title: const Text('Confirmation'),
+          content: const Text('Do you want to delete this user?'),
           actions: [
             TextButton(
               onPressed: () async {
@@ -232,14 +229,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     await user.delete();
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("User account deleted successfully!")),
+                      const SnackBar(
+                          content: Text("User account deleted successfully!")),
                     );
 
                     // Navigate to the login screen or any other appropriate screen
                     Navigator.pushNamedAndRemoveUntil(
                       context,
                       '/',
-                          (Route<dynamic> route) => false,
+                      (Route<dynamic> route) => false,
                     );
                   }
                 } catch (e) {

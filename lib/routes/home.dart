@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../components/defaultButton.dart';
 import '../components/logo.dart';
 
-class HomePage extends StatelessWidget{
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Center(
             child: Column(
@@ -27,20 +27,25 @@ class HomePage extends StatelessWidget{
                     children: [
                       DefaultButton(
                           text: 'Log in',
-                          onPress: () => {Navigator.pushNamed(context, '/login')}
+                          onPress: () =>
+                              {Navigator.pushNamed(context, '/login')}),
+                      const SizedBox(
+                        height: 20,
                       ),
-                      const SizedBox(height: 20,),
                       DefaultButton(
                           text: "Sign up",
-                          onPress: () => {Navigator.pushNamed(context, '/signup')}
+                          onPress: () =>
+                              {Navigator.pushNamed(context, '/signup')}),
+                      const SizedBox(
+                        height: 20,
                       ),
-                      const SizedBox(height: 20,),
                       DefaultButton(
                           text: "List users",
-                          onPress: () => {Navigator.pushNamed(context, '/listusers')}
-
-                      ),
-                      const SizedBox(height: 20,)
+                          onPress: () =>
+                              {Navigator.pushNamed(context, '/listusers')}),
+                      const SizedBox(
+                        height: 20,
+                      )
                     ],
                   ),
                 )

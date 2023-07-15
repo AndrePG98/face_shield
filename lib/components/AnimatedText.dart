@@ -16,12 +16,9 @@ class AnimatedText extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        color: value ? Colors.green : Colors.transparent,
-        border: Border.all(
-          color: value ? Colors.black : Colors.white
-        )
-      ),
+          borderRadius: BorderRadius.circular(4),
+          color: value ? Colors.green : Colors.transparent,
+          border: Border.all(color: value ? Colors.black : Colors.white)),
       padding: const EdgeInsets.all(8),
       child: Text(
         label,
