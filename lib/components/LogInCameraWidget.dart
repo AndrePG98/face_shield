@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/ConditionChecker.dart';
@@ -8,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:face_shield/components/AnimatedText.dart';
-
 import 'facePainter.dart';
 
 class LogInCameraWidget extends StatefulWidget {

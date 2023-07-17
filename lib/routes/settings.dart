@@ -227,6 +227,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (user != null) {
                     // Delete the user account
                     await user.delete();
+                    // Delete the user document from Firestore
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(user.uid)
+                        .delete();
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

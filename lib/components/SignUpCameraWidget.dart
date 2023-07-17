@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:camera/camera.dart';
 import 'package:face_shield/processors/CameraProcessor.dart';
 import 'package:face_shield/processors/FaceProcessor.dart';
