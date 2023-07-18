@@ -1,7 +1,7 @@
-import 'package:face_shield/routes/userFeed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../lib/routes/userFeed.dart';
 
 
 void main() {
@@ -26,7 +26,7 @@ void main() {
   testWidgets('UserFeed - Card Test', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: userFeed));
 
-    expect(find.byType(Card), findsNWidgets(2));
+    expect(find.byType(Card), findsNWidgets(3));
     expect(find.byType(ListTile), findsOneWidget);
     expect(find.byType(CircleAvatar), findsOneWidget);
     expect(find.text('Username'), findsOneWidget);
@@ -36,9 +36,9 @@ void main() {
   testWidgets('UserFeed - GestureDetector Test', (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: userFeed));
 
-    expect(find.byType(GestureDetector), findsNWidgets(4));
-    expect(find.byType(Card), findsNWidgets(4));
-    expect(find.byType(Image), findsNWidgets(4));
+    expect(find.byType(GestureDetector), findsNWidgets(5));
+    expect(find.byType(Card), findsNWidgets(3));
+    expect(find.byType(Image), findsNWidgets(2));
 
     // Validate image loading
     final networkImages = tester.widgetList<Image>(find.byType(NetworkImage));
