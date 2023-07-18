@@ -22,9 +22,6 @@ void main() {
     final repeatPasswordField = find.byKey(const Key('repeatPasswordField'));
     final createAccountButton = find.widgetWithText(ElevatedButton, 'Create Account');
 
-
-
-
     await tester.enterText(emailField, 'google@gmail.com');
     expect(find.text('Invalid email'), findsNothing);
 
@@ -60,4 +57,26 @@ void main() {
     expect(find.byType(TextField).last, findsOneWidget);
     expect(tester.widget<TextField>(find.byType(TextField).last).obscureText, false);
   });
+
+  testWidgets('Invalid Email Validation Test', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: signUpPage));
+
+    await tester.enterText(find.byKey(const Key('emailField')), 'invalid_email');
+    await tester.pump();
+
+    expect(find.text('Invalid email'), findsOneWidget);
+  });
+
+  testWidgets('Valid Password Validation Test', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: signUpPage));
+
+    await tester.enterText(find.byKey(const Key('emailField')), 'test@gmail.com');
+    await tester.enterText(find.byKey(const Key('passwordField')), 'password123');
+    await tester.enterText(find.byKey(const Key('repeatPasswordField')), 'password123');
+    await tester.pump();
+
+    expect(find.text('Password must have at least 8 characters'), findsNothing);
+  });
+
+
 }

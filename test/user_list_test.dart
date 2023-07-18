@@ -7,13 +7,5 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: ListUsersPage()));
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-   /* await tester.pumpAndSettle();*/
-
-    /*expect(find.byType(ListTile), findsWidgets);*/
-
-    /*expect(find.text('Delete All'), findsOneWidget);*/
-
-   /* expect(find.text('No registered users!'), findsNothing);*/
   });
 }

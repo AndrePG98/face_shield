@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('User Detail Page - Element Visibility', (WidgetTester tester) async {
-    // Build the UserDetailPage widget
     await tester.pumpWidget(MaterialApp(home: UserDetailPage(
       id: 'test_id',
       email: 'test@example.com',
@@ -45,12 +44,6 @@ void main() {
     final cancelButton = find.widgetWithText(TextButton, 'Cancel');
     expect(cancelButton, findsOneWidget);
     await tester.tap(cancelButton);
-
-
-    /*await tester.tap(find.text('Edit').last); // necessario mock firebase
-    await tester.pumpAndSettle();
-
-    expect(find.text('newemail@example.com'), findsOneWidget);*/
   });
 
   testWidgets('User Detail Page - Delete Button', (WidgetTester tester) async {
@@ -74,12 +67,25 @@ void main() {
     final cancelButton = find.widgetWithText(TextButton, 'Cancel');
     expect(cancelButton, findsOneWidget);
     await tester.tap(cancelButton);
-
-    /*await tester.tap(find.text('Edit').last); // necessario mock firebase
-    await tester.pumpAndSettle();
-
-    expect(find.text('newemail@example.com'), findsOneWidget);*/
   });
 
+  testWidgets('User Detail Page - Delete Confirmation', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: UserDetailPage(
+      id: 'test_id',
+      email: 'test@example.com',
+      faceData: [1.0, 2.0, 3.0],
+    )));
 
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Do you want to delete this user?'), findsOneWidget);
+
+    final deleteButton = find.widgetWithText(ElevatedButton, 'Delete');
+    expect(deleteButton, findsOneWidget);
+
+    await tester.tap(deleteButton);
+    await tester.pumpAndSettle();
+  });
 }
+
