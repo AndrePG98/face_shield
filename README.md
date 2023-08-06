@@ -1,5 +1,7 @@
-# Face Shield
-
+<h1 style="display: flex; align-items: center;">
+  Face Shield
+  <img src="assets/images/icon.png" alt="Face Shield Logo" width="50" style="margin-left: 10px;"/>
+</h1>
 Face Shield is a Flutter mobile application that leverages advanced face recognition technology for secure user authentication and identity confirmation. The app offers a seamless and passwordless login experience by utilizing users' faces as their unique identification.
 
 ## Features
